@@ -17,8 +17,7 @@
 
         .text-amis-red { color: #E3002D; }
         .bg-amis-red { background-color: #E3002D; }
-        .border-amis-red { border-color: #E3002D; }
-
+        
         .weaving-pattern {
             height: 24px;
             width: 100%;
@@ -34,33 +33,18 @@
             opacity: 0.9;
         }
 
-        .course-card {
+        .lesson-card {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 4px solid transparent;
-            display: flex;
-            flex-direction: column;
         }
-        
-        .course-card:hover {
+        .lesson-card:hover {
             transform: translateY(-8px);
-            border-color: #E3002D;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
-
-        .hero-section {
-            background: linear-gradient(rgba(227, 0, 45, 0.9), rgba(185, 28, 28, 0.9)), url('https://images.unsplash.com/photo-1503676260728-1c00da094a0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80');
-            background-size: cover;
-            background-position: center;
-        }
-
-        .animate-float {
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0px); }
+        
+        .hero-pattern {
+            background-color: #E3002D;
+            background-image: radial-gradient(#ffffff 1px, transparent 1px);
+            background-size: 20px 20px;
         }
     </style>
 </head>
@@ -70,432 +54,187 @@
     <header class="bg-white shadow-md sticky top-0 z-50">
         <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <div class="w-12 h-12 bg-amis-red rounded-full flex items-center justify-center text-white font-bold text-2xl shadow-sm">
-                    T
-                </div>
+                <div class="w-12 h-12 bg-amis-red rounded-full flex items-center justify-center text-white font-bold text-2xl shadow-sm">T</div>
                 <div class="flex flex-col">
                     <span class="text-xl font-bold text-gray-800 tracking-wide leading-tight">阿美族語學習網</span>
                     <span class="text-sm text-gray-500 font-medium">太巴塱國小附設幼兒園</span>
                 </div>
             </div>
-            <div class="hidden md:flex space-x-6 text-gray-600 font-medium items-center">
-                <a href="#" class="text-amis-red font-bold">首頁</a>
-                <a href="#" class="bg-red-50 text-amis-red px-4 py-1 rounded-full text-sm font-bold border border-red-100">幼兒園官網</a>
-            </div>
-            <button class="md:hidden text-gray-600 text-2xl">
-                <i class="fa-solid fa-bars"></i>
-            </button>
         </div>
         <div class="weaving-pattern"></div>
     </header>
 
-    <!-- 歡迎區塊 -->
-    <div class="hero-section text-white py-16 px-4 text-center relative overflow-hidden">
-        <div class="relative z-10 max-w-3xl mx-auto">
-            <div class="inline-block bg-white/20 backdrop-blur-sm border border-white/30 rounded-full px-6 py-2 mb-6 animate-float">
-                <span class="text-yellow-300 font-bold tracking-wider text-lg shadow-black drop-shadow-md">
-                    <i class="fa-solid fa-school mr-2"></i>花蓮縣光復鄉太巴塱國民小學附設幼兒園
-                </span>
+    <!-- 歡迎橫幅 -->
+    <div class="hero-pattern text-white py-12 md:py-16 px-4 relative overflow-hidden">
+        <div class="max-w-4xl mx-auto text-center relative z-10">
+            <h1 class="text-3xl md:text-5xl font-bold mb-4 drop-shadow-md">Nga'ay ho! 歡迎來到母語教室</h1>
+            <p class="text-lg md:text-xl opacity-90 mb-8">讓我們一起快樂學習，傳承美麗的阿美族文化</p>
+            <div class="inline-block bg-white/20 backdrop-blur-sm px-6 py-2 rounded-full border border-white/30 text-sm font-bold">
+                <i class="fa-regular fa-calendar-check mr-2"></i>本學期課程列表
             </div>
-
-            <div class="mb-2">
-                <span class="bg-white/20 text-white px-4 py-1 rounded-full text-sm font-bold border border-white/30 inline-block">
-                    114學年第1學期
-                </span>
-            </div>
-
-            <h1 class="text-4xl md:text-6xl font-bold mb-4 drop-shadow-lg">Nga'ay ho! 小朋友好!</h1>
-            <p class="text-xl md:text-2xl opacity-90 mb-8 font-light">歡迎回到學校，我們從第 7 週開始一起加油！</p>
-            
-            <a href="#week-list" class="inline-block bg-yellow-400 text-gray-900 font-bold py-4 px-10 rounded-full shadow-xl hover:bg-yellow-300 transition transform hover:scale-105 border-b-4 border-yellow-600 active:border-b-0 active:translate-y-1">
-                開始上課囉 <i class="fa-solid fa-arrow-down ml-2"></i>
-            </a>
         </div>
-        <div class="absolute top-0 left-0 w-32 h-32 bg-white opacity-10 rounded-full -translate-x-10 -translate-y-10"></div>
-        <div class="absolute bottom-0 right-0 w-48 h-48 bg-white opacity-10 rounded-full translate-x-10 translate-y-10"></div>
+        <!-- 裝飾背景圓 -->
+        <div class="absolute top-0 left-0 w-64 h-64 bg-white opacity-10 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl"></div>
+        <div class="absolute bottom-0 right-0 w-96 h-96 bg-yellow-400 opacity-20 rounded-full translate-x-1/3 translate-y-1/3 blur-3xl"></div>
     </div>
 
-    <!-- 課程列表區 -->
-    <main id="week-list" class="flex-grow max-w-6xl mx-auto px-4 py-12 w-full">
+    <!-- 主要內容區 -->
+    <main class="flex-grow max-w-6xl mx-auto px-4 py-12 w-full">
         
-        <div class="flex items-center mb-8">
-            <div class="h-8 w-2 bg-amis-red rounded-full mr-3"></div>
-            <h2 class="text-2xl font-bold text-gray-800">本學期課程 (Week 7-21)</h2>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-
-            <!-- Week 7 -->
-            <div class="course-card bg-white rounded-2xl shadow-lg overflow-hidden group">
-                <div class="h-32 bg-green-50 relative overflow-hidden">
-                    <div class="absolute bottom-0 left-0 bg-amis-red text-white text-xs px-3 py-1 rounded-tr-lg font-bold shadow-sm z-10">Week 7</div>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <i class="fa-solid fa-mountain text-5xl text-green-200 group-hover:scale-110 transition duration-500"></i>
-                    </div>
-                </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h3 class="text-xl font-bold text-gray-800 mb-1">O maan kiraan?</h3>
-                    <p class="text-gray-500 text-sm mb-4">那是什麼？</p>
-                    
-                    <div class="border-t border-gray-100 pt-3 mb-4 mt-auto">
-                        <span class="text-xs font-bold text-amis-red bg-red-50 px-2 py-1 rounded-md mb-2 inline-block">單字</span>
-                        <p class="text-gray-600 font-medium">lotok(山), sa'owac(溪), nanom(水)</p>
-                    </div>
-
-                    <a href="learning/learning_week7.html" class="w-full block bg-blue-500 hover:bg-blue-600 text-white text-center font-bold py-3 rounded-xl shadow transition transform hover:scale-105">
-                        前往學習 <i class="fa-solid fa-arrow-right ml-1"></i>
-                    </a>
-                </div>
+        <!-- 課程列表容器 (由 JS 自動生成) -->
+        <div id="lessons-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- 內容會自動填入 -->
+            <div class="col-span-full text-center text-gray-500 py-10">
+                <i class="fa-solid fa-spinner fa-spin text-3xl mb-3"></i>
+                <p>正在載入課程...</p>
             </div>
-
-            <!-- Week 8 -->
-            <div class="course-card bg-white rounded-2xl shadow-lg overflow-hidden group">
-                <div class="h-32 bg-yellow-50 relative overflow-hidden">
-                    <div class="absolute bottom-0 left-0 bg-amis-red text-white text-xs px-3 py-1 rounded-tr-lg font-bold shadow-sm z-10">Week 8</div>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <i class="fa-regular fa-sun text-5xl text-yellow-300 group-hover:rotate-12 transition duration-500"></i>
-                    </div>
-                </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h3 class="text-xl font-bold text-gray-800 mb-1">Masadak to ko cidal!</h3>
-                    <p class="text-gray-500 text-sm mb-4">太陽出來了！</p>
-                    
-                    <div class="border-t border-gray-100 pt-3 mb-4 mt-auto">
-                        <span class="text-xs font-bold text-amis-red bg-red-50 px-2 py-1 rounded-md mb-2 inline-block">單字</span>
-                        <p class="text-gray-600 font-medium">cidal(太陽), folad(月亮), fo’is(星星)</p>
-                    </div>
-
-                    <a href="learning/learning_week8.html" class="w-full block bg-blue-500 hover:bg-blue-600 text-white text-center font-bold py-3 rounded-xl shadow transition transform hover:scale-105">
-                        前往學習 <i class="fa-solid fa-arrow-right ml-1"></i>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Week 9 -->
-            <div class="course-card bg-white rounded-2xl shadow-lg overflow-hidden group">
-                <div class="h-32 bg-blue-50 relative overflow-hidden">
-                    <div class="absolute bottom-0 left-0 bg-amis-red text-white text-xs px-3 py-1 rounded-tr-lg font-bold shadow-sm z-10">Week 9</div>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <i class="fa-solid fa-suitcase-medical text-5xl text-blue-200 group-hover:scale-110 transition duration-500"></i>
-                    </div>
-                </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h3 class="text-xl font-bold text-gray-800 mb-1">I cowa ko cacelakan?</h3>
-                    <p class="text-gray-500 text-sm mb-4">你的雨傘在哪裡？</p>
-                    
-                    <div class="border-t border-gray-100 pt-3 mb-4 mt-auto">
-                        <span class="text-xs font-bold text-amis-red bg-red-50 px-2 py-1 rounded-md mb-2 inline-block">單字</span>
-                        <p class="text-gray-600 font-medium">fakar(簍子), cacelakan(傘), fodoy(衣服)</p>
-                    </div>
-
-                    <a href="learning/learning_week9.html" class="w-full block bg-blue-500 hover:bg-blue-600 text-white text-center font-bold py-3 rounded-xl shadow transition transform hover:scale-105">
-                        前往學習 <i class="fa-solid fa-arrow-right ml-1"></i>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Week 10 -->
-            <div class="course-card bg-white rounded-2xl shadow-lg overflow-hidden group">
-                <div class="h-32 bg-orange-50 relative overflow-hidden">
-                    <div class="absolute bottom-0 left-0 bg-amis-red text-white text-xs px-3 py-1 rounded-tr-lg font-bold shadow-sm z-10">Week 10</div>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <i class="fa-solid fa-house-chimney text-5xl text-orange-200 group-hover:scale-110 transition duration-500"></i>
-                    </div>
-                </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h3 class="text-xl font-bold text-gray-800 mb-1">I cowa ko loma’ namo?</h3>
-                    <p class="text-gray-500 text-sm mb-4">你們家在哪裡？</p>
-                    
-                    <div class="border-t border-gray-100 pt-3 mb-4 mt-auto">
-                        <span class="text-xs font-bold text-amis-red bg-red-50 px-2 py-1 rounded-md mb-2 inline-block">單字</span>
-                        <p class="text-gray-600 font-medium">loma’(家), picodadan(學校), lotok(山)</p>
-                    </div>
-
-                    <a href="learning/learning_week10.html" class="w-full block bg-blue-500 hover:bg-blue-600 text-white text-center font-bold py-3 rounded-xl shadow transition transform hover:scale-105">
-                        前往學習 <i class="fa-solid fa-arrow-right ml-1"></i>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Week 11 -->
-            <div class="course-card bg-white rounded-2xl shadow-lg overflow-hidden group">
-                <div class="h-32 bg-red-50 relative overflow-hidden">
-                    <div class="absolute bottom-0 left-0 bg-amis-red text-white text-xs px-3 py-1 rounded-tr-lg font-bold shadow-sm z-10">Week 11</div>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <i class="fa-solid fa-person-running text-5xl text-red-200 group-hover:translate-x-4 transition duration-500"></i>
-                    </div>
-                </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h3 class="text-xl font-bold text-gray-800 mb-1">Tatayra kamo i picodadan.</h3>
-                    <p class="text-gray-500 text-sm mb-4">你們要去學校玩。</p>
-                    
-                    <div class="border-t border-gray-100 pt-3 mb-4 mt-auto">
-                        <span class="text-xs font-bold text-amis-red bg-red-50 px-2 py-1 rounded-md mb-2 inline-block">單字</span>
-                        <p class="text-gray-600 font-medium">tayni(來), tayra(去), misalama(玩)</p>
-                    </div>
-
-                    <a href="learning/learning_week11.html" class="w-full block bg-blue-500 hover:bg-blue-600 text-white text-center font-bold py-3 rounded-xl shadow transition transform hover:scale-105">
-                        前往學習 <i class="fa-solid fa-arrow-right ml-1"></i>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Week 12 -->
-            <div class="course-card bg-white rounded-2xl shadow-lg overflow-hidden group">
-                <div class="h-32 bg-indigo-50 relative overflow-hidden">
-                    <div class="absolute bottom-0 left-0 bg-amis-red text-white text-xs px-3 py-1 rounded-tr-lg font-bold shadow-sm z-10">Week 12</div>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <i class="fa-solid fa-map-location-dot text-5xl text-indigo-200 group-hover:scale-110 transition duration-500"></i>
-                    </div>
-                </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h3 class="text-xl font-bold text-gray-800 mb-1">I cowa ko niyaro’ namo?</h3>
-                    <p class="text-gray-500 text-sm mb-4">你們的部落在哪裡？</p>
-                    
-                    <div class="border-t border-gray-100 pt-3 mb-4 mt-auto">
-                        <span class="text-xs font-bold text-amis-red bg-red-50 px-2 py-1 rounded-md mb-2 inline-block">單字</span>
-                        <p class="text-gray-600 font-medium">niyaro’(部落), lotok(山), sa’owac(溪)</p>
-                    </div>
-
-                    <a href="learning/learning_week12.html" class="w-full block bg-blue-500 hover:bg-blue-600 text-white text-center font-bold py-3 rounded-xl shadow transition transform hover:scale-105">
-                        前往學習 <i class="fa-solid fa-arrow-right ml-1"></i>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Week 13 -->
-            <div class="course-card bg-white rounded-2xl shadow-lg overflow-hidden group">
-                <div class="h-32 bg-purple-50 relative overflow-hidden">
-                    <div class="absolute bottom-0 left-0 bg-amis-red text-white text-xs px-3 py-1 rounded-tr-lg font-bold shadow-sm z-10">Week 13</div>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <i class="fa-solid fa-user-doctor text-5xl text-purple-200 group-hover:scale-110 transition duration-500"></i>
-                    </div>
-                </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h3 class="text-xl font-bold text-gray-800 mb-1">O singsi kiso haw?</h3>
-                    <p class="text-gray-500 text-sm mb-4">你是老師嗎？</p>
-                    
-                    <div class="border-t border-gray-100 pt-3 mb-4 mt-auto">
-                        <span class="text-xs font-bold text-amis-red bg-red-50 px-2 py-1 rounded-md mb-2 inline-block">單字</span>
-                        <p class="text-gray-600 font-medium">tamdaw(人), ising(醫), singsi(師)</p>
-                    </div>
-
-                    <a href="learning/learning_week13.html" class="w-full block bg-blue-500 hover:bg-blue-600 text-white text-center font-bold py-3 rounded-xl shadow transition transform hover:scale-105">
-                        前往學習 <i class="fa-solid fa-arrow-right ml-1"></i>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Week 14: 物資超人 -->
-            <div class="course-card bg-white rounded-2xl shadow-lg overflow-hidden group ring-4 ring-red-100">
-                <div class="h-32 bg-pink-50 relative overflow-hidden">
-                    <div class="absolute bottom-0 left-0 bg-amis-red text-white text-xs px-3 py-1 rounded-tr-lg font-bold shadow-sm z-10">Week 14</div>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <i class="fa-solid fa-box-open text-5xl text-pink-200 group-hover:scale-110 transition duration-500"></i>
-                    </div>
-                    <!-- 標示 -->
-                    <div class="absolute top-2 right-2 bg-yellow-400 text-xs font-bold px-2 py-1 rounded-full shadow-md animate-bounce">
-                        New!
-                    </div>
-                </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h3 class="text-xl font-bold text-gray-800 mb-1">O maan kinian?</h3>
-                    <p class="text-gray-500 text-sm mb-4">這是什麼？</p>
-                    
-                    <div class="border-t border-gray-100 pt-3 mb-4 mt-auto">
-                        <span class="text-xs font-bold text-amis-red bg-red-50 px-2 py-1 rounded-md mb-2 inline-block">單字</span>
-                        <p class="text-gray-600 font-medium">kafong(帽), fodoy(衣), sapad(桌)</p>
-                    </div>
-
-                    <a href="learning/learning_week14.html" class="w-full block bg-blue-500 hover:bg-blue-600 text-white text-center font-bold py-3 rounded-xl shadow transition transform hover:scale-105">
-                        前往學習 <i class="fa-solid fa-arrow-right ml-1"></i>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Week 15: 鏟子超人 (準備中) -->
-            <div class="course-card bg-white rounded-2xl shadow-lg overflow-hidden opacity-90">
-                <div class="h-32 bg-gray-100 relative overflow-hidden">
-                    <div class="absolute bottom-0 left-0 bg-gray-600 text-white text-xs px-3 py-1 rounded-tr-lg font-bold z-10">Week 15</div>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <i class="fa-solid fa-hand-holding-heart text-5xl text-gray-300"></i>
-                    </div>
-                </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h3 class="text-xl font-bold text-gray-800 mb-1">O maan kinian?</h3>
-                    <p class="text-gray-500 text-sm mb-4">這是什麼？</p>
-                    
-                    <div class="border-t border-gray-100 pt-3 mt-auto mb-4">
-                        <span class="text-xs font-bold text-gray-400 bg-gray-50 px-2 py-1 rounded-md mb-2 inline-block">單字</span>
-                        <p class="text-gray-400 font-medium">kamay(手), wa’ay(腳), tangal(頭)</p>
-                    </div>
-
-                    <button class="w-full block bg-gray-100 text-gray-400 text-center font-bold py-3 rounded-xl cursor-not-allowed mt-auto">
-                        <i class="fa-solid fa-lock mr-2"></i>準備中
-                    </button>
-                </div>
-            </div>
-
-            <!-- Week 16 -->
-            <div class="course-card bg-white rounded-2xl shadow-lg overflow-hidden opacity-90">
-                <div class="h-32 bg-gray-100 relative overflow-hidden">
-                    <div class="absolute bottom-0 left-0 bg-gray-600 text-white text-xs px-3 py-1 rounded-tr-lg font-bold z-10">Week 16</div>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <i class="fa-solid fa-handshake text-5xl text-gray-300"></i>
-                    </div>
-                </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h3 class="text-xl font-bold text-gray-800 mb-1">Aray han niya kamo.</h3>
-                    <p class="text-gray-500 text-sm mb-4">我們謝謝你們。</p>
-                    
-                    <div class="border-t border-gray-100 pt-3 mt-auto mb-4">
-                        <span class="text-xs font-bold text-gray-400 bg-gray-50 px-2 py-1 rounded-md mb-2 inline-block">單字</span>
-                        <p class="text-gray-400 font-medium">aray(謝), nga’ay ho(好), na’on(心)</p>
-                    </div>
-
-                    <button class="w-full block bg-gray-100 text-gray-400 text-center font-bold py-3 rounded-xl cursor-not-allowed mt-auto">
-                        <i class="fa-solid fa-lock mr-2"></i>準備中
-                    </button>
-                </div>
-            </div>
-
-            <!-- Week 17 -->
-            <div class="course-card bg-white rounded-2xl shadow-lg overflow-hidden opacity-90">
-                <div class="h-32 bg-gray-100 relative overflow-hidden">
-                    <div class="absolute bottom-0 left-0 bg-gray-600 text-white text-xs px-3 py-1 rounded-tr-lg font-bold z-10">Week 17</div>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <i class="fa-solid fa-music text-5xl text-gray-300"></i>
-                    </div>
-                </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h3 class="text-xl font-bold text-gray-800 mb-1">Maolah kako a romadiw.</h3>
-                    <p class="text-gray-500 text-sm mb-4">我喜歡唱歌。</p>
-                    
-                    <div class="border-t border-gray-100 pt-3 mt-auto mb-4">
-                        <span class="text-xs font-bold text-gray-400 bg-gray-50 px-2 py-1 rounded-md mb-2 inline-block">單字</span>
-                        <p class="text-gray-400 font-medium">romadiw(唱), masakero(跳), mirenaf(畫)</p>
-                    </div>
-
-                    <button class="w-full block bg-gray-100 text-gray-400 text-center font-bold py-3 rounded-xl cursor-not-allowed mt-auto">
-                        <i class="fa-solid fa-lock mr-2"></i>準備中
-                    </button>
-                </div>
-            </div>
-
-            <!-- Week 18 -->
-            <div class="course-card bg-white rounded-2xl shadow-lg overflow-hidden opacity-90">
-                <div class="h-32 bg-gray-100 relative overflow-hidden">
-                    <div class="absolute bottom-0 left-0 bg-gray-600 text-white text-xs px-3 py-1 rounded-tr-lg font-bold z-10">Week 18</div>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <i class="fa-solid fa-video text-5xl text-gray-300"></i>
-                    </div>
-                </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h3 class="text-xl font-bold text-gray-800 mb-1">O hanghang no mako ciira.</h3>
-                    <p class="text-gray-500 text-sm mb-4">他是我的朋友。</p>
-                    
-                    <div class="border-t border-gray-100 pt-3 mt-auto mb-4">
-                        <span class="text-xs font-bold text-gray-400 bg-gray-50 px-2 py-1 rounded-md mb-2 inline-block">單字</span>
-                        <p class="text-gray-400 font-medium">hanghang(友), wawa(孩), tamdaw(人)</p>
-                    </div>
-
-                    <button class="w-full block bg-gray-100 text-gray-400 text-center font-bold py-3 rounded-xl cursor-not-allowed mt-auto">
-                        <i class="fa-solid fa-lock mr-2"></i>準備中
-                    </button>
-                </div>
-            </div>
-
-            <!-- Week 19 -->
-            <div class="course-card bg-white rounded-2xl shadow-lg overflow-hidden opacity-90">
-                <div class="h-32 bg-gray-100 relative overflow-hidden">
-                    <div class="absolute bottom-0 left-0 bg-gray-600 text-white text-xs px-3 py-1 rounded-tr-lg font-bold z-10">Week 19</div>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <i class="fa-solid fa-champagne-glasses text-5xl text-gray-300"></i>
-                    </div>
-                </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h3 class="text-xl font-bold text-gray-800 mb-1">Malalok kora tamdaw haw?</h3>
-                    <p class="text-gray-500 text-sm mb-4">那個人很勤勞嗎？</p>
-                    
-                    <div class="border-t border-gray-100 pt-3 mt-auto mb-4">
-                        <span class="text-xs font-bold text-gray-400 bg-gray-50 px-2 py-1 rounded-md mb-2 inline-block">單字</span>
-                        <p class="text-gray-400 font-medium">aray(謝), matoka(懶), malalok(勤)</p>
-                    </div>
-
-                    <button class="w-full block bg-gray-100 text-gray-400 text-center font-bold py-3 rounded-xl cursor-not-allowed mt-auto">
-                        <i class="fa-solid fa-lock mr-2"></i>準備中
-                    </button>
-                </div>
-            </div>
-
-            <!-- Week 20 -->
-            <div class="course-card bg-white rounded-2xl shadow-lg overflow-hidden opacity-90">
-                <div class="h-32 bg-gray-100 relative overflow-hidden">
-                    <div class="absolute bottom-0 left-0 bg-gray-600 text-white text-xs px-3 py-1 rounded-tr-lg font-bold z-10">Week 20</div>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <i class="fa-solid fa-people-roof text-5xl text-gray-300"></i>
-                    </div>
-                </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h3 class="text-xl font-bold text-gray-800 mb-1">Papina ko paro no loma’?</h3>
-                    <p class="text-gray-500 text-sm mb-4">你們家有幾個人？</p>
-                    
-                    <div class="border-t border-gray-100 pt-3 mt-auto mb-4">
-                        <span class="text-xs font-bold text-gray-400 bg-gray-50 px-2 py-1 rounded-md mb-2 inline-block">單字</span>
-                        <p class="text-gray-400 font-medium">mama(爸), ina(媽), wawa(孩)</p>
-                    </div>
-
-                    <button class="w-full block bg-gray-100 text-gray-400 text-center font-bold py-3 rounded-xl cursor-not-allowed mt-auto">
-                        <i class="fa-solid fa-lock mr-2"></i>準備中
-                    </button>
-                </div>
-            </div>
-
-            <!-- Week 21 -->
-            <div class="course-card bg-white rounded-2xl shadow-lg overflow-hidden opacity-90">
-                <div class="h-32 bg-gray-100 relative overflow-hidden">
-                    <div class="absolute bottom-0 left-0 bg-gray-600 text-white text-xs px-3 py-1 rounded-tr-lg font-bold z-10">Week 21</div>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <i class="fa-solid fa-star text-5xl text-gray-300"></i>
-                    </div>
-                </div>
-                <div class="p-6 flex flex-col flex-grow">
-                    <h3 class="text-xl font-bold text-gray-800 mb-1">Mafana’ kako a masakero.</h3>
-                    <p class="text-gray-500 text-sm mb-4">我會跳舞。</p>
-                    
-                    <div class="border-t border-gray-100 pt-3 mt-auto mb-4">
-                        <span class="text-xs font-bold text-gray-400 bg-gray-50 px-2 py-1 rounded-md mb-2 inline-block">單字</span>
-                        <p class="text-gray-400 font-medium">romadiw(唱), masakero(跳), misalama(玩)</p>
-                    </div>
-
-                    <button class="w-full block bg-gray-100 text-gray-400 text-center font-bold py-3 rounded-xl cursor-not-allowed mt-auto">
-                        <i class="fa-solid fa-lock mr-2"></i>準備中
-                    </button>
-                </div>
-            </div>
-
         </div>
 
     </main>
 
     <!-- 頁尾 -->
-    <footer class="bg-gray-800 text-gray-300 py-10 mt-8">
+    <footer class="bg-gray-800 text-gray-300 py-10 mt-auto">
         <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
             <div class="mb-6 md:mb-0 text-center md:text-left">
-                <h4 class="text-white font-bold text-xl mb-2">太巴塱國民小學附設幼兒園</h4>
+                <h4 class="text-white font-bold text-xl mb-2">花蓮縣光復鄉太巴塱國民小學附設幼兒園</h4>
                 <p class="text-sm opacity-80"><i class="fa-solid fa-location-dot mr-2"></i>花蓮縣光復鄉中正路二段23號</p>
                 <p class="text-sm opacity-80 mt-1">傳承文化，快樂學習</p>
             </div>
-            <div class="flex space-x-6 text-2xl">
-                <a href="#" class="text-gray-400 hover:text-white transition transform hover:scale-110"><i class="fa-brands fa-facebook"></i></a>
-                <a href="#" class="text-gray-400 hover:text-white transition transform hover:scale-110"><i class="fa-solid fa-globe"></i></a>
+            <div class="border-t border-gray-700 mt-8 pt-6 text-center text-xs text-gray-500 w-full md:w-auto md:border-t-0 md:mt-0">
+                &copy; 2023 Tafalong Elementary School Preschool.
             </div>
-        </div>
-        <div class="border-t border-gray-700 mt-8 pt-6 text-center text-xs text-gray-500">
-            &copy; 2023 Tafalong Elementary School Preschool. All rights reserved.
         </div>
     </footer>
 
-</body>
+    <!-- ========================================== -->
+    <!--          JAVASCRIPT 設定與邏輯區           -->
+    <!-- ========================================== -->
+    <script>
+        // =================================================================
+        // ★★★ 請在此處修改首頁顯示的課程列表 ★★★
+        // =================================================================
+        
+        const websiteData = {
+            // 課程列表
+            // status 可選: 'new'(最新), 'hot'(熱門), 'lock'(未開放), ''(無)
+            // icon 可選: 參考 FontAwesome (例如 fa-shirt, fa-utensils, fa-cloud...)
+            // color 可選: red, orange, yellow, green, teal, blue, indigo, purple, pink
+            lessons: [
+                {
+                    week: "第 14 週",
+                    title: "這是什麼？",
+                    subtitle: "O maan kinian?",
+                    desc: "學習如何詢問物品名稱，以及認識帽子、衣服等生活用品。",
+                    icon: "fa-shirt",
+                    color: "orange",
+                    status: "new",
+                    link: "learning/learning_week14.html"
+                },
+                {
+                    week: "第 13 週",
+                    title: "我的身體",
+                    subtitle: "O tireng no mako",
+                    desc: "認識身體部位，眼睛、鼻子、嘴巴怎麼說？",
+                    icon: "fa-child-reaching",
+                    color: "blue",
+                    status: "",
+                    link: "#" // 若還沒做好，可以先放 #
+                },
+                {
+                    week: "第 12 週",
+                    title: "好吃的食物",
+                    subtitle: "Ka'enso'ay aakaen",
+                    desc: "介紹阿美族的傳統美食，阿里鳳鳳、杜侖...",
+                    icon: "fa-bowl-rice",
+                    color: "green",
+                    status: "",
+                    link: "#"
+                },
+                {
+                    week: "第 15 週",
+                    title: "尚未開放",
+                    subtitle: "Coming Soon",
+                    desc: "敬請期待下週的精彩課程內容！",
+                    icon: "fa-lock",
+                    color: "gray",
+                    status: "lock",
+                    link: "#"
+                }
+            ]
+        };
 
+        // =================================================================
+        // 下方程式碼負責產生卡片，不需要修改
+        // =================================================================
+
+        function renderLessons() {
+            const container = document.getElementById('lessons-container');
+            container.innerHTML = '';
+
+            websiteData.lessons.forEach(lesson => {
+                // 定義顏色樣式
+                const colors = {
+                    red:    { bg: 'bg-red-500',    text: 'text-red-600',    light: 'bg-red-50',    border: 'border-red-200' },
+                    orange: { bg: 'bg-orange-500', text: 'text-orange-600', light: 'bg-orange-50', border: 'border-orange-200' },
+                    yellow: { bg: 'bg-yellow-500', text: 'text-yellow-600', light: 'bg-yellow-50', border: 'border-yellow-200' },
+                    green:  { bg: 'bg-green-500',  text: 'text-green-600',  light: 'bg-green-50',  border: 'border-green-200' },
+                    teal:   { bg: 'bg-teal-500',   text: 'text-teal-600',   light: 'bg-teal-50',   border: 'border-teal-200' },
+                    blue:   { bg: 'bg-blue-500',   text: 'text-blue-600',   light: 'bg-blue-50',   border: 'border-blue-200' },
+                    indigo: { bg: 'bg-indigo-500', text: 'text-indigo-600', light: 'bg-indigo-50', border: 'border-indigo-200' },
+                    purple: { bg: 'bg-purple-500', text: 'text-purple-600', light: 'bg-purple-50', border: 'border-purple-200' },
+                    pink:   { bg: 'bg-pink-500',   text: 'text-pink-600',   light: 'bg-pink-50',   border: 'border-pink-200' },
+                    gray:   { bg: 'bg-gray-500',   text: 'text-gray-600',   light: 'bg-gray-50',   border: 'border-gray-200' }
+                };
+                
+                const theme = colors[lesson.color] || colors.blue;
+                
+                // 處理狀態標籤
+                let statusBadge = '';
+                if (lesson.status === 'new') {
+                    statusBadge = `<span class="absolute top-4 right-4 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-md shadow-sm animate-pulse">NEW</span>`;
+                } else if (lesson.status === 'lock') {
+                    statusBadge = `<span class="absolute top-4 right-4 bg-gray-400 text-white text-xs font-bold px-2 py-1 rounded-md shadow-sm"><i class="fa-solid fa-lock mr-1"></i>LOCKED</span>`;
+                }
+
+                // 處理連結點擊 (若是 lock 則不能點)
+                const isLocked = lesson.status === 'lock';
+                const linkAttr = isLocked ? 'javascript:void(0)' : `href="${lesson.link}"`;
+                const cursorClass = isLocked ? 'cursor-not-allowed opacity-75 grayscale' : 'cursor-pointer';
+
+                const html = `
+                    <a ${linkAttr} class="lesson-card group relative bg-white rounded-2xl overflow-hidden shadow-md border border-gray-100 flex flex-col ${cursorClass}">
+                        ${statusBadge}
+                        <div class="h-32 ${theme.bg} relative overflow-hidden">
+                             <!-- 背景裝飾圖案 -->
+                             <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(white 1px, transparent 1px); background-size: 10px 10px;"></div>
+                             <div class="absolute -bottom-6 -right-6 text-white opacity-20 transform rotate-12 group-hover:scale-110 transition duration-500">
+                                <i class="fa-solid ${lesson.icon} text-9xl"></i>
+                             </div>
+                             <div class="absolute bottom-4 left-6 text-white">
+                                <span class="inline-block bg-white/20 backdrop-blur-md px-2 py-0.5 rounded text-xs font-bold mb-1 border border-white/20">${lesson.week}</span>
+                                <h3 class="text-2xl font-bold tracking-wide">${lesson.title}</h3>
+                             </div>
+                        </div>
+                        <div class="p-6 flex-grow flex flex-col">
+                            <h4 class="text-sm font-bold text-gray-400 mb-2 uppercase tracking-wider">${lesson.subtitle}</h4>
+                            <p class="text-gray-600 text-sm leading-relaxed mb-4 flex-grow">${lesson.desc}</p>
+                            
+                            <div class="mt-auto pt-4 border-t border-gray-100 flex justify-between items-center">
+                                <span class="text-xs font-bold ${theme.text} bg-white px-2 py-1 rounded border ${theme.border}">
+                                    <i class="fa-solid fa-book-open mr-1"></i> 開始學習
+                                </span>
+                                <div class="w-8 h-8 rounded-full ${theme.light} flex items-center justify-center ${theme.text} group-hover:translate-x-1 transition">
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                `;
+                container.innerHTML += html;
+            });
+        }
+
+        window.onload = renderLessons;
+    </script>
+</body>
 </html>
