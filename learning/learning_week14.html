@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>太巴塱國小附設幼兒園 - 阿美族語學習網 - 第14週線上學習</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f3f4f6;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23e5e7eb' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .text-amis-red { color: #E3002D; }
+        .bg-amis-red { background-color: #E3002D; }
+        .border-amis-red { border-color: #E3002D; }
+
+        .weaving-pattern {
+            height: 24px;
+            width: 100%;
+            background-image: 
+                linear-gradient(135deg, #000000 25%, transparent 25%), 
+                linear-gradient(225deg, #000000 25%, transparent 25%), 
+                linear-gradient(45deg, #000000 25%, transparent 25%), 
+                linear-gradient(315deg, #000000 25%, transparent 25%);
+            background-position: 12px 0, 12px 0, 0 0, 0 0;
+            background-size: 24px 24px;
+            background-repeat: repeat-x;
+            background-color: #ffffff;
+            opacity: 0.9;
+        }
+
+        /* 卡片效果 */
+        .vocab-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .vocab-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+
+        /* 對話框 */
+        .chat-bubble {
+            position: relative;
+            padding: 15px 20px;
+            border-radius: 20px;
+            max-width: 80%;
+            margin-bottom: 20px;
+        }
+        .chat-left {
+            background-color: white;
+            border: 2px solid #e5e7eb;
+            border-bottom-left-radius: 2px;
+            margin-right: auto;
+        }
+        .chat-right {
+            background-color: #FEF3C7;
+            border: 2px solid #FCD34D;
+            border-bottom-right-radius: 2px;
+            margin-left: auto;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- 頂部導覽列 (與首頁一致) -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 bg-amis-red rounded-full flex items-center justify-center text-white font-bold text-2xl shadow-sm">
+                    T
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-xl font-bold text-gray-800 tracking-wide leading-tight">阿美族語學習網</span>
+                    <span class="text-sm text-gray-500 font-medium">太巴塱國小附設幼兒園</span>
+                </div>
+            </div>
+            <!-- 右側功能 (可選) -->
+            <div class="hidden md:block">
+                <a href="../index.html" class="text-gray-500 hover:text-amis-red font-bold transition flex items-center">
+                    <i class="fa-solid fa-house mr-2"></i>回首頁
+                </a>
+            </div>
+        </div>
+        <div class="weaving-pattern"></div>
+    </header>
+
+    <main class="flex-grow max-w-4xl mx-auto px-4 py-8 w-full space-y-10">
+
+        <!-- 頁面標題 -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">第14週線上學習</h1>
+            <div class="h-1 w-20 bg-amis-red mx-auto rounded-full"></div>
+        </div>
+
+        <!-- 1. 句型練習區 -->
+        <section>
+            <div class="flex items-center mb-6">
+                <div class="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center text-white mr-3 shadow-md">
+                    <i class="fa-solid fa-comments"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800">句型練習</h2>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-2 border-gray-100">
+                
+                <!-- 老師問 -->
+                <div class="flex items-end mb-6">
+                    <div class="w-12 h-12 rounded-full bg-gray-200 flex-shrink-0 mr-4 overflow-hidden border-2 border-white shadow-sm flex items-center justify-center">
+                        <i class="fa-solid fa-user-tie text-2xl text-gray-400"></i>
+                    </div>
+                    <div class="chat-bubble chat-left">
+                        <div class="text-gray-500 text-xs font-bold mb-1">老師 (Singsi)</div>
+                        <p class="text-xl font-bold text-gray-800">O maan kinian?</p>
+                        <p class="text-gray-500 text-sm mt-1">這是什麼？</p>
+                        <button onclick="playAudio('audio/question_o_maan_kinian.wav')" class="absolute -right-10 bottom-0 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 hover:text-amis-red hover:bg-red-50 transition shadow-sm">
+                            <i class="fa-solid fa-volume-high"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 小朋友答 -->
+                <div class="flex items-end flex-row-reverse">
+                    <div class="w-12 h-12 rounded-full bg-yellow-100 flex-shrink-0 ml-4 overflow-hidden border-2 border-white shadow-sm flex items-center justify-center">
+                        <i class="fa-solid fa-child text-2xl text-yellow-500"></i>
+                    </div>
+                    <div class="chat-bubble chat-right">
+                        <div class="text-yellow-700 text-xs font-bold mb-1 text-right">小朋友 (Wawa)</div>
+                        <p class="text-xl font-bold text-gray-800">O kafong kinian.</p>
+                        <p class="text-gray-500 text-sm mt-1 text-right">這是帽子。</p>
+                        <button onclick="playAudio('audio/sentence_tamohong.wav')" class="absolute -left-10 bottom-0 w-8 h-8 bg-yellow-50 rounded-full flex items-center justify-center text-yellow-600 hover:bg-yellow-200 transition shadow-sm">
+                            <i class="fa-solid fa-volume-high"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 2. 單字學習區 -->
+        <section>
+            <div class="flex items-center mb-6">
+                <div class="w-10 h-10 bg-amis-red rounded-full flex items-center justify-center text-white mr-3 shadow-md">
+                    <i class="fa-solid fa-book"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800">單字練習</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <!-- 單字 1: 帽子 -->
+                <div class="vocab-card bg-white rounded-2xl overflow-hidden shadow-md border-b-4 border-orange-500">
+                    <div class="h-48 bg-gray-100 flex items-center justify-center relative group cursor-pointer border-b border-gray-100" onclick="playAudio('audio/tamohong.wav')">
+                        <img src="images/tamohong.jpg" class="w-full h-full object-contain p-4" alt="帽子" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2663/2663046.png'">
+                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition flex items-center justify-center">
+                            <i class="fa-solid fa-volume-high text-white opacity-0 group-hover:opacity-100 text-4xl drop-shadow-md"></i>
+                        </div>
+                    </div>
+                    <div class="p-5 text-center">
+                        <h3 class="text-3xl font-bold text-gray-800 mb-1">kafong</h3>
+                        <p class="text-xs text-gray-400 mb-2">(或 tamohong)</p>
+                        <p class="text-gray-500 text-lg">帽子</p>
+                        <button onclick="playAudio('audio/tamohong.wav')" class="mt-4 w-full bg-orange-50 hover:bg-orange-100 text-orange-600 py-2 rounded-lg font-bold transition text-sm flex items-center justify-center">
+                            <i class="fa-solid fa-play mr-2"></i> 聽發音
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 單字 2: 衣服 -->
+                <div class="vocab-card bg-white rounded-2xl overflow-hidden shadow-md border-b-4 border-blue-500">
+                    <div class="h-48 bg-gray-100 flex items-center justify-center relative group cursor-pointer border-b border-gray-100" onclick="playAudio('audio/fodoy.wav')">
+                        <img src="images/fodoy.jpg" class="w-full h-full object-contain p-4" alt="衣服" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2806/2806161.png'">
+                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition flex items-center justify-center">
+                            <i class="fa-solid fa-volume-high text-white opacity-0 group-hover:opacity-100 text-4xl drop-shadow-md"></i>
+                        </div>
+                    </div>
+                    <div class="p-5 text-center">
+                        <h3 class="text-3xl font-bold text-gray-800 mb-1">fodoy</h3>
+                        <p class="text-gray-500 text-lg mt-2">衣服</p>
+                        <button onclick="playAudio('audio/fodoy.wav')" class="mt-4 w-full bg-blue-50 hover:bg-blue-100 text-blue-600 py-2 rounded-lg font-bold transition text-sm flex items-center justify-center">
+                            <i class="fa-solid fa-play mr-2"></i> 聽發音
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 單字 3: 桌子 -->
+                <div class="vocab-card bg-white rounded-2xl overflow-hidden shadow-md border-b-4 border-amber-600">
+                    <div class="h-48 bg-gray-100 flex items-center justify-center relative group cursor-pointer border-b border-gray-100" onclick="playAudio('audio/sapad.wav')">
+                        <img src="images/sapad.jpg" class="w-full h-full object-contain p-4" alt="桌子" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1663/1663944.png'">
+                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition flex items-center justify-center">
+                            <i class="fa-solid fa-volume-high text-white opacity-0 group-hover:opacity-100 text-4xl drop-shadow-md"></i>
+                        </div>
+                    </div>
+                    <div class="p-5 text-center">
+                        <h3 class="text-3xl font-bold text-gray-800 mb-1">sapad</h3>
+                        <p class="text-gray-500 text-lg mt-2">桌子</p>
+                        <button onclick="playAudio('audio/sapad.wav')" class="mt-4 w-full bg-amber-50 hover:bg-amber-100 text-amber-600 py-2 rounded-lg font-bold transition text-sm flex items-center justify-center">
+                            <i class="fa-solid fa-play mr-2"></i> 聽發音
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 3. 功能按鈕區 -->
+        <section class="bg-red-50 rounded-3xl p-8 text-center border-2 border-red-100 mt-10">
+            <h3 class="text-xl font-bold text-gray-800 mb-6">學習挑戰區</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
+                
+                <!-- 下載學習單 -->
+                <a href="#" onclick="alert('學習單尚未上傳喔！')" class="flex items-center justify-center bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-200 font-bold py-4 px-6 rounded-xl transition shadow-sm hover:shadow-md group">
+                    <i class="fa-solid fa-file-arrow-down text-2xl mr-3 text-blue-500 group-hover:scale-110 transition"></i>
+                    <div class="text-left">
+                        <div class="text-lg">下載學習單</div>
+                        <div class="text-xs text-gray-400">PDF 練習檔案</div>
+                    </div>
+                </a>
+
+                <!-- 遊戲挑戰 -->
+                <a href="game/game_week14.html" class="flex items-center justify-center bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-6 rounded-xl transition shadow-md hover:shadow-lg hover:scale-105 transform">
+                    <i class="fa-solid fa-gamepad text-3xl mr-3 text-yellow-300"></i>
+                    <div class="text-left">
+                        <div class="text-lg">遊戲挑戰</div>
+                        <div class="text-xs text-red-200">測驗看看學會了嗎？</div>
+                    </div>
+                </a>
+
+            </div>
+        </section>
+
+        <!-- 底部導覽 -->
+        <div class="text-center pt-8 pb-4">
+            <a href="../index.html" class="inline-flex items-center text-gray-500 hover:text-amis-red font-bold transition px-4 py-2 rounded-full hover:bg-white">
+                <i class="fa-solid fa-house mr-2"></i> 回網站首頁
+            </a>
+        </div>
+
+    </main>
+
+    <!-- 頁尾 (與首頁一致) -->
+    <footer class="bg-gray-800 text-gray-300 py-10 mt-8">
+        <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
+            <div class="mb-6 md:mb-0 text-center md:text-left">
+                <h4 class="text-white font-bold text-xl mb-2">花蓮縣光復鄉太巴塱國民小學附設幼兒園</h4>
+                <p class="text-sm opacity-80"><i class="fa-solid fa-location-dot mr-2"></i>花蓮縣光復鄉中正路二段23號</p>
+                <p class="text-sm opacity-80 mt-1">傳承文化，快樂學習</p>
+            </div>
+            <div class="flex space-x-6 text-2xl">
+                <a href="#" class="text-gray-400 hover:text-white transition transform hover:scale-110"><i class="fa-brands fa-facebook"></i></a>
+                <a href="#" class="text-gray-400 hover:text-white transition transform hover:scale-110"><i class="fa-solid fa-globe"></i></a>
+            </div>
+        </div>
+        <div class="border-t border-gray-700 mt-8 pt-6 text-center text-xs text-gray-500">
+            &copy; 2023 Tafalong Elementary School Preschool. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- 音效播放器 -->
+    <audio id="audio-player"></audio>
+
+    <script>
+        function playAudio(src) {
+            const player = document.getElementById('audio-player');
+            player.src = src;
+            const playPromise = player.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    console.log("Audio not found: " + src);
+                });
+            }
+        }
+    </script>
+
+</body>
+</html>
