@@ -37,6 +37,9 @@ const AuthSystem = {
             });
 
             const data = await response.json();
+            
+            // ★★★ Debug: 在控制台顯示伺服器回傳的內容 ★★★
+            console.log("GAS Response:", data);
 
             if (data.status === "success") {
                 this.currentUser = { userID: data.userID, name: data.name };
@@ -50,12 +53,14 @@ const AuthSystem = {
                 }
                 return true;
             } else {
-                alert("登入失敗：" + data.message);
+                // ★★★ 修改：如果沒有 message，顯示完整資料以便除錯 ★★★
+                const errorMsg = data.message || ("系統未回傳錯誤訊息 (可能是 GAS 未更新版本): " + JSON.stringify(data));
+                alert("登入失敗：" + errorMsg);
                 return false;
             }
         } catch (error) {
             console.error(error);
-            alert("連線錯誤");
+            alert("連線錯誤：請確認 Google Apps Script 部署權限是否為「所有人 (Anyone)」。");
         } finally {
             this.hideLoading();
         }
@@ -94,8 +99,13 @@ const AuthSystem = {
             });
             const data = await response.json();
             if(data.status === "success") this.showToast(`成績已上傳！(${score}分)`);
+            else {
+                 console.error("上傳失敗:", data);
+                 this.showToast("成績上傳失敗：" + (data.message || "未知錯誤"));
+            }
         } catch (e) {
-            this.showToast("成績上傳失敗");
+            console.error(e);
+            this.showToast("成績上傳失敗 (連線錯誤)");
         } finally {
             this.hideLoading();
         }
@@ -138,13 +148,16 @@ const AuthSystem = {
                 } else {
                     // 計算還差幾個
                     let failList = [];
-                    for(const [game, score] of Object.entries(data.scores)) {
-                        if(score < 60) failList.push(game);
+                    // 簡單檢查機制
+                    if (data.scores) {
+                        for(const [game, score] of Object.entries(data.scores)) {
+                            if(score < 60) failList.push(game);
+                        }
                     }
-                    alert(`很可惜，你還有遊戲未完成或未達 60 分喔！\n加油，再試試看！`);
+                    alert(`很可惜，還有遊戲未完成或未達 60 分喔！\n請繼續加油！`);
                 }
             } else {
-                alert("查詢失敗：" + data.message);
+                alert("查詢失敗：" + (data.message || JSON.stringify(data)));
             }
 
         } catch (e) {
@@ -200,7 +213,6 @@ const AuthSystem = {
         });
     },
 
-    // ... (以下的 renderUI, showLoginModal 等 UI 程式碼保持原本的樣子，不用動) ...
     // ===========================================
     // UI 相關程式碼
     // ===========================================
