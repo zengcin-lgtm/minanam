@@ -130,7 +130,7 @@
                     <span>開始遊戲</span>
                 </button>
                 
-                <p class="text-xs text-gray-400 mt-4">* 記得先在右上角登入，才能儲存成績喔！</p>
+                <p class="text-xs text-gray-400 mt-4">* 登入後可紀錄成績；不登入亦可直接遊玩</p>
             </div>
 
             <!-- 2. 遊戲進行畫面 -->
@@ -190,13 +190,17 @@
                 this.questions = [];
             }
 
-            // 修改：點擊開始時，使用 AuthSystem 檢查
+            // 修改：點擊開始時，使用 AuthSystem 檢查，但允許不登入遊玩
             start() {
-                // 如果還沒登入，跳出登入視窗
+                // 如果還沒登入，跳出詢問
                 if (!AuthSystem.currentUser) {
-                    alert("請先登入，才能紀錄成績喔！");
-                    AuthSystem.showLoginModal();
-                    return;
+                    const wantToLogin = confirm("【提醒】\n您目前尚未登入，直接遊玩將「無法儲存成績」喔！\n\n按「確定」前往登入\n按「取消」直接開始遊戲");
+                    
+                    if (wantToLogin) {
+                        AuthSystem.showLoginModal();
+                        return; // 中斷，等待使用者登入
+                    }
+                    // 使用者按取消 -> 繼續執行，進入遊戲 (不強制登入)
                 }
                 
                 // 開始遊戲流程
@@ -326,8 +330,10 @@
                 else feedbackText.innerText = "加油！Saʼicelen!再試一次會更好！";
 
                 // ★★★ 自動上傳成績 (改用 auth.js) ★★★
-                // 請確認 Google Sheet 上有 "game14" 這個欄位
-                AuthSystem.submitScore("game14", this.score);
+                // 修改：只有「已登入」的使用者才上傳成績，避免未登入者跳出警告
+                if (AuthSystem.currentUser) {
+                    AuthSystem.submitScore("game14", this.score);
+                }
             }
         }
         const game = new Game();
