@@ -1,5 +1,5 @@
 /**
- * 阿美族語學習網 - 會員與成績系統 (v2.0 Debug版)
+ * 阿美族語學習網 - 會員與成績系統 (v2.1 修正欄位版)
  */
 
 const AuthSystem = {
@@ -9,7 +9,7 @@ const AuthSystem = {
     currentUser: null,
 
     init: function() {
-        console.log("AuthSystem v2.0 初始化中..."); // 用來確認是否載入新版
+        console.log("AuthSystem v2.1 初始化中..."); 
         this.checkLoginStatus();
         this.injectStyles();
         if (document.readyState === 'loading') {
@@ -44,7 +44,6 @@ const AuthSystem = {
                 body: JSON.stringify({ action: "login", userID: userID, password: password })
             });
 
-            // ★★★ 修改：先讀取文字，避免 JSON 解析失敗導致程式崩潰 ★★★
             const text = await response.text();
             console.log("GAS 原始回傳:", text);
 
@@ -53,31 +52,31 @@ const AuthSystem = {
                 data = JSON.parse(text);
             } catch (e) {
                 console.error("JSON 解析失敗", e);
-                alert("伺服器錯誤：回傳格式不正確 (可能是 HTML 錯誤頁面)。\n請檢查 GAS 部署設定。");
+                alert("伺服器錯誤：回傳格式不正確。\n" + text);
                 return false;
             }
 
-            if (data.status === "success") {
+            // ★★★ 修改重點：同時支援 status 和 result 欄位 ★★★
+            // 有些 GAS 範本回傳 status，有些回傳 result，這裡做兼容處理
+            if (data.status === "success" || data.result === "success") {
                 this.currentUser = { userID: data.userID, name: data.name };
                 localStorage.setItem('amis_user', JSON.stringify(this.currentUser));
                 alert(`登入成功！歡迎 ${data.name} 同學`);
                 this.closeModal();
                 this.renderUI();
                 
-                // 重新整理頁面以更新狀態
                 if(location.pathname.endsWith('index.html') || location.pathname.endsWith('/')) {
                     setTimeout(() => location.reload(), 500);
                 }
                 return true;
             } else {
-                // 確保錯誤訊息一定顯示出來
-                const msg = data.message ? data.message : "未知錯誤 (無錯誤訊息)";
-                alert("登入失敗：" + msg);
+                const msg = data.message ? data.message : ("登入失敗 (錯誤碼: " + JSON.stringify(data) + ")");
+                alert(msg);
                 return false;
             }
         } catch (error) {
             console.error("連線過程發生錯誤:", error);
-            alert("連線錯誤：無法連接到 Google 伺服器。\n請檢查網路，或確認 GAS 網址正確。");
+            alert("連線錯誤：無法連接到 Google 伺服器。\n請檢查網路。");
         } finally {
             this.hideLoading();
         }
@@ -119,7 +118,8 @@ const AuthSystem = {
             console.log("上傳成績回傳:", text);
             const data = JSON.parse(text);
 
-            if(data.status === "success") {
+            // ★★★ 同樣加上兼容判斷 ★★★
+            if(data.status === "success" || data.result === "success") {
                 this.showToast(`成績已上傳！(${score}分)`);
             } else {
                  console.error("上傳失敗:", data);
@@ -157,7 +157,8 @@ const AuthSystem = {
             console.log("查詢成績回傳:", text);
             const data = JSON.parse(text);
 
-            if (data.status === "success") {
+            // ★★★ 同樣加上兼容判斷 ★★★
+            if (data.status === "success" || data.result === "success") {
                 if (data.allPassed) {
                     this.hideLoading();
                     if(confirm("恭喜你！所有關卡都通過了！\n是否要現在下載證書？")) {
@@ -173,7 +174,7 @@ const AuthSystem = {
                     alert(`很可惜，還有遊戲未完成或未達 60 分喔！\n請繼續加油！`);
                 }
             } else {
-                alert("查詢失敗：" + (data.message || "未知原因"));
+                alert("查詢失敗：" + (data.message || JSON.stringify(data)));
             }
 
         } catch (e) {
