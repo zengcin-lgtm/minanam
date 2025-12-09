@@ -6,6 +6,11 @@
     <title>太巴塱國小附設幼兒園 - 阿美族語學習網</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- ★★★ 1. 引入 PDF 製作工具 (證書功能需要) ★★★ -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
         
@@ -46,6 +51,58 @@
             background-image: radial-gradient(#ffffff 1px, transparent 1px);
             background-size: 20px 20px;
         }
+
+        /* ★★★ 2. 證書樣式 (必須加入才能正常截圖) ★★★ */
+        #certificate-template {
+            width: 1123px; /* A4 橫向像素 */
+            height: 794px;
+            padding: 40px;
+            background-color: #fff;
+            background-image: url("https://www.transparenttextures.com/patterns/cream-paper.png");
+            position: fixed; /* 隱藏在螢幕外 */
+            top: -9999px;
+            left: -9999px;
+            font-family: 'Noto Sans TC', serif;
+            text-align: center;
+            color: #333;
+            border: 20px solid #E3002D;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: -1;
+        }
+        
+        .cert-border-inner {
+            border: 5px solid #FBBF24;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .cert-stamp {
+            position: absolute;
+            bottom: 50px;
+            left: 100px;
+            width: 150px;
+            height: 150px;
+            border: 4px solid #E3002D;
+            border-radius: 50%;
+            color: #E3002D;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 24px;
+            transform: rotate(-15deg);
+            opacity: 0.8;
+            border-style: double;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -81,9 +138,27 @@
     <!-- 主要內容區 -->
     <main class="flex-grow max-w-6xl mx-auto px-4 py-12 w-full">
         
+        <!-- ★★★ 3. 我的成就區塊 (登入後才會顯示) ★★★ -->
+        <div id="achievement-section" class="bg-white rounded-2xl p-8 shadow-lg border-l-8 border-yellow-400 mb-10 hidden">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="mb-4 md:mb-0">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">
+                        <i class="fa-solid fa-medal text-yellow-500 mr-2"></i>學習成就中心
+                    </h2>
+                    <p class="text-gray-600">
+                        你好，<span id="user-name-display" class="font-bold text-blue-600">同學</span>！
+                        目前完成度：<span id="progress-text" class="font-bold">檢查中...</span>
+                    </p>
+                </div>
+                <button onclick="AuthSystem.checkAndDownloadCertificate()" class="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white font-bold py-3 px-8 rounded-full shadow-md transform transition hover:scale-105 flex items-center gap-2">
+                    <i class="fa-solid fa-file-pdf"></i>
+                    領取結業證書
+                </button>
+            </div>
+        </div>
+
         <!-- 課程列表容器 (由 JS 自動生成) -->
         <div id="lessons-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            <!-- 內容會自動填入 -->
             <div class="col-span-full text-center text-gray-500 py-10">
                 <i class="fa-solid fa-spinner fa-spin text-3xl mb-3"></i>
                 <p>正在載入課程...</p>
@@ -106,26 +181,62 @@
         </div>
     </footer>
 
+    <!-- ★★★ 4. 隱藏的證書 HTML 模板 ★★★ -->
+    <div id="certificate-template">
+        <div class="cert-border-inner">
+            <!-- 裝飾花紋 -->
+            <div class="absolute top-0 left-0 text-6xl text-red-600 opacity-20 p-4"><i class="fa-solid fa-sun"></i></div>
+            <div class="absolute top-0 right-0 text-6xl text-red-600 opacity-20 p-4"><i class="fa-solid fa-sun"></i></div>
+            <div class="absolute bottom-0 left-0 text-6xl text-red-600 opacity-20 p-4"><i class="fa-solid fa-mountain"></i></div>
+            <div class="absolute bottom-0 right-0 text-6xl text-red-600 opacity-20 p-4"><i class="fa-solid fa-mountain"></i></div>
+
+            <h1 class="text-6xl font-bold mb-8 text-red-700 tracking-widest">結業證書</h1>
+            
+            <p class="text-2xl mb-2 text-gray-600">茲證明學生</p>
+            <h2 id="cert-student-name" class="text-5xl font-bold mb-6 border-b-2 border-gray-300 pb-2 px-10">王小明</h2>
+            
+            <p class="text-xl mb-8 max-w-2xl leading-loose">
+                於本學期修習「阿美族語初級課程」，通過所有遊戲挑戰關卡，<br>
+                成績優異，展現對阿美族文化之熱愛與傳承精神，<br>
+                特頒此證，以資鼓勵。
+            </p>
+
+            <div class="mt-12 flex justify-between w-3/4 items-end">
+                <div class="text-center">
+                    <div class="cert-stamp">太巴塱<br>幼兒園</div>
+                </div>
+                <div class="text-center">
+                    <p class="text-lg text-gray-500 mb-1">頒發日期</p>
+                    <p id="cert-date" class="text-2xl font-bold">2023 年 12 月 25 日</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-32 h-1 border-b-2 border-black mb-2 mx-auto"></div>
+                    <p class="text-xl font-bold">校長簽章</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- ========================================== -->
     <!--          JAVASCRIPT 設定與邏輯區           -->
     <!-- ========================================== -->
+    
+    <!-- 先載入 Auth.js -->
+    <script src="js/auth.js"></script>
+
     <script>
         // =================================================================
-        // ★★★ 請在此處修改首頁顯示的課程列表 ★★★
+        // ★★★ 課程列表資料 (保留您的第15週) ★★★
         // =================================================================
         
         const websiteData = {
-            // 課程列表
-            // status 可選: 'new'(最新), 'hot'(熱門), 'lock'(未開放), ''(無)
-            // icon 可選: 參考 FontAwesome (例如 fa-shirt, fa-utensils, fa-cloud...)
-            // color 可選: red, orange, yellow, green, teal, blue, indigo, purple, pink
             lessons: [
                 {
                     week: "第 15 週",
                     title: "我們一起做什麼？",
                     subtitle: "Mimaan kita?",
                     desc: "要如何和好朋友說想要一起做什麼事情呢？",
-                    icon: "fa-battery-bolt",
+                    icon: "fa-bolt", // fa-battery-bolt 某些版本可能不支援，換成 bolt 或 battery-full
                     color: "yellow",
                     status: "new",
                     link: "learning/learning_week15.html"
@@ -148,7 +259,7 @@
                     icon: "fa-child-reaching",
                     color: "blue",
                     status: "",
-                    link: "#" // 若還沒做好，可以先放 #
+                    link: "#"
                 },
                 {
                     week: "第 12 週",
@@ -174,12 +285,14 @@
         };
 
         // =================================================================
-        // 下方程式碼負責產生卡片，不需要修改
+        // 負責產生卡片的函式
         // =================================================================
 
         function renderLessons() {
             const container = document.getElementById('lessons-container');
-            container.innerHTML = '';
+            if (!container) return;
+            
+            container.innerHTML = ''; // 清空目前內容
 
             websiteData.lessons.forEach(lesson => {
                 // 定義顏色樣式
@@ -198,7 +311,6 @@
                 
                 const theme = colors[lesson.color] || colors.blue;
                 
-                // 處理狀態標籤
                 let statusBadge = '';
                 if (lesson.status === 'new') {
                     statusBadge = `<span class="absolute top-4 right-4 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-md shadow-sm animate-pulse">NEW</span>`;
@@ -206,7 +318,6 @@
                     statusBadge = `<span class="absolute top-4 right-4 bg-gray-400 text-white text-xs font-bold px-2 py-1 rounded-md shadow-sm"><i class="fa-solid fa-lock mr-1"></i>LOCKED</span>`;
                 }
 
-                // 處理連結點擊 (若是 lock 則不能點)
                 const isLocked = lesson.status === 'lock';
                 const linkAttr = isLocked ? 'javascript:void(0)' : `href="${lesson.link}"`;
                 const cursorClass = isLocked ? 'cursor-not-allowed opacity-75 grayscale' : 'cursor-pointer';
@@ -215,7 +326,6 @@
                     <a ${linkAttr} class="lesson-card group relative bg-white rounded-2xl overflow-hidden shadow-md border border-gray-100 flex flex-col ${cursorClass}">
                         ${statusBadge}
                         <div class="h-32 ${theme.bg} relative overflow-hidden">
-                             <!-- 背景裝飾圖案 -->
                              <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(white 1px, transparent 1px); background-size: 10px 10px;"></div>
                              <div class="absolute -bottom-6 -right-6 text-white opacity-20 transform rotate-12 group-hover:scale-110 transition duration-500">
                                 <i class="fa-solid ${lesson.icon} text-9xl"></i>
@@ -244,12 +354,25 @@
             });
         }
 
-        window.onload = renderLessons;
+        // =================================================================
+        // 初始化與執行 (修正：使用 EventListener 確保順序正確)
+        // =================================================================
+
+        window.addEventListener('DOMContentLoaded', () => {
+            // 1. 產生課程卡片
+            renderLessons();
+
+            // 2. 檢查會員狀態，顯示證書區塊
+            // (我們檢查 window.AuthSystem 是否存在，避免報錯)
+            if (typeof AuthSystem !== 'undefined' && AuthSystem.currentUser) {
+                const section = document.getElementById('achievement-section');
+                if (section) {
+                    section.classList.remove('hidden');
+                    const nameDisplay = document.getElementById('user-name-display');
+                    if(nameDisplay) nameDisplay.innerText = AuthSystem.currentUser.name;
+                }
+            }
+        });
     </script>
-    <script src="js/auth.js"></script>
 </body>
 </html>
-
-
-
-
