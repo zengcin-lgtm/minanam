@@ -1,14 +1,15 @@
 /**
- * 阿美族語學習網 - 會員與成績系統 (含證書功能)
+ * 阿美族語學習網 - 會員與成績系統 (v2.0 Debug版)
  */
 
 const AuthSystem = {
     // ★★★ 請填入您的 Google Apps Script 網址 ★★★
-    API_URL: "https://script.google.com/macros/s/AKfycbzFjVMXS3U9FYOu4h8QdZXw4NeeAIrNXoAmowBBYb5DR17cAiPyMnwF9FrASgromhu9vQ/exec",
+    API_URL: "https://script.google.com/macros/s/AKfycbzihyxv1NyH1IgBF8kWBVXLNE1-FVETTYxy-6Y49te7DTULQj5cZeDe6BLtBadEvk44/exec",
 
     currentUser: null,
 
     init: function() {
+        console.log("AuthSystem v2.0 初始化中..."); // 用來確認是否載入新版
         this.checkLoginStatus();
         this.injectStyles();
         if (document.readyState === 'loading') {
@@ -21,13 +22,20 @@ const AuthSystem = {
     checkLoginStatus: function() {
         const savedUser = localStorage.getItem('amis_user');
         if (savedUser) {
-            this.currentUser = JSON.parse(savedUser);
+            try {
+                this.currentUser = JSON.parse(savedUser);
+            } catch (e) {
+                console.error("使用者資料損毀，重置登入狀態");
+                localStorage.removeItem('amis_user');
+            }
         }
     },
 
     login: async function(userID, password) {
         this.showLoading("登入中...");
         try {
+            console.log(`準備登入: ${userID}`);
+            
             const response = await fetch(this.API_URL, {
                 method: "POST",
                 mode: "cors",
@@ -36,10 +44,18 @@ const AuthSystem = {
                 body: JSON.stringify({ action: "login", userID: userID, password: password })
             });
 
-            const data = await response.json();
-            
-            // ★★★ Debug: 在控制台顯示伺服器回傳的內容 ★★★
-            console.log("GAS Response:", data);
+            // ★★★ 修改：先讀取文字，避免 JSON 解析失敗導致程式崩潰 ★★★
+            const text = await response.text();
+            console.log("GAS 原始回傳:", text);
+
+            let data;
+            try {
+                data = JSON.parse(text);
+            } catch (e) {
+                console.error("JSON 解析失敗", e);
+                alert("伺服器錯誤：回傳格式不正確 (可能是 HTML 錯誤頁面)。\n請檢查 GAS 部署設定。");
+                return false;
+            }
 
             if (data.status === "success") {
                 this.currentUser = { userID: data.userID, name: data.name };
@@ -47,20 +63,21 @@ const AuthSystem = {
                 alert(`登入成功！歡迎 ${data.name} 同學`);
                 this.closeModal();
                 this.renderUI();
-                // 如果在首頁，重新整理以顯示成就區塊
+                
+                // 重新整理頁面以更新狀態
                 if(location.pathname.endsWith('index.html') || location.pathname.endsWith('/')) {
-                    location.reload();
+                    setTimeout(() => location.reload(), 500);
                 }
                 return true;
             } else {
-                // ★★★ 修改：如果沒有 message，顯示完整資料以便除錯 ★★★
-                const errorMsg = data.message || ("系統未回傳錯誤訊息 (可能是 GAS 未更新版本): " + JSON.stringify(data));
-                alert("登入失敗：" + errorMsg);
+                // 確保錯誤訊息一定顯示出來
+                const msg = data.message ? data.message : "未知錯誤 (無錯誤訊息)";
+                alert("登入失敗：" + msg);
                 return false;
             }
         } catch (error) {
-            console.error(error);
-            alert("連線錯誤：請確認 Google Apps Script 部署權限是否為「所有人 (Anyone)」。");
+            console.error("連線過程發生錯誤:", error);
+            alert("連線錯誤：無法連接到 Google 伺服器。\n請檢查網路，或確認 GAS 網址正確。");
         } finally {
             this.hideLoading();
         }
@@ -71,7 +88,7 @@ const AuthSystem = {
             localStorage.removeItem('amis_user');
             this.currentUser = null;
             this.renderUI();
-            location.reload(); // 登出後重新整理
+            location.reload();
         }
     },
 
@@ -97,9 +114,14 @@ const AuthSystem = {
                     score: score
                 })
             });
-            const data = await response.json();
-            if(data.status === "success") this.showToast(`成績已上傳！(${score}分)`);
-            else {
+            
+            const text = await response.text();
+            console.log("上傳成績回傳:", text);
+            const data = JSON.parse(text);
+
+            if(data.status === "success") {
+                this.showToast(`成績已上傳！(${score}分)`);
+            } else {
                  console.error("上傳失敗:", data);
                  this.showToast("成績上傳失敗：" + (data.message || "未知錯誤"));
             }
@@ -111,9 +133,6 @@ const AuthSystem = {
         }
     },
 
-    // ===========================================
-    // ★★★ 新增：檢查資格與下載證書 ★★★
-    // ===========================================
     checkAndDownloadCertificate: async function() {
         if (!this.currentUser) {
             alert("請先登入！");
@@ -123,7 +142,6 @@ const AuthSystem = {
         this.showLoading("正在向學校主機確認成績...");
 
         try {
-            // 1. 呼叫 GAS 檢查成績
             const response = await fetch(this.API_URL, {
                 method: "POST",
                 mode: "cors",
@@ -135,20 +153,18 @@ const AuthSystem = {
                 })
             });
 
-            const data = await response.json();
+            const text = await response.text();
+            console.log("查詢成績回傳:", text);
+            const data = JSON.parse(text);
 
-            // 2. 判斷結果
             if (data.status === "success") {
                 if (data.allPassed) {
-                    // 資格符合，開始製作證書
-                    this.hideLoading(); // 先關掉讀取畫面
+                    this.hideLoading();
                     if(confirm("恭喜你！所有關卡都通過了！\n是否要現在下載證書？")) {
                         this.generatePDF();
                     }
                 } else {
-                    // 計算還差幾個
                     let failList = [];
-                    // 簡單檢查機制
                     if (data.scores) {
                         for(const [game, score] of Object.entries(data.scores)) {
                             if(score < 60) failList.push(game);
@@ -157,7 +173,7 @@ const AuthSystem = {
                     alert(`很可惜，還有遊戲未完成或未達 60 分喔！\n請繼續加油！`);
                 }
             } else {
-                alert("查詢失敗：" + (data.message || JSON.stringify(data)));
+                alert("查詢失敗：" + (data.message || "未知原因"));
             }
 
         } catch (e) {
@@ -168,11 +184,9 @@ const AuthSystem = {
         }
     },
 
-    // 製作 PDF 的核心函式
     generatePDF: function() {
         this.showLoading("正在印製證書 (PDF製作中)...");
 
-        // 1. 填入資料到隱藏模板
         const template = document.getElementById('certificate-template');
         if (!template) {
             alert("找不到證書模板 (請確認你在首頁)");
@@ -184,19 +198,15 @@ const AuthSystem = {
         const today = new Date();
         document.getElementById('cert-date').innerText = `${today.getFullYear()} 年 ${today.getMonth()+1} 月 ${today.getDate()} 日`;
 
-        // 2. 使用 html2canvas 截圖
-        // 為了讓截圖正確，我們暫時把模板顯示出來 (但在螢幕外)
         template.style.display = 'flex';
 
         html2canvas(template, {
-            scale: 2, // 提高解析度
-            useCORS: true // 允許跨域圖片
+            scale: 2,
+            useCORS: true
         }).then(canvas => {
-            // 3. 轉成 PDF
             const imgData = canvas.toDataURL('image/png');
             const { jsPDF } = window.jspdf;
             
-            // A4 橫向 (landscape)
             const pdf = new jsPDF('l', 'mm', 'a4');
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = pdf.internal.pageSize.getHeight();
@@ -213,9 +223,6 @@ const AuthSystem = {
         });
     },
 
-    // ===========================================
-    // UI 相關程式碼
-    // ===========================================
     renderUI: function() {
         const oldBtn = document.getElementById('amis-auth-btn');
         if (oldBtn) oldBtn.remove();
