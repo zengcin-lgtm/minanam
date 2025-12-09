@@ -115,16 +115,13 @@
                 <span class="bg-red-100 text-red-600 px-4 py-1 rounded-full">分數: <span id="score-display">0</span></span>
             </div>
 
-            <!-- 1. 登入畫面 -->
+            <!-- 1. 開始畫面 (修改過：整合 Auth 系統) -->
             <div id="screen-login" class="flex flex-col items-center justify-center flex-grow text-center space-y-6">
                 <div class="text-6xl text-red-600 mb-4">
                     <i class="fa-solid fa-shapes"></i>
                 </div>
-                <h2 class="text-2xl font-bold text-gray-800">Cima kiso? 你是誰？</h2>
-                <p class="text-gray-600">輸入名字後，我們就開始遊戲囉！</p>
-                
-                <input type="text" id="student-name" placeholder="請輸入名字 (例如：陳小明)" 
-                       class="border-2 border-gray-300 rounded-lg p-3 w-full max-w-xs text-center text-xl focus:border-red-500 outline-none mb-4">
+                <h2 class="text-2xl font-bold text-gray-800">準備好挑戰了嗎？</h2>
+                <p class="text-gray-600">按下開始按鈕，測驗你的單字力！</p>
                 
                 <button onclick="game.start()" 
                         style="background-color: #E3002D; color: white;"
@@ -132,6 +129,8 @@
                     <i class="fa-solid fa-play"></i>
                     <span>開始遊戲</span>
                 </button>
+                
+                <p class="text-xs text-gray-400 mt-4">* 記得先在右上角登入，才能儲存成績喔！</p>
             </div>
 
             <!-- 2. 遊戲進行畫面 -->
@@ -152,16 +151,14 @@
                 </div>
                 <p id="feedback-text" class="text-gray-600">很棒喔！</p>
                 
-                <!-- 上傳狀態顯示區 -->
-                <div id="upload-status" class="text-sm text-gray-500 font-bold bg-gray-100 px-4 py-2 rounded-full mb-2">
-                    <i class="fa-solid fa-spinner fa-spin mr-2"></i>正在儲存成績...
-                </div>
+                <!-- (舊的上傳提示已經整合到 auth.js 的 toast 訊息中，這裡可以省略) -->
 
                 <div class="flex flex-col space-y-4 w-full max-w-xs mt-2">
                     <button onclick="location.reload()" class="bg-gray-800 hover:bg-gray-900 text-white text-lg font-bold py-3 px-8 rounded-full shadow-lg transform transition hover:scale-105 active:scale-95">
                         再玩一次
                     </button>
-                    <a href="index.html" class="bg-white border-2 border-gray-300 hover:border-red-500 text-gray-600 hover:text-red-600 text-lg font-bold py-3 px-8 rounded-full shadow-md text-center transform transition hover:scale-105 active:scale-95 flex items-center justify-center">
+                    <!-- 修改：這裡將 target="_self" 確保回首頁是在同一頁，或者也可以開新分頁 -->
+                    <a href="../index.html" class="bg-white border-2 border-gray-300 hover:border-red-500 text-gray-600 hover:text-red-600 text-lg font-bold py-3 px-8 rounded-full shadow-md text-center transform transition hover:scale-105 active:scale-95 flex items-center justify-center">
                         <i class="fa-solid fa-house mr-2"></i>回首頁
                     </a>
                 </div>
@@ -177,11 +174,6 @@
     <audio id="sfx-wrong" src="https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3"></audio>
 
     <script>
-        // ==========================================
-        //  設定區：請填入您的 Google Apps Script 網址
-        // ==========================================
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzFjVMXS3U9FYOu4h8QdZXw4NeeAIrNXoAmowBBYb5DR17cAiPyMnwF9FrASgromhu9vQ/exec"; 
-
         const assets = {
             items: [
                 { id: 'tamohong', name: 'tamohong', chinese: '帽子', image: '../images/tamohong.jpg', audio_word: '../audio/tamohong.wav', audio_sentence: '../audio/sentence_tamohong.wav' },
@@ -193,16 +185,21 @@
 
         class Game {
             constructor() {
-                this.studentName = "";
                 this.score = 0;
                 this.currentQuestionIndex = 0;
                 this.questions = [];
             }
 
+            // 修改：點擊開始時，使用 AuthSystem 檢查
             start() {
-                const nameInput = document.getElementById('student-name');
-                if (!nameInput.value.trim()) { alert("請先輸入名字喔！"); return; }
-                this.studentName = nameInput.value.trim();
+                // 如果還沒登入，跳出登入視窗
+                if (!AuthSystem.currentUser) {
+                    alert("請先登入，才能紀錄成績喔！");
+                    AuthSystem.showLoginModal();
+                    return;
+                }
+                
+                // 開始遊戲流程
                 this.startGameFlow();
             }
 
@@ -289,7 +286,6 @@
                 const icon = document.getElementById('feedback-icon');
                 overlay.style.display = 'flex';
                 if (isCorrect) {
-                    // 計分: 每階段前兩題15分，第三題20分。(15+15+20)*2 = 100
                     const points = (this.currentQuestionIndex % 3 === 2) ? 20 : 15;
                     this.score += points;
                     this.updateScoreUI();
@@ -311,6 +307,7 @@
                 document.getElementById(screenId).classList.remove('hidden');
             }
             
+            // ★★★ 修改重點：這就是結束遊戲的函式 ★★★
             endGame() {
                 this.showScreen('result-screen');
                 const finalScore = document.getElementById('final-score');
@@ -328,47 +325,14 @@
                 else if (this.score >= 60) feedbackText.innerText = "做得很好！再接再厲！";
                 else feedbackText.innerText = "加油！Saʼicelen!再試一次會更好！";
 
-                // 自動上傳成績
-                this.uploadScore();
-            }
-
-            // 新增：上傳成績功能
-            uploadScore() {
-                const statusDiv = document.getElementById('upload-status');
-                
-                // 如果沒有設定網址，就不執行上傳
-                if (GOOGLE_SCRIPT_URL.includes("你的AppsScript網址")) {
-                    statusDiv.innerHTML = '<i class="fa-solid fa-circle-exclamation text-yellow-500 mr-2"></i>未設定成績上傳網址';
-                    return;
-                }
-
-                const data = {
-                    name: this.studentName,
-                    score: this.score
-                };
-
-                fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors', // 關鍵：避免跨域錯誤
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                })
-                .then(() => {
-                    // 因為 no-cors 模式無法讀取回傳內容，只要沒有拋出錯誤就當作成功
-                    statusDiv.innerHTML = '<i class="fa-solid fa-check text-green-500 mr-2"></i>成績已上傳！';
-                    statusDiv.classList.remove('bg-gray-100');
-                    statusDiv.classList.add('bg-green-100', 'text-green-700');
-                })
-                .catch(error => {
-                    console.error('Upload Error:', error);
-                    statusDiv.innerHTML = '<i class="fa-solid fa-xmark text-red-500 mr-2"></i>上傳失敗，請檢查網路';
-                    statusDiv.classList.remove('bg-gray-100');
-                    statusDiv.classList.add('bg-red-100', 'text-red-700');
-                });
+                // ★★★ 自動上傳成績 (改用 auth.js) ★★★
+                // 請確認 Google Sheet 上有 "game14" 這個欄位
+                AuthSystem.submitScore("game14", this.score);
             }
         }
         const game = new Game();
     </script>
+    <!-- 引入會員系統 -->
+    <script src="../js/auth.js"></script>
 </body>
 </html>
-
