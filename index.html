@@ -154,44 +154,36 @@
     <!-- 主要內容區 -->
     <main class="flex-grow max-w-6xl mx-auto px-4 py-12 w-full">
         
-        <!-- ★★★ 排行榜與成就區塊 ★★★ -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
+        <!-- ★★★ 榮譽排行榜 Top 3 (橫向) ★★★ -->
+        <div class="mb-12">
+            <div class="flex items-center justify-center mb-6">
+                <i class="fa-solid fa-trophy text-yellow-500 text-3xl mr-3 animate-bounce"></i>
+                <h2 class="text-3xl font-bold text-gray-800">榮譽排行榜 TOP 3</h2>
+            </div>
             
-            <!-- 左側：榮譽排行榜 (新增) -->
-            <div class="lg:col-span-1">
-                <div class="bg-white rounded-2xl p-6 shadow-lg border-t-8 border-orange-400 h-full">
-                    <div class="flex items-center mb-4">
-                        <i class="fa-solid fa-trophy text-orange-400 text-2xl mr-3"></i>
-                        <h2 class="text-xl font-bold text-gray-800">榮譽排行榜 (Top 10)</h2>
-                    </div>
-                    <!-- 排行榜列表容器 -->
-                    <div id="leaderboard-list" class="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                        <!-- 內容會由 JS 自動載入 -->
-                        <div class="text-center py-8 text-gray-400">
-                            <i class="fa-solid fa-spinner fa-spin mr-2"></i>載入中...
-                        </div>
-                    </div>
+            <div id="leaderboard-top3" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- 內容由 JS 產生 -->
+                <div class="col-span-full text-center py-8 text-gray-400 bg-white rounded-2xl shadow-sm border border-gray-100">
+                    <i class="fa-solid fa-spinner fa-spin mr-2"></i>正在讀取排行榜...
                 </div>
             </div>
+        </div>
 
-            <!-- 右側：我的成就區塊 (寬度佔 2/3) -->
-            <div id="achievement-section" class="lg:col-span-2 bg-white rounded-2xl p-8 shadow-lg border-l-8 border-yellow-400 hidden flex flex-col justify-center">
-                <div class="flex flex-col md:flex-row items-center justify-between">
-                    <div class="mb-4 md:mb-0">
-                        <h2 class="text-2xl font-bold text-gray-800 mb-2">
-                            <i class="fa-solid fa-medal text-yellow-500 mr-2"></i>學習成就中心
-                        </h2>
-                        <p class="text-gray-600">
-                            你好，<span id="user-name-display" class="font-bold text-blue-600">同學</span>！
-                            目前完成度：<span id="progress-text" class="font-bold">點擊按鈕檢查</span>
-                        </p>
-                    </div>
-                    <button onclick="AuthSystem.checkAndDownloadCertificate()" class="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white font-bold py-3 px-8 rounded-full shadow-md transform transition hover:scale-105 flex items-center gap-2">
-                        <i class="fa-solid fa-file-pdf"></i>
-                        領取結業證書
-                    </button>
-                </div>
+        <!-- ★★★ 我的成就區塊 (登入後顯示) ★★★ -->
+        <div id="achievement-section" class="bg-white rounded-2xl p-8 shadow-lg border-l-8 border-yellow-400 mb-10 hidden flex flex-col md:flex-row items-center justify-between">
+            <div class="mb-4 md:mb-0">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">
+                    <i class="fa-solid fa-medal text-yellow-500 mr-2"></i>學習成就中心
+                </h2>
+                <p class="text-gray-600">
+                    你好，<span id="user-name-display" class="font-bold text-blue-600">同學</span>！
+                    目前完成度：<span id="progress-text" class="font-bold">點擊按鈕檢查</span>
+                </p>
             </div>
+            <button onclick="AuthSystem.checkAndDownloadCertificate()" class="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white font-bold py-3 px-8 rounded-full shadow-md transform transition hover:scale-105 flex items-center gap-2">
+                <i class="fa-solid fa-file-pdf"></i>
+                領取結業證書
+            </button>
         </div>
 
         <!-- 課程列表容器 (由 JS 自動生成) -->
@@ -392,6 +384,73 @@
             });
         }
 
+        // ★★★ 自定義：橫向載入 Top 3 排行榜 ★★★
+        async function loadTop3Leaderboard() {
+            const container = document.getElementById('leaderboard-top3');
+            if (!container || typeof AuthSystem === 'undefined') return;
+
+            try {
+                // 1. 呼叫後端 API
+                const response = await fetch(AuthSystem.API_URL, {
+                    method: "POST",
+                    mode: "cors",
+                    redirect: "follow",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify({ action: "getLeaderboard" })
+                });
+                
+                const text = await response.text();
+                const data = JSON.parse(text);
+
+                // 2. 清空容器
+                container.innerHTML = '';
+
+                // 3. 處理資料
+                if ((data.status === "success" || data.result === "success") && data.leaderboard && data.leaderboard.length > 0) {
+                    
+                    // 只取前 3 名
+                    const top3 = data.leaderboard.slice(0, 3);
+                    
+                    const medals = [
+                        { color: "text-yellow-400", bg: "bg-yellow-50 border-yellow-200", label: "冠軍", icon: "fa-trophy" },
+                        { color: "text-gray-400", bg: "bg-gray-50 border-gray-200", label: "亞軍", icon: "fa-medal" },
+                        { color: "text-orange-400", bg: "bg-orange-50 border-orange-200", label: "季軍", icon: "fa-medal" }
+                    ];
+
+                    top3.forEach((item, index) => {
+                        const style = medals[index];
+                        const html = `
+                            <div class="relative bg-white rounded-2xl p-4 shadow-md border-2 ${style.bg} flex flex-col items-center justify-center transform transition hover:-translate-y-1">
+                                <div class="absolute -top-4 bg-white rounded-full p-2 shadow-sm border border-gray-100">
+                                    <i class="fa-solid ${style.icon} ${style.color} text-2xl"></i>
+                                </div>
+                                <div class="mt-4 font-bold text-gray-500 text-xs uppercase tracking-wider">${style.label}</div>
+                                <h3 class="text-xl font-bold text-gray-800 my-1 truncate w-full text-center">${item.name}</h3>
+                                <div class="text-2xl font-bold text-red-500">${item.score} <span class="text-sm text-gray-400">分</span></div>
+                            </div>
+                        `;
+                        container.innerHTML += html;
+                    });
+
+                    // 如果不足 3 人，補上空位
+                    for(let i = top3.length; i < 3; i++) {
+                        container.innerHTML += `
+                            <div class="bg-gray-50 rounded-2xl p-4 border-2 border-dashed border-gray-200 flex flex-col items-center justify-center opacity-50">
+                                <i class="fa-solid fa-user text-gray-300 text-3xl mb-2"></i>
+                                <span class="text-gray-400 text-sm">虛位以待</span>
+                            </div>
+                        `;
+                    }
+
+                } else {
+                    container.innerHTML = `<div class="col-span-full text-center py-8 text-gray-400">目前還沒有成績紀錄喔！</div>`;
+                }
+            } catch (e) {
+                console.error("排行榜讀取失敗", e);
+                container.innerHTML = `<div class="col-span-full text-center py-8 text-red-300">排行榜暫時無法讀取</div>`;
+            }
+        }
+
         // =================================================================
         // 初始化與執行
         // =================================================================
@@ -406,13 +465,15 @@
                     const section = document.getElementById('achievement-section');
                     if (section) {
                         section.classList.remove('hidden');
+                        section.classList.add('flex'); // 確保 flex 佈局生效
                         const nameDisplay = document.getElementById('user-name-display');
                         if(nameDisplay) nameDisplay.innerText = AuthSystem.currentUser.name;
                     }
                 }
                 
-                // 3. ★★★ 載入排行榜 (不管有無登入都顯示) ★★★
-                AuthSystem.loadLeaderboard('leaderboard-list');
+                // 3. ★★★ 載入橫向 Top 3 排行榜 ★★★
+                // 不使用 auth.js 內建的 loadLeaderboard，改用我們自定義的函式
+                loadTop3Leaderboard();
             }
         });
     </script>
