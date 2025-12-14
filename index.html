@@ -258,7 +258,7 @@
             <h2 id="cert-student-name" class="text-5xl font-bold mb-6 border-b-2 border-gray-300 pb-2 px-10">王小明</h2>
             
             <p class="text-xl mb-8 max-w-2xl leading-loose">
-                於114學年度第1學期通過阿美族語學習網所有遊戲挑戰關卡，<br>
+                於114學年度第1學期，通過阿美族語學習網所有遊戲挑戰關卡，<br>
                 成績優異，展現對阿美族文化之熱愛與傳承精神，<br>
                 特頒此證，以資鼓勵。
             </p>
@@ -302,10 +302,11 @@
 
     <script>
         // =================================================================
-        // ★★★ 課程列表資料 ★★★
+        // ★★★ 設定區：請在此處維護您的網站內容 ★★★
         // =================================================================
         
-        const websiteData = {
+        const appConfig = {
+            // 課程列表
             lessons: [
                 {
                     week: "第 16 週",
@@ -322,7 +323,7 @@
                     title: "我們一起做什麼？",
                     subtitle: "Mimaan kita?",
                     desc: "要如何和好朋友說想要一起做什麼事情呢？",
-                    icon: "fa-bolt", // fa-battery-bolt 某些版本可能不支援，換成 bolt 或 battery-full
+                    icon: "fa-bolt", 
                     color: "yellow",
                     status: "new",
                     link: "learning/learning_week15.html"
@@ -357,6 +358,14 @@
                     status: "",
                     link: "#"
                 }
+            ],
+            // 貼紙設定
+            stickers: [
+                { id: 'game14', name: '第14週', icon: 'fa-shirt', color: 'text-orange-500' },
+                { id: 'game15', name: '第15週', icon: 'fa-bolt', color: 'text-yellow-500' },
+                { id: 'game13', name: '第13週', icon: 'fa-child-reaching', color: 'text-blue-500' },
+                { id: 'game12', name: '第12週', icon: 'fa-bowl-rice', color: 'text-green-500' },
+                // 可在此處新增更多貼紙...
             ]
         };
 
@@ -370,7 +379,7 @@
             
             container.innerHTML = ''; // 清空目前內容
 
-            websiteData.lessons.forEach(lesson => {
+            appConfig.lessons.forEach(lesson => {
                 // 定義顏色樣式
                 const colors = {
                     red:    { bg: 'bg-red-500',    text: 'text-red-600',    light: 'bg-red-50',    border: 'border-red-200' },
@@ -528,17 +537,8 @@
                 // 3. 渲染貼紙列表
                 container.innerHTML = '';
                 
-                // 定義貼紙資料 (對應每週的圖示或主題)
-                // 這裡假設 gameId 從 game1 開始對應
-                const stickers = [
-                    { id: 'game14', name: '第14週', icon: 'fa-shirt', color: 'text-orange-500' },
-                    { id: 'game15', name: '第15週', icon: 'fa-bolt', color: 'text-yellow-500' },
-                    { id: 'game13', name: '第13週', icon: 'fa-child-reaching', color: 'text-blue-500' },
-                    { id: 'game12', name: '第12週', icon: 'fa-bowl-rice', color: 'text-green-500' },
-                    // 可以繼續加更多...
-                ];
-
-                stickers.forEach(s => {
+                // 使用 appConfig 中的貼紙資料
+                appConfig.stickers.forEach(s => {
                     const score = data.scores ? data.scores[s.id] : 0;
                     const isUnlocked = score >= 60;
                     
@@ -594,4 +594,3 @@
     </script>
 </body>
 </html>
-
