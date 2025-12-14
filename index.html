@@ -68,6 +68,21 @@
             background: #94a3b8;
         }
 
+        /* 貼紙樣式 */
+        .sticker-locked {
+            filter: grayscale(100%) opacity(50%);
+            transition: all 0.3s;
+        }
+        .sticker-unlocked {
+            filter: grayscale(0%) opacity(100%);
+            transform: scale(1.05);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .sticker-unlocked:hover {
+            transform: scale(1.15) rotate(5deg);
+        }
+
         /* ★★★ 2. 證書樣式 (必須加入才能正常截圖) ★★★ */
         #certificate-template {
             width: 1123px; /* A4 橫向像素 */
@@ -169,21 +184,39 @@
             </div>
         </div>
 
-        <!-- ★★★ 我的成就區塊 (登入後顯示) ★★★ -->
-        <div id="achievement-section" class="bg-white rounded-2xl p-8 shadow-lg border-l-8 border-yellow-400 mb-10 hidden flex flex-col md:flex-row items-center justify-between">
-            <div class="mb-4 md:mb-0">
-                <h2 class="text-2xl font-bold text-gray-800 mb-2">
-                    <i class="fa-solid fa-medal text-yellow-500 mr-2"></i>學習成就中心
-                </h2>
-                <p class="text-gray-600">
-                    你好，<span id="user-name-display" class="font-bold text-blue-600">同學</span>！
-                    目前完成度：<span id="progress-text" class="font-bold">點擊按鈕檢查</span>
-                </p>
+        <!-- ★★★ 成就與貼紙區塊 (兩欄式) ★★★ -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
+            
+            <!-- 左側：我的貼紙簿 (新增) -->
+            <div id="sticker-section" class="lg:col-span-2 bg-white rounded-2xl p-6 shadow-lg border-t-8 border-pink-400 hidden">
+                <div class="flex items-center mb-4">
+                    <i class="fa-solid fa-star text-pink-400 text-2xl mr-3"></i>
+                    <h2 class="text-xl font-bold text-gray-800">我的貼紙簿</h2>
+                </div>
+                <div id="sticker-container" class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-4">
+                    <!-- 貼紙由 JS 自動生成 -->
+                    <div class="col-span-full text-center py-4 text-gray-400">
+                        <i class="fa-solid fa-spinner fa-spin mr-2"></i>檢查貼紙中...
+                    </div>
+                </div>
             </div>
-            <button onclick="AuthSystem.checkAndDownloadCertificate()" class="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white font-bold py-3 px-8 rounded-full shadow-md transform transition hover:scale-105 flex items-center gap-2">
-                <i class="fa-solid fa-file-pdf"></i>
-                領取結業證書
-            </button>
+
+            <!-- 右側：學習成就中心 -->
+            <div id="achievement-section" class="lg:col-span-1 bg-white rounded-2xl p-6 shadow-lg border-t-8 border-yellow-400 hidden flex-col justify-center items-center text-center">
+                <div class="mb-4">
+                    <h2 class="text-xl font-bold text-gray-800 mb-2">
+                        <i class="fa-solid fa-medal text-yellow-500 mr-2"></i>學習成就中心
+                    </h2>
+                    <p class="text-gray-600 text-sm">
+                        你好，<span id="user-name-display" class="font-bold text-blue-600">同學</span>！<br>
+                        目前完成度：<span id="progress-text" class="font-bold">點擊按鈕檢查</span>
+                    </p>
+                </div>
+                <button onclick="AuthSystem.checkAndDownloadCertificate()" class="w-full bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white font-bold py-3 px-6 rounded-full shadow-md transform transition hover:scale-105 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-file-pdf"></i>
+                    領取結業證書
+                </button>
+            </div>
         </div>
 
         <!-- 課程列表容器 (由 JS 自動生成) -->
@@ -451,6 +484,68 @@
             }
         }
 
+        // ★★★ 自定義：載入貼紙簿 ★★★
+        async function loadStickers() {
+            const container = document.getElementById('sticker-container');
+            const progressText = document.getElementById('progress-text');
+            if (!container || !AuthSystem.currentUser) return;
+
+            try {
+                // 1. 查詢該使用者的所有成績
+                const response = await fetch(AuthSystem.API_URL, {
+                    method: "POST",
+                    mode: "cors",
+                    redirect: "follow",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify({
+                        action: "getScores",
+                        userID: AuthSystem.currentUser.userID
+                    })
+                });
+                
+                const text = await response.text();
+                const data = JSON.parse(text);
+                
+                // 2. 顯示完成度
+                if(data.scores && progressText) {
+                    const passedCount = Object.values(data.scores).filter(s => s >= 60).length;
+                    progressText.innerText = `已收集 ${passedCount} 張貼紙`;
+                }
+
+                // 3. 渲染貼紙列表
+                container.innerHTML = '';
+                
+                // 定義貼紙資料 (對應每週的圖示或主題)
+                // 這裡假設 gameId 從 game1 開始對應
+                const stickers = [
+                    { id: 'game14', name: '第14週', icon: 'fa-shirt', color: 'text-orange-500' },
+                    { id: 'game15', name: '第15週', icon: 'fa-bolt', color: 'text-yellow-500' },
+                    { id: 'game13', name: '第13週', icon: 'fa-child-reaching', color: 'text-blue-500' },
+                    { id: 'game12', name: '第12週', icon: 'fa-bowl-rice', color: 'text-green-500' },
+                    // 可以繼續加更多...
+                ];
+
+                stickers.forEach(s => {
+                    const score = data.scores ? data.scores[s.id] : 0;
+                    const isUnlocked = score >= 60;
+                    
+                    const html = `
+                        <div class="flex flex-col items-center group">
+                            <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center border-2 border-gray-200 mb-2 shadow-sm ${isUnlocked ? 'sticker-unlocked bg-white border-yellow-400' : 'sticker-locked'}">
+                                <i class="fa-solid ${s.icon} ${isUnlocked ? s.color : 'text-gray-400'} text-3xl"></i>
+                            </div>
+                            <span class="text-xs font-bold ${isUnlocked ? 'text-gray-700' : 'text-gray-400'}">${s.name}</span>
+                        </div>
+                    `;
+                    container.innerHTML += html;
+                });
+
+            } catch (e) {
+                console.error("貼紙載入失敗", e);
+                container.innerHTML = `<div class="col-span-full text-center text-red-300">無法載入貼紙</div>`;
+            }
+        }
+
         // =================================================================
         // 初始化與執行
         // =================================================================
@@ -462,17 +557,24 @@
             // 2. 檢查會員狀態，顯示證書區塊
             if (typeof AuthSystem !== 'undefined') {
                 if (AuthSystem.currentUser) {
-                    const section = document.getElementById('achievement-section');
-                    if (section) {
-                        section.classList.remove('hidden');
-                        section.classList.add('flex'); // 確保 flex 佈局生效
-                        const nameDisplay = document.getElementById('user-name-display');
-                        if(nameDisplay) nameDisplay.innerText = AuthSystem.currentUser.name;
+                    const stickerSection = document.getElementById('sticker-section');
+                    const achieveSection = document.getElementById('achievement-section');
+                    
+                    // 顯示這兩個區塊
+                    if (stickerSection) stickerSection.classList.remove('hidden');
+                    if (achieveSection) {
+                        achieveSection.classList.remove('hidden');
+                        achieveSection.classList.add('flex');
                     }
+
+                    const nameDisplay = document.getElementById('user-name-display');
+                    if(nameDisplay) nameDisplay.innerText = AuthSystem.currentUser.name;
+                    
+                    // 載入貼紙
+                    loadStickers();
                 }
                 
                 // 3. ★★★ 載入橫向 Top 3 排行榜 ★★★
-                // 不使用 auth.js 內建的 loadLeaderboard，改用我們自定義的函式
                 loadTop3Leaderboard();
             }
         });
