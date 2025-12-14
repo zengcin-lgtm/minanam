@@ -116,10 +116,8 @@
             position: relative;
         }
 
-        .cert-stamp {
-            position: absolute;
-            bottom: 50px;
-            left: 100px;
+        /* 舊的 CSS stamp 樣式保留作為 fallback，但移除了絕對定位，改為 flex 佈局 */
+        .cert-stamp-fallback {
             width: 150px;
             height: 150px;
             border: 4px solid #E3002D;
@@ -133,6 +131,7 @@
             transform: rotate(-15deg);
             opacity: 0.8;
             border-style: double;
+            margin: 0 auto;
         }
     </style>
 </head>
@@ -214,7 +213,7 @@
                 </div>
                 <button onclick="AuthSystem.checkAndDownloadCertificate()" class="w-full bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white font-bold py-3 px-6 rounded-full shadow-md transform transition hover:scale-105 flex items-center justify-center gap-2">
                     <i class="fa-solid fa-file-pdf"></i>
-                    領取結業證書
+                    領取學習證書
                 </button>
             </div>
         </div>
@@ -253,27 +252,41 @@
             <div class="absolute bottom-0 left-0 text-6xl text-red-600 opacity-20 p-4"><i class="fa-solid fa-mountain"></i></div>
             <div class="absolute bottom-0 right-0 text-6xl text-red-600 opacity-20 p-4"><i class="fa-solid fa-mountain"></i></div>
 
-            <h1 class="text-6xl font-bold mb-8 text-red-700 tracking-widest">結業證書</h1>
+            <h1 class="text-6xl font-bold mb-8 text-red-700 tracking-widest">學習證書</h1>
             
             <p class="text-2xl mb-2 text-gray-600">茲證明學生</p>
             <h2 id="cert-student-name" class="text-5xl font-bold mb-6 border-b-2 border-gray-300 pb-2 px-10">王小明</h2>
             
             <p class="text-xl mb-8 max-w-2xl leading-loose">
-                於本學期修習「阿美族語初級課程」，通過所有遊戲挑戰關卡，<br>
+                於114學年度第1學期通過阿美族語學習網所有遊戲挑戰關卡，<br>
                 成績優異，展現對阿美族文化之熱愛與傳承精神，<br>
                 特頒此證，以資鼓勵。
             </p>
 
             <div class="mt-12 flex justify-between w-3/4 items-end">
-                <div class="text-center">
-                    <div class="cert-stamp">太巴塱<br>幼兒園</div>
+                <div class="text-center relative" style="width: 200px;">
+                    <!-- 1:1 正方形戳章 -->
+                    <img src="images/stamp.png" 
+                         alt="太巴塱幼兒園" 
+                         class="mx-auto opacity-80" 
+                         style="width: 150px; height: 150px; object-fit: contain; transform: rotate(-15deg);"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                    <!-- 備用文字戳章 (如果圖檔載入失敗) -->
+                    <div class="cert-stamp-fallback hidden">太巴塱<br>幼兒園</div>
                 </div>
                 <div class="text-center">
                     <p class="text-lg text-gray-500 mb-1">頒發日期</p>
                     <p id="cert-date" class="text-2xl font-bold">2023 年 12 月 25 日</p>
                 </div>
-                <div class="text-center">
-                    <div class="w-32 h-1 border-b-2 border-black mb-2 mx-auto"></div>
+                <div class="text-center relative" style="width: 200px;">
+                    <!-- 11:3 比例校長簽章 -->
+                    <img src="images/signature.png" 
+                         alt="校長簽章" 
+                         class="mx-auto mb-2"
+                         style="width: 165px; height: 45px; object-fit: contain;"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+                    <!-- 備用橫線 (如果圖檔載入失敗) -->
+                    <div class="w-32 h-1 border-b-2 border-black mb-2 mx-auto hidden"></div>
                     <p class="text-xl font-bold">校長簽章</p>
                 </div>
             </div>
