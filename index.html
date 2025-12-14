@@ -52,6 +52,22 @@
             background-size: 20px 20px;
         }
 
+        /* 自定義捲軸 */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
         /* ★★★ 2. 證書樣式 (必須加入才能正常截圖) ★★★ */
         #certificate-template {
             width: 1123px; /* A4 橫向像素 */
@@ -138,26 +154,48 @@
     <!-- 主要內容區 -->
     <main class="flex-grow max-w-6xl mx-auto px-4 py-12 w-full">
         
-        <!-- ★★★ 3. 我的成就區塊 (登入後才會顯示) ★★★ -->
-        <div id="achievement-section" class="bg-white rounded-2xl p-8 shadow-lg border-l-8 border-yellow-400 mb-10 hidden">
-            <div class="flex flex-col md:flex-row items-center justify-between">
-                <div class="mb-4 md:mb-0">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-2">
-                        <i class="fa-solid fa-medal text-yellow-500 mr-2"></i>學習成就中心
-                    </h2>
-                    <p class="text-gray-600">
-                        你好，<span id="user-name-display" class="font-bold text-blue-600">同學</span>！
-                        目前完成度：<span id="progress-text" class="font-bold">點擊按鈕檢查</span>
-                    </p>
+        <!-- ★★★ 排行榜與成就區塊 ★★★ -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
+            
+            <!-- 左側：榮譽排行榜 (新增) -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-2xl p-6 shadow-lg border-t-8 border-orange-400 h-full">
+                    <div class="flex items-center mb-4">
+                        <i class="fa-solid fa-trophy text-orange-400 text-2xl mr-3"></i>
+                        <h2 class="text-xl font-bold text-gray-800">榮譽排行榜 (Top 10)</h2>
+                    </div>
+                    <!-- 排行榜列表容器 -->
+                    <div id="leaderboard-list" class="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                        <!-- 內容會由 JS 自動載入 -->
+                        <div class="text-center py-8 text-gray-400">
+                            <i class="fa-solid fa-spinner fa-spin mr-2"></i>載入中...
+                        </div>
+                    </div>
                 </div>
-                <button onclick="AuthSystem.checkAndDownloadCertificate()" class="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white font-bold py-3 px-8 rounded-full shadow-md transform transition hover:scale-105 flex items-center gap-2">
-                    <i class="fa-solid fa-file-pdf"></i>
-                    領取結業證書
-                </button>
+            </div>
+
+            <!-- 右側：我的成就區塊 (寬度佔 2/3) -->
+            <div id="achievement-section" class="lg:col-span-2 bg-white rounded-2xl p-8 shadow-lg border-l-8 border-yellow-400 hidden flex flex-col justify-center">
+                <div class="flex flex-col md:flex-row items-center justify-between">
+                    <div class="mb-4 md:mb-0">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-2">
+                            <i class="fa-solid fa-medal text-yellow-500 mr-2"></i>學習成就中心
+                        </h2>
+                        <p class="text-gray-600">
+                            你好，<span id="user-name-display" class="font-bold text-blue-600">同學</span>！
+                            目前完成度：<span id="progress-text" class="font-bold">點擊按鈕檢查</span>
+                        </p>
+                    </div>
+                    <button onclick="AuthSystem.checkAndDownloadCertificate()" class="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white font-bold py-3 px-8 rounded-full shadow-md transform transition hover:scale-105 flex items-center gap-2">
+                        <i class="fa-solid fa-file-pdf"></i>
+                        領取結業證書
+                    </button>
+                </div>
             </div>
         </div>
 
         <!-- 課程列表容器 (由 JS 自動生成) -->
+        <h3 class="text-2xl font-bold text-gray-700 mb-6 border-l-4 border-amis-red pl-4">課程單元</h3>
         <div id="lessons-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             <div class="col-span-full text-center text-gray-500 py-10">
                 <i class="fa-solid fa-spinner fa-spin text-3xl mb-3"></i>
@@ -196,14 +234,14 @@
             <h2 id="cert-student-name" class="text-5xl font-bold mb-6 border-b-2 border-gray-300 pb-2 px-10">王小明</h2>
             
             <p class="text-xl mb-8 max-w-2xl leading-loose">
-                完成114學年度第1學期阿美族語學習網所有遊戲挑戰關卡，<br>
+                於本學期修習「阿美族語初級課程」，通過所有遊戲挑戰關卡，<br>
                 成績優異，展現對阿美族文化之熱愛與傳承精神，<br>
                 特頒此證，以資鼓勵。
             </p>
 
             <div class="mt-12 flex justify-between w-3/4 items-end">
                 <div class="text-center">
-                    <div class="cert-stamp">太巴塱國小<br>附設幼兒園</div>
+                    <div class="cert-stamp">太巴塱<br>幼兒園</div>
                 </div>
                 <div class="text-center">
                     <p class="text-lg text-gray-500 mb-1">頒發日期</p>
@@ -211,7 +249,7 @@
                 </div>
                 <div class="text-center">
                     <div class="w-32 h-1 border-b-2 border-black mb-2 mx-auto"></div>
-                    <p class="text-xl font-bold">校長 劉從義</p>
+                    <p class="text-xl font-bold">校長簽章</p>
                 </div>
             </div>
         </div>
@@ -226,7 +264,7 @@
 
     <script>
         // =================================================================
-        // ★★★ 課程列表資料 (保留您的第15週) ★★★
+        // ★★★ 課程列表資料 ★★★
         // =================================================================
         
         const websiteData = {
@@ -355,7 +393,7 @@
         }
 
         // =================================================================
-        // 初始化與執行 (修正：使用 EventListener 確保順序正確)
+        // 初始化與執行
         // =================================================================
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -363,20 +401,20 @@
             renderLessons();
 
             // 2. 檢查會員狀態，顯示證書區塊
-            // (我們檢查 window.AuthSystem 是否存在，避免報錯)
-            if (typeof AuthSystem !== 'undefined' && AuthSystem.currentUser) {
-                const section = document.getElementById('achievement-section');
-                if (section) {
-                    section.classList.remove('hidden');
-                    const nameDisplay = document.getElementById('user-name-display');
-                    if(nameDisplay) nameDisplay.innerText = AuthSystem.currentUser.name;
+            if (typeof AuthSystem !== 'undefined') {
+                if (AuthSystem.currentUser) {
+                    const section = document.getElementById('achievement-section');
+                    if (section) {
+                        section.classList.remove('hidden');
+                        const nameDisplay = document.getElementById('user-name-display');
+                        if(nameDisplay) nameDisplay.innerText = AuthSystem.currentUser.name;
+                    }
                 }
+                
+                // 3. ★★★ 載入排行榜 (不管有無登入都顯示) ★★★
+                AuthSystem.loadLeaderboard('leaderboard-list');
             }
         });
     </script>
 </body>
 </html>
-
-
-
-
