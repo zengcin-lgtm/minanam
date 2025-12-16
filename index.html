@@ -4,10 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>太巴塱國小附設幼兒園 - 阿美族語學習網</title>
+    
+    <!-- ★★★ 1. 設定 Favicon (網頁標籤圖示) ★★★ -->
+    <link rel="icon" type="image/jpeg" href="images/logo.jpg">
+    <link rel="shortcut icon" type="image/jpeg" href="images/logo.jpg">
+
+    <!-- ★★★ 2. 設定 Open Graph (分享預覽圖) ★★★ -->
+    <!-- 當你把網址貼到 Line, Facebook, Messenger 時會顯示這張圖 -->
+    <meta property="og:title" content="太巴塱國小附設幼兒園 - 阿美族語學習網">
+    <meta property="og:description" content="快樂學習，傳承文化！一起來學阿美族語吧！">
+    <meta property="og:image" content="images/logo.jpg">
+    <meta property="og:url" content=""> <!-- 如果有固定網址，建議填寫 -->
+    <meta property="og:type" content="website">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- ★★★ 1. 引入 PDF 製作工具 (證書功能需要) ★★★ -->
+    <!-- 引入 PDF 製作工具 (證書功能需要) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
@@ -83,7 +96,7 @@
             transform: scale(1.15) rotate(5deg);
         }
 
-        /* ★★★ 2. 證書樣式 (必須加入才能正常截圖) ★★★ */
+        /* 證書樣式 */
         #certificate-template {
             width: 1123px; /* A4 橫向像素 */
             height: 794px;
@@ -116,7 +129,7 @@
             position: relative;
         }
 
-        /* 舊的 CSS stamp 樣式保留作為 fallback，但移除了絕對定位，改為 flex 佈局 */
+        /* 舊的 CSS stamp 樣式保留作為 fallback */
         .cert-stamp-fallback {
             width: 150px;
             height: 150px;
@@ -141,7 +154,10 @@
     <header class="bg-white shadow-md sticky top-0 z-50">
         <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <div class="w-12 h-12 bg-amis-red rounded-full flex items-center justify-center text-white font-bold text-2xl shadow-sm">T</div>
+                <div class="w-12 h-12 bg-amis-red rounded-full flex items-center justify-center text-white font-bold text-2xl shadow-sm overflow-hidden border-2 border-white">
+                    <!-- ★★★ 3. Logo 顯示在 Header ★★★ -->
+                    <img src="images/logo.jpg" alt="Logo" class="w-full h-full object-cover" onerror="this.style.display='none'; this.parentElement.innerText='T'">
+                </div>
                 <div class="flex flex-col">
                     <span class="text-xl font-bold text-gray-800 tracking-wide leading-tight">阿美族語學習網</span>
                     <span class="text-sm text-gray-500 font-medium">太巴塱國小附設幼兒園</span>
@@ -176,7 +192,6 @@
             </div>
             
             <div id="leaderboard-top3" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- 內容由 JS 產生 -->
                 <div class="col-span-full text-center py-8 text-gray-400 bg-white rounded-2xl shadow-sm border border-gray-100">
                     <i class="fa-solid fa-spinner fa-spin mr-2"></i>正在讀取排行榜...
                 </div>
@@ -186,14 +201,13 @@
         <!-- ★★★ 成就與貼紙區塊 (兩欄式) ★★★ -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
             
-            <!-- 左側：我的貼紙簿 (新增) -->
+            <!-- 左側：我的貼紙簿 -->
             <div id="sticker-section" class="lg:col-span-2 bg-white rounded-2xl p-6 shadow-lg border-t-8 border-pink-400 hidden">
                 <div class="flex items-center mb-4">
                     <i class="fa-solid fa-star text-pink-400 text-2xl mr-3"></i>
                     <h2 class="text-xl font-bold text-gray-800">我的貼紙簿</h2>
                 </div>
                 <div id="sticker-container" class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-4">
-                    <!-- 貼紙由 JS 自動生成 -->
                     <div class="col-span-full text-center py-4 text-gray-400">
                         <i class="fa-solid fa-spinner fa-spin mr-2"></i>檢查貼紙中...
                     </div>
@@ -213,12 +227,12 @@
                 </div>
                 <button onclick="AuthSystem.checkAndDownloadCertificate()" class="w-full bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white font-bold py-3 px-6 rounded-full shadow-md transform transition hover:scale-105 flex items-center justify-center gap-2">
                     <i class="fa-solid fa-file-pdf"></i>
-                    領取學習證書
+                    領取結業證書
                 </button>
             </div>
         </div>
 
-        <!-- 課程列表容器 (由 JS 自動生成) -->
+        <!-- 課程列表容器 -->
         <h3 class="text-2xl font-bold text-gray-700 mb-6 border-l-4 border-amis-red pl-4">課程單元</h3>
         <div id="lessons-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             <div class="col-span-full text-center text-gray-500 py-10">
@@ -252,13 +266,13 @@
             <div class="absolute bottom-0 left-0 text-6xl text-red-600 opacity-20 p-4"><i class="fa-solid fa-mountain"></i></div>
             <div class="absolute bottom-0 right-0 text-6xl text-red-600 opacity-20 p-4"><i class="fa-solid fa-mountain"></i></div>
 
-            <h1 class="text-6xl font-bold mb-8 text-red-700 tracking-widest">學習證書</h1>
+            <h1 class="text-6xl font-bold mb-8 text-red-700 tracking-widest">結業證書</h1>
             
             <p class="text-2xl mb-2 text-gray-600">茲證明學生</p>
             <h2 id="cert-student-name" class="text-5xl font-bold mb-6 border-b-2 border-gray-300 pb-2 px-10">王小明</h2>
             
             <p class="text-xl mb-8 max-w-2xl leading-loose">
-                於114學年度第1學期，通過阿美族語學習網所有遊戲挑戰關卡，<br>
+                於本學期修習「阿美族語初級課程」，通過所有遊戲挑戰關卡，<br>
                 成績優異，展現對阿美族文化之熱愛與傳承精神，<br>
                 特頒此證，以資鼓勵。
             </p>
@@ -269,9 +283,9 @@
                     <img src="images/stamp.png" 
                          alt="太巴塱幼兒園" 
                          class="mx-auto opacity-80" 
-                         style="width: 150px; height: 150px; object-fit: contain;"
+                         style="width: 150px; height: 150px; object-fit: contain; transform: rotate(-15deg);"
                          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-                    <!-- 備用文字戳章 (如果圖檔載入失敗) -->
+                    <!-- 備用文字戳章 -->
                     <div class="cert-stamp-fallback hidden">太巴塱<br>幼兒園</div>
                 </div>
                 <div class="text-center">
@@ -285,7 +299,7 @@
                          class="mx-auto mb-2"
                          style="width: 165px; height: 45px; object-fit: contain;"
                          onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
-                    <!-- 備用橫線 (如果圖檔載入失敗) -->
+                    <!-- 備用橫線 -->
                     <div class="w-32 h-1 border-b-2 border-black mb-2 mx-auto hidden"></div>
                     <p class="text-xl font-bold">校長簽章</p>
                 </div>
@@ -293,16 +307,12 @@
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!--          JAVASCRIPT 設定與邏輯區           -->
-    <!-- ========================================== -->
-    
     <!-- 先載入 Auth.js -->
     <script src="js/auth.js"></script>
 
     <script>
         // =================================================================
-        // ★★★ 設定區：請在此處維護您的網站內容 ★★★
+        // ★★★ 設定區 ★★★
         // =================================================================
         
         const appConfig = {
@@ -361,11 +371,10 @@
             ],
             // 貼紙設定
             stickers: [
-                { id: 'game15', name: '第15週', icon: 'fa-bolt', color: 'text-yellow-500' },
                 { id: 'game14', name: '第14週', icon: 'fa-shirt', color: 'text-orange-500' },
+                { id: 'game15', name: '第15週', icon: 'fa-bolt', color: 'text-yellow-500' },
                 { id: 'game13', name: '第13週', icon: 'fa-child-reaching', color: 'text-blue-500' },
                 { id: 'game12', name: '第12週', icon: 'fa-bowl-rice', color: 'text-green-500' },
-                // 可在此處新增更多貼紙...
             ]
         };
 
@@ -594,4 +603,3 @@
     </script>
 </body>
 </html>
-
