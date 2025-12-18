@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>太巴塱國小附設幼兒園 - 阿美族語學習網</title>
+    
+    <!-- ★★★ 1. 設定 Favicon (網頁標籤圖示) ★★★ -->
+    <link rel="icon" type="image/jpeg" href="../images/logo.jpg">
+    <link rel="shortcut icon" type="image/jpeg" href="../images/logo.jpg">
+
+    <!-- ★★★ 2. 設定 Open Graph (分享預覽圖) ★★★ -->
+    <meta property="og:title" content="第16週：聖誕快樂 - 阿美族語學習網">
+    <meta property="og:description" content="本週主題：聖誕節特別篇。學習如何說「睡覺」、「照顧」與「美好」。">
+    <meta property="og:image" content="../images/logo.jpg">
+    <meta property="og:url" content="">
+    <meta property="og:type" content="article">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@700&display=swap'); /* 聖誕字體 */
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f3f4f6;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23e5e7eb' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .text-amis-red { color: #E3002D; }
+        .bg-amis-red { background-color: #E3002D; }
+        .border-amis-red { border-color: #E3002D; }
+
+        .weaving-pattern {
+            height: 24px;
+            width: 100%;
+            background-image: 
+                linear-gradient(135deg, #000000 25%, transparent 25%), 
+                linear-gradient(225deg, #000000 25%, transparent 25%), 
+                linear-gradient(45deg, #000000 25%, transparent 25%), 
+                linear-gradient(315deg, #000000 25%, transparent 25%);
+            background-position: 12px 0, 12px 0, 0 0, 0 0;
+            background-size: 24px 24px;
+            background-repeat: repeat-x;
+            background-color: #ffffff;
+            opacity: 0.9;
+        }
+
+        .vocab-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .vocab-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+
+        .chat-bubble {
+            position: relative;
+            padding: 15px 20px;
+            border-radius: 20px;
+            max-width: 80%;
+            margin-bottom: 20px;
+        }
+        .chat-left {
+            background-color: white;
+            border: 2px solid #e5e7eb;
+            border-bottom-left-radius: 2px;
+            margin-right: auto;
+        }
+        .chat-right {
+            background-color: #FEF3C7;
+            border: 2px solid #FCD34D;
+            border-bottom-right-radius: 2px;
+            margin-left: auto;
+        }
+        
+        /* 聖誕節特別樣式 */
+        .xmas-theme-red { color: #c0392b; }
+        .xmas-theme-green { color: #27ae60; }
+        .xmas-font { font-family: 'Mountains+of+Christmas', cursive; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- 頂部導覽列 -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 bg-amis-red rounded-full flex items-center justify-center text-white font-bold text-2xl shadow-sm overflow-hidden border-2 border-white">
+                    <!-- ★★★ 3. Logo 顯示在 Header ★★★ -->
+                    <img src="../images/logo.jpg" alt="Logo" class="w-full h-full object-cover" onerror="this.style.display='none'; this.parentElement.innerText='T'">
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-xl font-bold text-gray-800 tracking-wide leading-tight">阿美族語學習網</span>
+                    <span class="text-sm text-gray-500 font-medium">太巴塱國小附設幼兒園</span>
+                </div>
+            </div>
+            <div class="hidden md:block">
+                <a href="../index.html" class="text-gray-500 hover:text-amis-red font-bold transition flex items-center">
+                    <i class="fa-solid fa-house mr-2"></i>回首頁
+                </a>
+            </div>
+        </div>
+        <div class="weaving-pattern"></div>
+    </header>
+
+    <main class="flex-grow max-w-4xl mx-auto px-4 py-8 w-full space-y-10">
+
+        <!-- 頁面標題 (由 JS 填入) -->
+        <div class="text-center mb-8 relative">
+            <div class="absolute -top-6 left-1/2 transform -translate-x-1/2 text-4xl text-green-600 opacity-20"><i class="fa-solid fa-tree"></i></div>
+            <h1 id="page-title" class="text-3xl font-bold text-gray-800 mb-2 relative z-10">載入中...</h1>
+            <div class="h-1 w-20 bg-gradient-to-r from-red-500 to-green-500 mx-auto rounded-full"></div>
+        </div>
+
+        <!-- 1. 句型練習區 -->
+        <section>
+            <div class="flex items-center mb-6">
+                <div class="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center text-white mr-3 shadow-md border-2 border-green-500">
+                    <i class="fa-solid fa-comments"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800">句型練習 <span class="text-sm font-normal text-green-600 ml-2 xmas-font">Christmas Talk</span></h2>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-2 border-red-100 relative overflow-hidden">
+                <!-- 裝飾 -->
+                <div class="absolute top-0 right-0 p-4 opacity-10 text-6xl text-red-500"><i class="fa-solid fa-candy-cane"></i></div>
+
+                <!-- 老師問 (由 JS 填入) -->
+                <div class="flex items-end mb-6 relative z-10">
+                    <div class="w-12 h-12 rounded-full bg-gray-100 flex-shrink-0 mr-4 overflow-hidden border-2 border-red-200 shadow-sm flex items-center justify-center text-red-500">
+                        <i class="fa-solid fa-user-tie text-2xl"></i>
+                    </div>
+                    <div class="chat-bubble chat-left">
+                        <div class="text-gray-500 text-xs font-bold mb-1">老師 (Singsi)</div>
+                        <p id="teacher-sentence" class="text-xl font-bold text-gray-800">...</p>
+                        <p id="teacher-trans" class="text-gray-500 text-sm mt-1">...</p>
+                        <button id="teacher-audio-btn" class="absolute -right-10 bottom-0 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 hover:text-amis-red hover:bg-red-50 transition shadow-sm">
+                            <i class="fa-solid fa-volume-high"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 小朋友答 (由 JS 填入) -->
+                <div class="flex items-end flex-row-reverse relative z-10">
+                    <div class="w-12 h-12 rounded-full bg-yellow-50 flex-shrink-0 ml-4 overflow-hidden border-2 border-green-200 shadow-sm flex items-center justify-center text-green-600">
+                        <i class="fa-solid fa-child text-2xl"></i>
+                    </div>
+                    <div class="chat-bubble chat-right">
+                        <div class="text-yellow-700 text-xs font-bold mb-1 text-right">小朋友 (Wawa)</div>
+                        <p id="student-sentence" class="text-xl font-bold text-gray-800">...</p>
+                        <p id="student-trans" class="text-gray-500 text-sm mt-1 text-right">...</p>
+                        <button id="student-audio-btn" class="absolute -left-10 bottom-0 w-8 h-8 bg-yellow-50 rounded-full flex items-center justify-center text-yellow-600 hover:bg-yellow-200 transition shadow-sm">
+                            <i class="fa-solid fa-volume-high"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 2. 單字學習區 -->
+        <section>
+            <div class="flex items-center mb-6">
+                <div class="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center text-white mr-3 shadow-md border-2 border-red-500">
+                    <i class="fa-solid fa-book"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800">單字練習 <span class="text-sm font-normal text-red-500 ml-2 xmas-font">Word Gift</span></h2>
+            </div>
+
+            <!-- 單字卡片容器 (由 JS 自動生成) -->
+            <div id="vocab-container" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- 內容自動填入 -->
+            </div>
+        </section>
+
+        <!-- 3. 功能按鈕區 -->
+        <section class="bg-gradient-to-r from-red-50 to-green-50 rounded-3xl p-8 text-center border-2 border-white shadow-inner mt-10">
+            <h3 class="text-xl font-bold text-gray-800 mb-6"><i class="fa-solid fa-star text-yellow-400 mr-2"></i>學習挑戰區</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
+                
+                <!-- 下載學習單 -->
+                <a id="worksheet-link" href="#" class="flex items-center justify-center bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-200 font-bold py-4 px-6 rounded-xl transition shadow-sm hover:shadow-md group">
+                    <i class="fa-solid fa-file-arrow-down text-2xl mr-3 text-blue-500 group-hover:scale-110 transition"></i>
+                    <div class="text-left">
+                        <div class="text-lg">下載學習單</div>
+                        <div class="text-xs text-gray-400">PDF 練習檔案</div>
+                    </div>
+                </a>
+
+                <!-- 遊戲挑戰 -->
+                <a id="game-link" href="#" target="_blank" class="flex items-center justify-center bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-6 rounded-xl transition shadow-md hover:shadow-lg hover:scale-105 transform border-2 border-green-400">
+                    <i class="fa-solid fa-gamepad text-3xl mr-3 text-yellow-300"></i>
+                    <div class="text-left">
+                        <div class="text-lg">遊戲挑戰</div>
+                        <div class="text-xs text-red-100">聖誕特別版！</div>
+                    </div>
+                </a>
+
+            </div>
+        </section>
+
+        <!-- 底部導覽 -->
+        <div class="text-center pt-8 pb-4">
+            <a href="../index.html" class="inline-flex items-center text-gray-500 hover:text-amis-red font-bold transition px-4 py-2 rounded-full hover:bg-white">
+                <i class="fa-solid fa-house mr-2"></i> 回網站首頁
+            </a>
+        </div>
+
+    </main>
+
+    <!-- 頁尾 -->
+    <footer class="bg-gray-800 text-gray-300 py-10 mt-8">
+        <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
+            <div class="mb-6 md:mb-0 text-center md:text-left">
+                <h4 class="text-white font-bold text-xl mb-2">花蓮縣光復鄉太巴塱國民小學附設幼兒園</h4>
+                <p class="text-sm opacity-80"><i class="fa-solid fa-location-dot mr-2"></i>花蓮縣光復鄉中正路二段23號</p>
+                <p class="text-sm opacity-80 mt-1">傳承文化，快樂學習</p>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-6 text-center text-xs text-gray-500 w-full md:w-auto md:border-t-0 md:mt-0">
+                &copy; 2023 Tafalong Elementary School Preschool.
+            </div>
+        </div>
+    </footer>
+
+    <!-- 音效播放器 -->
+    <audio id="audio-player"></audio>
+
+    <!-- 引入會員系統 -->
+    <script src="../js/auth.js"></script>
+
+    <!-- ========================================== -->
+    <!--          JAVASCRIPT 設定與邏輯區           -->
+    <!-- ========================================== -->
+    <script>
+        // =================================================================
+        // ★★★ 第16週課程內容 ★★★
+        // =================================================================
+        
+        const lessonData = {
+            title: "第16週：聖誕快樂",
+            
+            // 句型練習
+            sentence: {
+                teacher: {
+                    text: "Mimaan kiso?",
+                    translation: "你在做什麼？",
+                    audio: "../audio/question_mimaan_kiso.wav" // 請確認是否有此音檔，或用 mimaan_kita.wav 替代
+                },
+                student: {
+                    text: "Mafoti' kako.",
+                    translation: "我在睡覺。",
+                    audio: "../audio/sentence_mafoti.wav" 
+                }
+            },
+
+            // 單字列表 (配色改為聖誕風)
+            vocabList: [
+                {
+                    word: "mafoti'",
+                    subText: "",
+                    translation: "睡覺",
+                    image: "../images/mafoti.jpg", // 需準備
+                    audio: "../audio/mafoti.wav", // 需準備
+                    color: "xmas-red" 
+                },
+                {
+                    word: "misimaw",
+                    subText: "",
+                    translation: "照顧",
+                    image: "../images/misimaw.jpg", // 需準備
+                    audio: "../audio/misimaw.wav", // 需準備
+                    color: "xmas-green"
+                },
+                {
+                    word: "fangcalay",
+                    subText: "",
+                    translation: "美好",
+                    image: "../images/fangcalay.jpg", // 需準備
+                    audio: "../audio/fangcalay.wav", // 需準備
+                    color: "xmas-gold"
+                }
+            ],
+
+            links: {
+                worksheet: "#", 
+                worksheetAlert: "學習單尚未上傳喔！",
+                game: "../games/game_week16.html"
+            }
+        };
+
+        // =================================================================
+        // 下方程式碼負責將資料填入網頁
+        // =================================================================
+
+        function initPage() {
+            // 設定標題
+            document.title = "太巴塱國小附設幼兒園 - " + lessonData.title;
+            document.getElementById('page-title').textContent = lessonData.title;
+
+            // 設定句型
+            document.getElementById('teacher-sentence').textContent = lessonData.sentence.teacher.text;
+            document.getElementById('teacher-trans').textContent = lessonData.sentence.teacher.translation;
+            document.getElementById('teacher-audio-btn').onclick = () => playAudio(lessonData.sentence.teacher.audio);
+
+            document.getElementById('student-sentence').textContent = lessonData.sentence.student.text;
+            document.getElementById('student-trans').textContent = lessonData.sentence.student.translation;
+            document.getElementById('student-audio-btn').onclick = () => playAudio(lessonData.sentence.student.audio);
+
+            // 設定單字卡
+            const vocabContainer = document.getElementById('vocab-container');
+            vocabContainer.innerHTML = ''; 
+
+            lessonData.vocabList.forEach(item => {
+                // 聖誕主題配色
+                const colorMap = {
+                    'xmas-red':   { border: 'border-red-500',   bg: 'bg-red-50',   text: 'text-red-600',   hover: 'hover:bg-red-100', icon: 'fa-gift' },
+                    'xmas-green': { border: 'border-green-600', bg: 'bg-green-50', text: 'text-green-700', hover: 'hover:bg-green-100', icon: 'fa-tree' },
+                    'xmas-gold':  { border: 'border-yellow-500',bg: 'bg-yellow-50',text: 'text-yellow-600',hover: 'hover:bg-yellow-100', icon: 'fa-star' }
+                };
+                
+                const style = colorMap[item.color] || colorMap['xmas-red'];
+
+                const cardHtml = `
+                    <div class="vocab-card bg-white rounded-2xl overflow-hidden shadow-md border-b-4 ${style.border} relative">
+                        <div class="absolute top-2 right-2 text-2xl opacity-20 ${style.text}"><i class="fa-solid ${style.icon}"></i></div>
+                        <div class="h-48 bg-gray-100 flex items-center justify-center relative group cursor-pointer border-b border-gray-100" onclick="playAudio('${item.audio}')">
+                            <img src="${item.image}" class="w-full h-full object-contain p-4" alt="${item.translation}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2663/2663046.png'">
+                            <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition flex items-center justify-center">
+                                <i class="fa-solid fa-volume-high text-white opacity-0 group-hover:opacity-100 text-4xl drop-shadow-md"></i>
+                            </div>
+                        </div>
+                        <div class="p-5 text-center">
+                            <h3 class="text-3xl font-bold text-gray-800 mb-1">${item.word}</h3>
+                            ${item.subText ? `<p class="text-xs text-gray-400 mb-2">${item.subText}</p>` : '<div class="mb-2"></div>'}
+                            <p class="text-gray-500 text-lg">${item.translation}</p>
+                            <button onclick="playAudio('${item.audio}')" class="mt-4 w-full ${style.bg} ${style.hover} ${style.text} py-2 rounded-lg font-bold transition text-sm flex items-center justify-center">
+                                <i class="fa-solid fa-play mr-2"></i> 聽發音
+                            </button>
+                        </div>
+                    </div>
+                `;
+                vocabContainer.innerHTML += cardHtml;
+            });
+
+            // 設定連結
+            const worksheetBtn = document.getElementById('worksheet-link');
+            worksheetBtn.href = lessonData.links.worksheet;
+            if (lessonData.links.worksheet === '#' && lessonData.links.worksheetAlert) {
+                worksheetBtn.onclick = (e) => {
+                    e.preventDefault();
+                    alert(lessonData.links.worksheetAlert);
+                };
+            }
+
+            const gameBtn = document.getElementById('game-link');
+            gameBtn.href = lessonData.links.game;
+        }
+
+        function playAudio(src) {
+            const player = document.getElementById('audio-player');
+            player.src = src;
+            const playPromise = player.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    console.log("Audio not found: " + src);
+                });
+            }
+        }
+
+        window.onload = initPage;
+    </script>
+</body>
+</html>
