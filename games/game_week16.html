@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聖誕節特別挑戰 - Mafoti'ay a Kilisimas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@700&display=swap'); /* 聖誕字體 */
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: linear-gradient(to bottom, #0f2027, #203a43, #2c5364); /* 聖誕夜空 */
+            color: white;
+            overflow-x: hidden;
+        }
+
+        /* 雪花特效 */
+        .snowflake {
+            position: fixed;
+            top: -10px;
+            z-index: 0;
+            color: #fff;
+            opacity: 0.8;
+            font-size: 1em;
+            animation: fall linear forwards;
+        }
+        @keyframes fall {
+            to { transform: translateY(105vh); }
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+            border: 4px solid #c0392b; /* 聖誕紅 */
+            color: #333;
+        }
+
+        .gift-box {
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+        }
+        .gift-box:hover {
+            transform: scale(1.05) rotate(3deg);
+        }
+        .gift-box:active {
+            transform: scale(0.95);
+        }
+
+        /* 圖片選項樣式 */
+        .img-option {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 4px solid transparent;
+        }
+        .img-option:hover {
+            transform: scale(1.05);
+            border-color: #f1c40f; /* 金色邊框 */
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .img-option:active {
+            transform: scale(0.95);
+        }
+
+        .xmas-btn {
+            background-color: #27ae60; /* 聖誕綠 */
+            border-bottom: 4px solid #1e8449;
+            color: white;
+            transition: all 0.1s;
+        }
+        .xmas-btn:active {
+            border-bottom: 0;
+            transform: translateY(4px);
+        }
+
+        .title-font {
+            font-family: 'Mountains+of+Christmas', cursive;
+        }
+
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .bounce { animation: bounce 2s infinite; }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+            40% {transform: translateY(-20px);}
+            60% {transform: translateY(-10px);}
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 relative">
+
+    <!-- 雪花容器 -->
+    <div id="snow-container"></div>
+
+    <!-- 遊戲主容器 -->
+    <div class="w-full max-w-4xl relative z-10">
+        
+        <!-- 頂部裝飾 -->
+        <div class="flex justify-center mb-[-20px] relative z-20">
+            <div class="bg-red-600 text-white px-8 py-2 rounded-t-xl border-t-4 border-l-4 border-r-4 border-white font-bold text-xl shadow-lg flex items-center gap-2">
+                <i class="fa-solid fa-sleigh"></i> 第 16 週：聖誕節特別篇
+            </div>
+        </div>
+
+        <div class="game-card p-8 min-h-[500px] flex flex-col items-center justify-center relative overflow-hidden">
+            
+            <!-- 裝飾燈泡 (左上) -->
+            <div class="absolute top-0 left-4 w-4 h-16 bg-green-500 rounded-b-full opacity-80 animate-pulse"></div>
+            <div class="absolute top-0 left-12 w-4 h-12 bg-red-500 rounded-b-full opacity-80 animate-pulse" style="animation-delay: 0.5s"></div>
+            <!-- 裝飾燈泡 (右上) -->
+            <div class="absolute top-0 right-4 w-4 h-16 bg-yellow-400 rounded-b-full opacity-80 animate-pulse" style="animation-delay: 1s"></div>
+            <div class="absolute top-0 right-12 w-4 h-12 bg-blue-500 rounded-b-full opacity-80 animate-pulse" style="animation-delay: 1.5s"></div>
+
+            <!-- 1. 開始畫面 -->
+            <div id="screen-start" class="text-center w-full max-w-md">
+                <div class="text-6xl text-red-600 mb-4 bounce">
+                    <i class="fa-solid fa-gift"></i>
+                </div>
+                <h1 class="text-4xl md:text-5xl font-bold mb-2 title-font text-green-700">Merry Christmas!</h1>
+                <h2 class="text-2xl font-bold text-gray-600 mb-6">阿美族語聖誕挑戰</h2>
+                
+                <div class="bg-green-50 p-4 rounded-xl border-2 border-green-200 mb-8 text-left">
+                    <p class="font-bold text-green-800 mb-2"><i class="fa-solid fa-circle-info mr-2"></i>本週單字：</p>
+                    <ul class="space-y-2 text-gray-700">
+                        <li class="flex items-center"><span class="w-24 font-bold text-red-500">mafoti'</span> <span>睡覺 (Sleep)</span></li>
+                        <li class="flex items-center"><span class="w-24 font-bold text-red-500">misimaw</span> <span>照顧 (Take care)</span></li>
+                        <li class="flex items-center"><span class="w-24 font-bold text-red-500">fangcalay</span> <span>美好 (Beautiful)</span></li>
+                    </ul>
+                </div>
+
+                <button onclick="game.start()" class="xmas-btn w-full py-4 rounded-full text-2xl font-bold shadow-lg flex items-center justify-center gap-3">
+                    <i class="fa-solid fa-play"></i> 開始拆禮物
+                </button>
+                <p class="text-sm text-gray-400 mt-4">* 請先確認右上角已登入，才能紀錄聖誕禮物喔！</p>
+            </div>
+
+            <!-- 2. 遊戲進行畫面 -->
+            <div id="screen-quiz" class="hidden w-full flex flex-col h-full">
+                <!-- 進度條 -->
+                <div class="w-full bg-gray-200 rounded-full h-4 mb-8 border border-gray-300">
+                    <div id="progress-bar" class="bg-red-500 h-full rounded-full transition-all duration-500 relative overflow-hidden" style="width: 0%">
+                        <div class="absolute inset-0 bg-white opacity-20" style="background-image: linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent); background-size: 1rem 1rem;"></div>
+                    </div>
+                </div>
+
+                <!-- 題目區 -->
+                <div class="flex-grow flex flex-col items-center justify-center">
+                    
+                    <!-- 提示文字 -->
+                    <div id="instruction-text" class="text-2xl font-bold text-gray-700 mb-8 text-center animate-bounce">
+                        看圖片，哪一個禮物盒的聲音是對的？
+                    </div>
+
+                    <!-- 題目內容 (動態生成) -->
+                    <div id="quiz-content" class="w-full text-center">
+                        <!-- 圖片顯示區 (Phase 1) 或 音訊按鈕 (Phase 2) -->
+                        <div id="question-display" class="mb-10 flex justify-center">
+                            <!-- JS 會在這裡插入圖片或按鈕 -->
+                        </div>
+
+                        <!-- 選項區 -->
+                        <div id="options-container" class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+                            <!-- 選項會填入這裡 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. 結算畫面 -->
+            <div id="screen-result" class="hidden text-center w-full max-w-md">
+                <div class="text-6xl text-yellow-500 mb-4">
+                    <i class="fa-solid fa-star"></i>
+                </div>
+                <h2 class="text-4xl font-bold text-red-600 mb-2 title-font">Challenge Complete!</h2>
+                <p class="text-gray-600 mb-6">你的聖誕禮物得分是...</p>
+                
+                <div class="text-7xl font-bold text-gray-800 mb-8" id="final-score">0</div>
+
+                <div id="feedback-msg" class="text-xl font-bold text-green-600 mb-8">
+                    太棒了！Fangcalay!
+                </div>
+
+                <div class="flex gap-4">
+                    <button onclick="location.reload()" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-xl font-bold transition">
+                        再玩一次
+                    </button>
+                    <a href="../index.html" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl font-bold transition flex items-center justify-center">
+                        回首頁
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 音效 -->
+    <audio id="bgm" loop>
+        <source src="https://assets.mixkit.co/active_storage/sfx/995/995-preview.mp3" type="audio/mpeg"> <!-- 暫用輕快背景音 -->
+    </audio>
+    <audio id="audio-player"></audio>
+    <audio id="sfx-correct" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
+    <audio id="sfx-wrong" src="https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3"></audio>
+
+    <!-- 答題回饋遮罩 -->
+    <div id="feedback-overlay" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center backdrop-blur-sm">
+        <div class="bg-white rounded-full p-8 shadow-2xl transform scale-0 transition-transform duration-300" id="feedback-icon-container">
+            <i id="feedback-icon" class="fa-solid text-8xl"></i>
+        </div>
+    </div>
+
+    <!-- 引入會員系統 -->
+    <script src="../js/auth.js"></script>
+
+    <script>
+        // ==========================================
+        // 遊戲資料設定
+        // ==========================================
+        const gameData = [
+            { id: 'mafoti', word: "mafoti'", trans: "睡覺", img: "https://images.unsplash.com/photo-1541781777631-faaf292c9f43?auto=format&fit=crop&w=400&q=80", audio: "../audio/mafoti.wav" },
+            { id: 'misimaw', word: "misimaw", trans: "照顧", img: "https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=400&q=80", audio: "../audio/misimaw.wav" },
+            { id: 'fangcalay', word: "fangcalay", trans: "美好", img: "https://images.unsplash.com/photo-1512389142860-9c449e58a543?auto=format&fit=crop&w=400&q=80", audio: "../audio/fangcalay.wav" }
+        ];
+
+        class XmasGame {
+            constructor() {
+                this.score = 0;
+                this.currentQ = 0;
+                this.questions = [];
+                this.totalQ = 6;
+                this.isPlayingAudio = false;
+            }
+
+            initSnow() {
+                const container = document.getElementById('snow-container');
+                const createSnowflake = () => {
+                    const snowflake = document.createElement('div');
+                    snowflake.classList.add('snowflake');
+                    snowflake.innerHTML = '❄';
+                    snowflake.style.left = Math.random() * 100 + 'vw';
+                    snowflake.style.fontSize = Math.random() * 20 + 10 + 'px';
+                    snowflake.style.animationDuration = Math.random() * 3 + 2 + 's';
+                    snowflake.style.opacity = Math.random();
+                    container.appendChild(snowflake);
+                    
+                    // 飄落完畢後移除
+                    setTimeout(() => {
+                        snowflake.remove();
+                    }, 5000);
+                };
+                setInterval(createSnowflake, 200);
+            }
+
+            start() {
+                // 檢查登入 (防呆：確保 AuthSystem 已載入)
+                if (typeof AuthSystem !== 'undefined' && !AuthSystem.currentUser) {
+                    if(!confirm("您尚未登入，成績將不會被紀錄。\n是否繼續？")) {
+                        AuthSystem.showLoginModal();
+                        return;
+                    }
+                }
+
+                // 產生題目：6題 (3題看圖選音，3題聽音選圖)
+                this.questions = [];
+                
+                // Phase 1: 看圖選音 (禮物盒是音檔，無文字)
+                for(let i=0; i<3; i++) {
+                    const target = gameData[i % gameData.length];
+                    this.questions.push({ type: 'img-audio', target: target }); 
+                }
+                
+                // Phase 2: 聽音選圖 (選項是圖片，無文字)
+                for(let i=0; i<3; i++) {
+                    const target = gameData[i % gameData.length];
+                    this.questions.push({ type: 'audio-img', target: target }); 
+                }
+                
+                // 洗牌題目
+                this.questions.sort(() => Math.random() - 0.5);
+
+                this.score = 0;
+                this.currentQ = 0;
+                
+                // 切換畫面
+                document.getElementById('screen-start').classList.add('hidden');
+                document.getElementById('screen-quiz').classList.remove('hidden');
+                
+                this.nextQuestion();
+            }
+
+            nextQuestion() {
+                if (this.currentQ >= this.questions.length) {
+                    this.endGame();
+                    return;
+                }
+
+                const q = this.questions[this.currentQ];
+                const instruction = document.getElementById('instruction-text');
+                const displayArea = document.getElementById('question-display');
+                const container = document.getElementById('options-container');
+                
+                // 更新進度條
+                const progress = ((this.currentQ) / this.questions.length) * 100;
+                document.getElementById('progress-bar').style.width = `${progress}%`;
+
+                // 清空區域
+                displayArea.innerHTML = '';
+                container.innerHTML = '';
+
+                // Phase 1: 看圖選音 (禮物盒是聲音)
+                if (q.type === 'img-audio') {
+                    instruction.innerText = "看看圖片，哪一個禮物盒的聲音是對的？";
+                    
+                    // 顯示大圖
+                    const bigImg = document.createElement('img');
+                    bigImg.src = q.target.img;
+                    bigImg.className = "w-48 h-48 object-cover rounded-xl shadow-lg border-4 border-white transform -rotate-2";
+                    displayArea.appendChild(bigImg);
+
+                    // 產生 3 個禮物盒選項 (點擊播放聲音並選擇)
+                    const options = this.shuffleOptions(q.target);
+                    options.forEach((opt, index) => {
+                        const el = document.createElement('div');
+                        el.className = "gift-box bg-white p-4 rounded-xl border-2 border-gray-100 shadow-md flex flex-col items-center gap-2 h-40 justify-center group relative";
+                        
+                        // 禮物盒外觀 - 只有喇叭圖示，沒有文字
+                        el.innerHTML = `
+                            <div class="text-6xl text-red-500 mb-2 group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-gift"></i>
+                            </div>
+                            <div class="absolute bottom-4 right-4 bg-yellow-400 text-white rounded-full w-8 h-8 flex items-center justify-center shadow">
+                                <i class="fa-solid fa-music"></i>
+                            </div>
+                        `;
+                        
+                        // 點擊事件：播放聲音 + 檢查答案
+                        el.onclick = () => {
+                            this.playAudio(opt.audio);
+                            // 視覺回饋
+                            el.classList.add('ring-4', 'ring-green-400');
+                            // 延遲一點點再檢查，讓學生聽到聲音
+                            setTimeout(() => {
+                                this.checkAnswer(opt.id === q.target.id);
+                            }, 800); 
+                        };
+                        container.appendChild(el);
+                    });
+
+                } 
+                // Phase 2: 聽音選圖 (選項是圖片，無文字)
+                else {
+                    instruction.innerText = "聽聽看，這是哪張圖片？";
+                    
+                    // 顯示播放按鈕
+                    const playBtn = document.createElement('button');
+                    playBtn.className = "bg-yellow-400 hover:bg-yellow-500 text-white w-24 h-24 rounded-full text-4xl shadow-md transition transform hover:scale-110 active:scale-95 flex items-center justify-center";
+                    playBtn.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
+                    playBtn.onclick = () => this.playAudio(q.target.audio);
+                    displayArea.appendChild(playBtn);
+                    
+                    // 自動播放一次
+                    setTimeout(() => this.playAudio(q.target.audio), 500);
+
+                    // 產生 3 個圖片選項 (沒有文字)
+                    const options = this.shuffleOptions(q.target);
+                    options.forEach(opt => {
+                        const el = document.createElement('div');
+                        el.className = "img-option bg-white p-2 rounded-xl border-2 border-gray-100 shadow-md h-40 flex items-center justify-center overflow-hidden";
+                        
+                        el.innerHTML = `
+                            <img src="${opt.img}" class="w-full h-full object-cover rounded-lg" alt="option">
+                        `;
+                        
+                        el.onclick = () => {
+                            this.checkAnswer(opt.id === q.target.id);
+                        };
+                        container.appendChild(el);
+                    });
+                }
+            }
+
+            shuffleOptions(correct) {
+                let pool = gameData.filter(d => d.id !== correct.id);
+                pool.sort(() => Math.random() - 0.5);
+                const distractors = pool.slice(0, 2);
+                const options = [correct, ...distractors];
+                return options.sort(() => Math.random() - 0.5);
+            }
+
+            checkAnswer(isCorrect) {
+                const overlay = document.getElementById('feedback-overlay');
+                const iconContainer = document.getElementById('feedback-icon-container');
+                const icon = document.getElementById('feedback-icon');
+                
+                overlay.classList.remove('hidden');
+                overlay.classList.add('flex');
+                
+                setTimeout(() => {
+                    iconContainer.classList.remove('scale-0');
+                    iconContainer.classList.add('scale-100');
+                }, 50);
+
+                if (isCorrect) {
+                    this.score += Math.floor(100 / this.totalQ);
+                    if(this.currentQ === this.totalQ - 1 && this.score >= 95) this.score = 100;
+
+                    icon.className = "fa-solid fa-circle-check text-green-500 text-8xl";
+                    document.getElementById('sfx-correct').play().catch(()=>{});
+                } else {
+                    icon.className = "fa-solid fa-circle-xmark text-red-500 text-8xl";
+                    document.getElementById('sfx-wrong').play().catch(()=>{});
+                }
+
+                setTimeout(() => {
+                    iconContainer.classList.remove('scale-100');
+                    iconContainer.classList.add('scale-0');
+                    setTimeout(() => {
+                        overlay.classList.add('hidden');
+                        overlay.classList.remove('flex');
+                        this.currentQ++;
+                        this.nextQuestion();
+                    }, 300);
+                }, 1200);
+            }
+
+            playAudio(src) {
+                const p = document.getElementById('audio-player');
+                p.src = src;
+                p.play().catch(e => console.log("Audio play error", e));
+            }
+
+            endGame() {
+                document.getElementById('screen-quiz').classList.add('hidden');
+                document.getElementById('screen-result').classList.remove('hidden');
+                
+                const finalScoreEl = document.getElementById('final-score');
+                let tempScore = 0;
+                const timer = setInterval(() => {
+                    if(tempScore >= this.score) {
+                        tempScore = this.score;
+                        clearInterval(timer);
+                    } else {
+                        tempScore++;
+                    }
+                    finalScoreEl.innerText = tempScore;
+                }, 20);
+
+                if (typeof AuthSystem !== 'undefined' && AuthSystem.currentUser) {
+                    AuthSystem.submitScore("game16", this.score);
+                }
+            }
+        }
+
+        const game = new XmasGame();
+        game.initSnow();
+
+    </script>
+</body>
+</html>
