@@ -79,6 +79,21 @@
         .xmas-theme-red { color: #c0392b; }
         .xmas-theme-green { color: #27ae60; }
         .xmas-font { font-family: 'Mountains+of+Christmas', cursive; }
+
+        /* 折疊區塊動畫 */
+        details > summary {
+            list-style: none;
+        }
+        details > summary::-webkit-details-marker {
+            display: none;
+        }
+        details[open] summary ~ * {
+            animation: slideDown 0.3s ease-in-out;
+        }
+        @keyframes slideDown {
+            0% { opacity: 0; transform: translateY(-10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -172,6 +187,106 @@
             <!-- 單字卡片容器 (由 JS 自動生成) -->
             <div id="vocab-container" class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <!-- 內容自動填入 -->
+            </div>
+        </section>
+
+        <!-- ★★★ 新增：聖誕歌謠教唱區 ★★★ -->
+        <section>
+            <div class="flex items-center mb-6">
+                <div class="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center text-white mr-3 shadow-md border-2 border-orange-300">
+                    <i class="fa-solid fa-music"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800">聖誕歌謠教唱 <span class="text-sm font-normal text-red-500 ml-2 xmas-font">Christmas Songs</span></h2>
+            </div>
+
+            <div class="space-y-4">
+                
+                <!-- 歌曲 1 -->
+                <details class="group bg-white rounded-xl shadow-md border-l-4 border-red-500 overflow-hidden">
+                    <summary class="flex justify-between items-center p-5 cursor-pointer bg-red-50 hover:bg-red-100 transition select-none">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-red-500 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold shadow-sm">1</div>
+                            <h3 class="font-bold text-lg text-gray-800">Tayni to ci Yiso (耶穌來了)</h3>
+                        </div>
+                        <i class="fa-solid fa-chevron-down text-red-400 transition-transform duration-300 group-open:rotate-180"></i>
+                    </summary>
+                    <div class="p-6 border-t border-red-100 bg-white">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <!-- 影片 -->
+                            <div class="relative w-full pb-[56.25%] h-0 rounded-lg overflow-hidden shadow-lg border-2 border-red-100 bg-black">
+                                <iframe src="https://www.youtube.com/embed/MXU8BrgSGIg" title="Tayni to ci Yiso" class="absolute top-0 left-0 w-full h-full" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                            </div>
+                            <!-- 歌詞 -->
+                            <div class="bg-yellow-50 p-6 rounded-lg border border-yellow-200 shadow-inner h-full flex flex-col justify-center">
+                                <h4 class="text-center font-bold text-red-600 mb-4 text-xl border-b-2 border-red-200 pb-2 inline-block mx-auto">Radiw 歌詞</h4>
+                                <div class="text-center space-y-4 text-gray-700 leading-relaxed font-medium">
+                                    <p>
+                                        <span class="text-lg text-gray-800">polong no tametamedaw</span><br>
+                                        <span class="text-sm text-gray-500">所有的人</span>
+                                    </p>
+                                    <p>
+                                        <span class="text-lg text-gray-800">katayni mita'tong</span><br>
+                                        <span class="text-sm text-gray-500">快來致意</span>
+                                    </p>
+                                    <p>
+                                        <span class="text-lg text-gray-800">mitalaan toya raday a tapang ira to</span><br>
+                                        <span class="text-sm text-gray-500">期盼的主來了</span>
+                                    </p>
+                                    <p>
+                                        <span class="text-lg text-gray-800">tayni to ci Yiso</span><br>
+                                        <span class="text-sm text-gray-500">耶穌來了</span>
+                                    </p>
+                                    <p>
+                                        <span class="text-lg text-gray-800">Yiso Yiso tayniay to</span><br>
+                                        <span class="text-sm text-gray-500">耶穌來臨了</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </details>
+
+                <!-- 歌曲 2 -->
+                <details class="group bg-white rounded-xl shadow-md border-l-4 border-green-500 overflow-hidden">
+                    <summary class="flex justify-between items-center p-5 cursor-pointer bg-green-50 hover:bg-green-100 transition select-none">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-green-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold shadow-sm">2</div>
+                            <h3 class="font-bold text-lg text-gray-800">Si'enaw ci akong (阿公好冷)</h3>
+                        </div>
+                        <i class="fa-solid fa-chevron-down text-green-500 transition-transform duration-300 group-open:rotate-180"></i>
+                    </summary>
+                    <div class="p-6 border-t border-green-100 bg-white">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <!-- 影片 -->
+                            <div class="relative w-full pb-[56.25%] h-0 rounded-lg overflow-hidden shadow-lg border-2 border-green-100 bg-black">
+                                <iframe src="https://www.youtube.com/embed/Ti-Nqi6PCQc" title="Si'enaw ci akong" class="absolute top-0 left-0 w-full h-full" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                            </div>
+                            <!-- 歌詞 -->
+                            <div class="bg-blue-50 p-6 rounded-lg border border-blue-200 shadow-inner h-full flex flex-col justify-center">
+                                <h4 class="text-center font-bold text-blue-600 mb-4 text-xl border-b-2 border-blue-200 pb-2 inline-block mx-auto">Radiw 歌詞</h4>
+                                <div class="text-center space-y-4 text-gray-700 leading-relaxed font-medium">
+                                    <p>
+                                        <span class="text-lg text-gray-800">Si'enaway, Si'enaway, Si'enaw ci akong.</span><br>
+                                        <span class="text-sm text-gray-500">好冷 好冷 阿公好冷</span>
+                                    </p>
+                                    <p>
+                                        <span class="text-lg text-gray-800">Si'enaway, Si'enaway, Si'enaw ci ama.</span><br>
+                                        <span class="text-sm text-gray-500">好冷 好冷 阿嬤好冷</span>
+                                    </p>
+                                    <p>
+                                        <span class="text-lg text-gray-800">Si'enaway, Si'enaway, Si'enaw ci <span class="bg-yellow-200 px-2 rounded text-red-600">___</span>.</span><br>
+                                        <span class="text-sm text-gray-500">好冷 好冷 <span class="bg-yellow-200 px-1 rounded text-red-600">自己</span>好冷</span>
+                                    </p>
+                                    <p>
+                                        <span class="text-lg text-gray-800">Mafaha, paising, awa ko payso.</span><br>
+                                        <span class="text-sm text-gray-500">咳嗽了 看醫生 但是沒有錢</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </details>
+
             </div>
         </section>
 
