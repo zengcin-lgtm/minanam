@@ -50,6 +50,13 @@
         .gift-box:active {
             transform: scale(0.95);
         }
+        /* 選中狀態 */
+        .selected-option {
+            transform: scale(1.1) !important;
+            border-color: #27ae60 !important; /* 綠色邊框 */
+            box-shadow: 0 0 20px rgba(39, 174, 96, 0.6) !important;
+            z-index: 10;
+        }
 
         /* 圖片選項樣式 */
         .img-option {
@@ -167,6 +174,11 @@
                         <div id="options-container" class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
                             <!-- 選項會填入這裡 -->
                         </div>
+                        
+                        <!-- 提示：如何選擇 -->
+                        <div class="mt-6 text-gray-500 text-sm font-bold bg-white/80 inline-block px-4 py-1 rounded-full shadow-sm">
+                            <i class="fa-solid fa-hand-pointer mr-1"></i> 點一下聽聲音，再點一下確認選擇！
+                        </div>
                     </div>
                 </div>
             </div>
@@ -251,6 +263,7 @@
                 this.questions = [];
                 this.totalQ = 6;
                 this.isPlayingAudio = false;
+                this.selectedOptionIndex = -1; // 用來記錄目前選中的是第幾個選項
             }
 
             initSnow() {
@@ -321,6 +334,9 @@
                 const displayArea = document.getElementById('question-display');
                 const container = document.getElementById('options-container');
                 
+                // 重置選取狀態
+                this.selectedOptionIndex = -1;
+
                 // 更新進度條
                 const progress = ((this.currentQ) / this.questions.length) * 100;
                 document.getElementById('progress-bar').style.width = `${progress}%`;
@@ -347,11 +363,12 @@
                     };
                     displayArea.appendChild(bigImg);
 
-                    // 產生 3 個禮物盒選項 (點擊播放聲音並選擇)
+                    // 產生 3 個禮物盒選項 (點擊播放聲音，再次點擊選擇)
                     const options = this.shuffleOptions(q.target);
                     options.forEach((opt, index) => {
                         const el = document.createElement('div');
-                        el.className = "gift-box bg-white p-4 rounded-xl border-2 border-gray-100 shadow-md flex flex-col items-center gap-2 h-40 justify-center group relative";
+                        el.id = `option-${index}`; // 給每個選項一個 ID 方便操作
+                        el.className = "gift-box bg-white p-4 rounded-xl border-2 border-gray-100 shadow-md flex flex-col items-center gap-2 h-40 justify-center group relative transition-all duration-200";
                         
                         // 禮物盒外觀 - 只有喇叭圖示，沒有文字
                         el.innerHTML = `
@@ -361,17 +378,22 @@
                             <div class="absolute bottom-4 right-4 bg-yellow-400 text-white rounded-full w-8 h-8 flex items-center justify-center shadow">
                                 <i class="fa-solid fa-music"></i>
                             </div>
+                            <!-- 選取提示 (預設隱藏) -->
+                            <div class="select-hint hidden absolute -top-3 -right-3 bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg border-2 border-white animate-bounce">
+                                <i class="fa-solid fa-check"></i>
+                            </div>
                         `;
                         
-                        // 點擊事件：播放聲音 + 檢查答案
+                        // 點擊事件：第一次播放聲音，第二次檢查答案
                         el.onclick = () => {
-                            this.playAudio(opt.audio);
-                            // 視覺回饋
-                            el.classList.add('ring-4', 'ring-green-400');
-                            // 延遲一點點再檢查，讓學生聽到聲音
-                            setTimeout(() => {
+                            if (this.selectedOptionIndex === index) {
+                                // 已經選取了這個，這次點擊視為確認送出
                                 this.checkAnswer(opt.id === q.target.id);
-                            }, 800); 
+                            } else {
+                                // 第一次點擊：播放聲音並設為選取狀態
+                                this.playAudio(opt.audio);
+                                this.selectOption(index, 3); // 3 是選項總數
+                            }
                         };
                         container.appendChild(el);
                     });
@@ -393,20 +415,54 @@
 
                     // 產生 3 個圖片選項 (沒有文字)
                     const options = this.shuffleOptions(q.target);
-                    options.forEach(opt => {
+                    options.forEach((opt, index) => {
                         const el = document.createElement('div');
-                        el.className = "img-option bg-white p-2 rounded-xl border-2 border-gray-100 shadow-md h-40 flex items-center justify-center overflow-hidden relative";
+                        el.id = `option-${index}`;
+                        el.className = "img-option bg-white p-2 rounded-xl border-2 border-gray-100 shadow-md h-40 flex items-center justify-center overflow-hidden relative transition-all duration-200";
                         
                         el.innerHTML = `
                             <img src="${opt.img}" class="w-full h-full object-cover rounded-lg" alt="option" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
                             <div class="hidden absolute inset-0 flex items-center justify-center bg-gray-100 text-gray-500 font-bold text-xl">${opt.trans}</div>
+                            <!-- 選取提示 (預設隱藏) -->
+                            <div class="select-hint hidden absolute -top-3 -right-3 bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg border-2 border-white animate-bounce">
+                                <i class="fa-solid fa-check"></i>
+                            </div>
                         `;
                         
                         el.onclick = () => {
-                            this.checkAnswer(opt.id === q.target.id);
+                            if (this.selectedOptionIndex === index) {
+                                // 再次點擊確認
+                                this.checkAnswer(opt.id === q.target.id);
+                            } else {
+                                // 第一次點擊選取 (這階段不播放聲音，因為題目已經是聲音)
+                                // 但為了互動感，可以播一個短促的點擊音效，或者重播題目聲音
+                                this.selectOption(index, 3);
+                            }
                         };
                         container.appendChild(el);
                     });
+                }
+            }
+
+            // 用來處理選項的視覺狀態切換
+            selectOption(selectedIndex, totalOptions) {
+                this.selectedOptionIndex = selectedIndex;
+                
+                for (let i = 0; i < totalOptions; i++) {
+                    const el = document.getElementById(`option-${i}`);
+                    const hint = el.querySelector('.select-hint');
+                    
+                    if (i === selectedIndex) {
+                        // 選中的項目：加上高亮樣式，顯示勾勾
+                        el.classList.add('selected-option');
+                        hint.classList.remove('hidden');
+                        hint.classList.add('flex');
+                    } else {
+                        // 其他項目：移除樣式
+                        el.classList.remove('selected-option');
+                        hint.classList.add('hidden');
+                        hint.classList.remove('flex');
+                    }
                 }
             }
 
