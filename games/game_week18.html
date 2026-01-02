@@ -23,10 +23,17 @@
             background-image: url('../images/map_tribe.jpg'); 
             background-size: cover;
             background-position: center;
-            border-radius: 20px;
+            /* 手機版圓角調整 */
+            border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            border: 8px solid #fff;
+            border: 4px solid #fff;
+        }
+        @media (min-width: 768px) {
+            .map-container {
+                border-radius: 20px;
+                border: 8px solid #fff;
+            }
         }
 
         .location-pin {
@@ -36,133 +43,196 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            /* 手機版稍微縮小 */
+            transform: scale(0.8);
+        }
+        @media (min-width: 768px) {
+            .location-pin {
+                transform: scale(1);
+            }
         }
         
         .location-pin:hover {
-            transform: scale(1.1) translateY(-10px);
+            transform: scale(1.1) translateY(-10px); /* 手機上 hover 效果可能不明顯，主要靠點擊 */
             z-index: 10;
+        }
+        @media (min-width: 768px) {
+            .location-pin:hover {
+                transform: scale(1.1) translateY(-10px);
+            }
         }
 
         .pin-icon {
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             background-color: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            border: 4px solid #009688; /* 藍綠色 */
-            font-size: 24px;
+            border: 3px solid #009688; /* 藍綠色 */
+            font-size: 20px;
             color: #009688;
+        }
+        @media (min-width: 768px) {
+            .pin-icon {
+                width: 60px;
+                height: 60px;
+                border: 4px solid #009688;
+                font-size: 24px;
+            }
         }
 
         .pin-label {
             margin-top: 5px;
             background-color: rgba(255,255,255,0.9);
-            padding: 4px 12px;
+            padding: 2px 8px;
             border-radius: 20px;
             font-weight: bold;
             color: #333;
+            font-size: 0.8rem;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            opacity: 0; /* 預設隱藏文字，滑鼠過去才顯示，增加難度 */
+            /* 手機版預設顯示文字，避免無法 hover 看到 */
+            opacity: 1; 
             transition: opacity 0.3s;
+            white-space: nowrap;
         }
-
-        .location-pin:hover .pin-label {
-            opacity: 1;
+        @media (min-width: 768px) {
+            .pin-label {
+                padding: 4px 12px;
+                font-size: 1rem;
+                opacity: 0; /* 電腦版維持 hover 顯示 */
+            }
+            .location-pin:hover .pin-label {
+                opacity: 1;
+            }
         }
 
         .character {
             position: absolute;
-            bottom: 20px;
-            left: 20px;
-            width: 100px;
+            bottom: 10px;
+            left: 10px;
+            width: 60px;
             z-index: 20;
             transition: all 0.5s;
+        }
+        @media (min-width: 768px) {
+            .character {
+                bottom: 20px;
+                left: 20px;
+                width: 100px;
+            }
         }
 
         .speech-bubble {
             position: absolute;
-            bottom: 110px;
-            left: 80px;
+            bottom: 70px;
+            left: 10px;
             background: white;
-            border-radius: 20px;
-            padding: 15px 25px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-radius: 15px;
+            padding: 8px 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
             font-weight: bold;
             color: #444;
             white-space: nowrap;
             z-index: 21;
-            cursor: pointer; /* 讓滑鼠變成手型 */
+            cursor: pointer; 
             transition: transform 0.2s;
+            font-size: 0.9rem;
         }
+        @media (min-width: 768px) {
+            .speech-bubble {
+                bottom: 110px;
+                left: 80px;
+                padding: 15px 25px;
+                font-size: 1.125rem; /* text-lg */
+                border-radius: 20px;
+            }
+        }
+        
         .speech-bubble:hover {
             transform: scale(1.05);
         }
         .speech-bubble::after {
             content: '';
             position: absolute;
-            bottom: -10px;
+            bottom: -8px;
             left: 20px;
-            border-width: 10px 10px 0;
+            border-width: 8px 8px 0;
             border-style: solid;
             border-color: white transparent;
         }
+        @media (min-width: 768px) {
+            .speech-bubble::after {
+                bottom: -10px;
+                border-width: 10px 10px 0;
+            }
+        }
 
-        /* 位置設定 (假設在地圖上的百分比位置) */
-        #pin-school   { top: 20%; left: 50%; }
-        #pin-home     { top: 60%; left: 20%; }
-        #pin-store    { top: 50%; left: 80%; }
+        /* 位置設定 (百分比位置) - 手機版稍微調整以避免遮擋 */
+        #pin-school   { top: 15%; left: 50%; transform: translate(-50%, 0) scale(0.8); }
+        #pin-home     { top: 55%; left: 15%; transform: scale(0.8); }
+        #pin-store    { top: 45%; left: 75%; transform: scale(0.8); }
+
+        @media (min-width: 768px) {
+            #pin-school   { top: 20%; left: 50%; transform: translate(-50%, 0) scale(1); }
+            #pin-home     { top: 60%; left: 20%; transform: scale(1); }
+            #pin-store    { top: 50%; left: 80%; transform: scale(1); }
+        }
 
         .fade-in { animation: fadeIn 0.5s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        /* 避免 iOS Safari 點擊閃爍 */
+        * { -webkit-tap-highlight-color: transparent; }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4">
+<body class="min-h-screen flex items-center justify-center p-2 md:p-4">
 
     <!-- 遊戲主體 -->
-    <div class="w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row h-[600px] fade-in">
+    <div class="w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col-reverse md:flex-row h-auto md:h-[600px] fade-in">
         
-        <!-- 左側：控制與資訊區 -->
-        <div class="w-full md:w-1/3 bg-teal-600 text-white p-8 flex flex-col justify-between relative overflow-hidden">
+        <!-- 左側：控制與資訊區 (手機版在下方) -->
+        <div class="w-full md:w-1/3 bg-teal-600 text-white p-6 md:p-8 flex flex-col justify-between relative overflow-hidden shrink-0">
             <!-- 裝飾背景紋理 -->
             <div class="absolute inset-0 opacity-10" style="background-image: url('data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' viewBox=\'0 0 20 20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M1 1h2v2H1V1zm4 0h2v2H5V1zm4 0h2v2H9V1zm4 0h2v2h-2V1zm4 0h2v2h-2V1zM1 5h2v2H1V5zm4 0h2v2H5V5zm4 0h2v2H9V5zm4 0h2v2h-2V5zm4 0h2v2h-2V5zM1 9h2v2H1V9zm4 0h2v2H5V9zm4 0h2v2H9V9zm4 0h2v2h-2V9zm4 0h2v2h-2V9zM1 13h2v2H1v-2zm4 0h2v2H5v-2zm4 0h2v2H9v-2zm4 0h2v2h-2v-2zm4 0h2v2h-2v-2zM1 17h2v2H1v-2zm4 0h2v2H5v-2zm4 0h2v2H9v-2zm4 0h2v2h-2v-2zm4 0h2v2h-2v-2z\' fill=\'%23ffffff\' fill-opacity=\'1\' fill-rule=\'evenodd\'/%3E%3C/svg%3E');"></div>
             
-            <div class="relative z-10">
-                <div class="flex items-center gap-2 mb-6">
-                    <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-teal-600 font-bold text-xl">18</div>
-                    <h1 class="text-2xl font-bold">部落探險</h1>
+            <div class="relative z-10 flex flex-col h-full">
+                <!-- 手機版標題簡化 -->
+                <div class="flex items-center gap-2 mb-4 md:mb-6">
+                    <div class="w-8 h-8 md:w-10 md:h-10 bg-white rounded-full flex items-center justify-center text-teal-600 font-bold text-lg md:text-xl">18</div>
+                    <h1 class="text-xl md:text-2xl font-bold">部落探險</h1>
                 </div>
                 
-                <div id="game-info" class="mb-8">
-                    <p class="text-teal-100 mb-2">你要去哪裡？<br>Talacowa kiso?</p>
-                    <div class="h-1 w-12 bg-yellow-400 rounded-full mb-4"></div>
-                    <p class="text-sm opacity-90">仔細聽廣播，點擊地圖上正確的地點！</p>
+                <div id="game-info" class="mb-4 md:mb-8 flex-grow">
+                    <p class="text-teal-100 mb-2 font-bold">你要去哪裡？<br>Talacowa kiso?</p>
+                    <div class="h-1 w-12 bg-yellow-400 rounded-full mb-3"></div>
+                    <p class="text-sm opacity-90 leading-relaxed">聽廣播，點擊地圖上的地點！</p>
                 </div>
 
-                <div id="score-board" class="hidden">
-                    <div class="text-sm text-teal-200 uppercase tracking-widest mb-1">Score</div>
-                    <div class="text-5xl font-bold text-yellow-400 mb-2" id="current-score">0</div>
-                    <div class="text-sm text-teal-100">Progress: <span id="progress-text">0/6</span></div>
+                <div id="score-board" class="hidden mb-4 flex-grow">
+                    <div class="text-xs md:text-sm text-teal-200 uppercase tracking-widest mb-1">Score</div>
+                    <div class="text-4xl md:text-5xl font-bold text-yellow-400 mb-1" id="current-score">0</div>
+                    <div class="text-xs md:text-sm text-teal-100">Progress: <span id="progress-text">0/6</span></div>
                 </div>
-            </div>
 
-            <div class="relative z-10 mt-auto">
-                <button id="start-btn" onclick="game.start()" class="w-full bg-yellow-400 hover:bg-yellow-500 text-teal-900 font-bold py-3 px-6 rounded-xl shadow-lg transition transform hover:scale-105 flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-play"></i> 開始探險
-                </button>
-                <button id="replay-btn" onclick="game.playCurrentAudio()" class="hidden w-full bg-white/20 hover:bg-white/30 text-white font-bold py-3 px-6 rounded-xl transition flex items-center justify-center gap-2 mb-3">
-                    <i class="fa-solid fa-volume-high"></i> 再聽一次
-                </button>
-                <a href="../index.html" class="block text-center text-teal-200 hover:text-white text-sm mt-4 transition">
-                    <i class="fa-solid fa-arrow-left mr-1"></i> 回首頁
-                </a>
+                <div class="mt-auto">
+                    <button id="start-btn" onclick="game.start()" class="w-full bg-yellow-400 hover:bg-yellow-500 text-teal-900 font-bold py-3 px-6 rounded-xl shadow-lg transition transform active:scale-95 flex items-center justify-center gap-2 text-sm md:text-base">
+                        <i class="fa-solid fa-play"></i> 開始探險
+                    </button>
+                    <button id="replay-btn" onclick="game.playCurrentAudio()" class="hidden w-full bg-white/20 hover:bg-white/30 text-white font-bold py-3 px-6 rounded-xl transition flex items-center justify-center gap-2 mb-3 text-sm md:text-base active:bg-white/40">
+                        <i class="fa-solid fa-volume-high"></i> 再聽一次
+                    </button>
+                    <a href="../index.html" class="block text-center text-teal-200 hover:text-white text-xs md:text-sm mt-3 transition p-2">
+                        <i class="fa-solid fa-arrow-left mr-1"></i> 回首頁
+                    </a>
+                </div>
             </div>
         </div>
 
-        <!-- 右側：地圖互動區 -->
-        <div class="w-full md:w-2/3 bg-gray-100 relative overflow-hidden">
+        <!-- 右側：地圖互動區 (手機版在上方，佔據大部分高度) -->
+        <div class="w-full md:w-2/3 bg-gray-100 relative overflow-hidden h-[400px] md:h-auto shrink-0">
             
             <!-- 地圖背景 -->
             <div class="w-full h-full map-container relative">
@@ -195,18 +265,18 @@
                 <!-- ★★★ 修改：對話框加入 onclick 事件以播放問句音檔 ★★★ -->
                 <div class="speech-bubble hidden" id="question-bubble" onclick="game.playQuestionAudio()">
                     <i class="fa-solid fa-volume-high text-teal-500 mr-2"></i>
-                    <span class="text-lg">Talacowa kiso?</span>
+                    <span class="text-sm md:text-lg">Talacowa kiso?</span>
                 </div>
                 <div class="character">
-                    <i class="fa-solid fa-child-reaching text-6xl text-teal-600 drop-shadow-md"></i>
+                    <i class="fa-solid fa-child-reaching text-4xl md:text-6xl text-teal-600 drop-shadow-md"></i>
                 </div>
 
                 <!-- 結算遮罩 -->
-                <div id="result-overlay" class="absolute inset-0 bg-teal-900/90 z-50 hidden flex-col items-center justify-center text-white">
-                    <i class="fa-solid fa-trophy text-6xl text-yellow-400 mb-4 animate-bounce"></i>
-                    <h2 class="text-3xl font-bold mb-2">探險完成！</h2>
-                    <p class="text-lg opacity-80 mb-6">你獲得了 <span id="final-score" class="text-4xl font-bold text-yellow-400 mx-2">0</span> 分</p>
-                    <button onclick="location.reload()" class="bg-white text-teal-800 font-bold py-3 px-8 rounded-full hover:bg-gray-100 transition">
+                <div id="result-overlay" class="absolute inset-0 bg-teal-900/95 z-50 hidden flex-col items-center justify-center text-white p-4 text-center">
+                    <i class="fa-solid fa-trophy text-5xl md:text-6xl text-yellow-400 mb-4 animate-bounce"></i>
+                    <h2 class="text-2xl md:text-3xl font-bold mb-2">探險完成！</h2>
+                    <p class="text-base md:text-lg opacity-80 mb-6">你獲得了 <span id="final-score" class="text-3xl md:text-4xl font-bold text-yellow-400 mx-2">0</span> 分</p>
+                    <button onclick="location.reload()" class="bg-white text-teal-800 font-bold py-3 px-8 rounded-full hover:bg-gray-100 transition shadow-lg active:scale-95">
                         再玩一次
                     </button>
                 </div>
@@ -221,7 +291,7 @@
     <audio id="sfx-wrong" src="https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3"></audio>
 
     <!-- 答題回饋 (全螢幕遮罩) -->
-    <div id="feedback-overlay" class="fixed inset-0 bg-black/30 z-[100] hidden items-center justify-center">
+    <div id="feedback-overlay" class="fixed inset-0 bg-black/30 z-[100] hidden items-center justify-center backdrop-blur-sm">
         <div class="bg-white rounded-full p-6 shadow-2xl transform scale-0 transition-transform duration-300" id="feedback-icon-container">
             <i id="feedback-icon" class="fa-solid text-6xl"></i>
         </div>
