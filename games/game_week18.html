@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第18週遊戲：部落探險 - Talacowa kiso?</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #e0f2f1; /* 淺藍綠色背景 */
+            background-image: radial-gradient(#b2dfdb 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .map-container {
+            position: relative;
+            /* ★★★ 修改這裡：改成您部落的地圖路徑 ★★★ */
+            background-image: url('../images/map_tribe.jpg'); 
+            background-size: cover;
+            background-position: center;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: 8px solid #fff;
+        }
+
+        .location-pin {
+            position: absolute;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .location-pin:hover {
+            transform: scale(1.1) translateY(-10px);
+            z-index: 10;
+        }
+
+        .pin-icon {
+            width: 60px;
+            height: 60px;
+            background-color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            border: 4px solid #009688; /* 藍綠色 */
+            font-size: 24px;
+            color: #009688;
+        }
+
+        .pin-label {
+            margin-top: 5px;
+            background-color: rgba(255,255,255,0.9);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: #333;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            opacity: 0; /* 預設隱藏文字，滑鼠過去才顯示，增加難度 */
+            transition: opacity 0.3s;
+        }
+
+        .location-pin:hover .pin-label {
+            opacity: 1;
+        }
+
+        .character {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            width: 100px;
+            z-index: 20;
+            transition: all 0.5s;
+        }
+
+        .speech-bubble {
+            position: absolute;
+            bottom: 110px;
+            left: 80px;
+            background: white;
+            border-radius: 20px;
+            padding: 15px 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            font-weight: bold;
+            color: #444;
+            white-space: nowrap;
+            z-index: 21;
+            cursor: pointer; /* 讓滑鼠變成手型 */
+            transition: transform 0.2s;
+        }
+        .speech-bubble:hover {
+            transform: scale(1.05);
+        }
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 20px;
+            border-width: 10px 10px 0;
+            border-style: solid;
+            border-color: white transparent;
+        }
+
+        /* 位置設定 (假設在地圖上的百分比位置) */
+        #pin-school   { top: 20%; left: 50%; }
+        #pin-home     { top: 60%; left: 20%; }
+        #pin-store    { top: 50%; left: 80%; }
+
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <!-- 遊戲主體 -->
+    <div class="w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row h-[600px] fade-in">
+        
+        <!-- 左側：控制與資訊區 -->
+        <div class="w-full md:w-1/3 bg-teal-600 text-white p-8 flex flex-col justify-between relative overflow-hidden">
+            <!-- 裝飾背景紋理 -->
+            <div class="absolute inset-0 opacity-10" style="background-image: url('data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' viewBox=\'0 0 20 20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M1 1h2v2H1V1zm4 0h2v2H5V1zm4 0h2v2H9V1zm4 0h2v2h-2V1zm4 0h2v2h-2V1zM1 5h2v2H1V5zm4 0h2v2H5V5zm4 0h2v2H9V5zm4 0h2v2h-2V5zm4 0h2v2h-2V5zM1 9h2v2H1V9zm4 0h2v2H5V9zm4 0h2v2H9V9zm4 0h2v2h-2V9zm4 0h2v2h-2V9zM1 13h2v2H1v-2zm4 0h2v2H5v-2zm4 0h2v2H9v-2zm4 0h2v2h-2v-2zm4 0h2v2h-2v-2zM1 17h2v2H1v-2zm4 0h2v2H5v-2zm4 0h2v2H9v-2zm4 0h2v2h-2v-2zm4 0h2v2h-2v-2z\' fill=\'%23ffffff\' fill-opacity=\'1\' fill-rule=\'evenodd\'/%3E%3C/svg%3E');"></div>
+            
+            <div class="relative z-10">
+                <div class="flex items-center gap-2 mb-6">
+                    <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-teal-600 font-bold text-xl">18</div>
+                    <h1 class="text-2xl font-bold">部落探險</h1>
+                </div>
+                
+                <div id="game-info" class="mb-8">
+                    <p class="text-teal-100 mb-2">你要去哪裡？<br>Talacowa kiso?</p>
+                    <div class="h-1 w-12 bg-yellow-400 rounded-full mb-4"></div>
+                    <p class="text-sm opacity-90">仔細聽廣播，點擊地圖上正確的地點！</p>
+                </div>
+
+                <div id="score-board" class="hidden">
+                    <div class="text-sm text-teal-200 uppercase tracking-widest mb-1">Score</div>
+                    <div class="text-5xl font-bold text-yellow-400 mb-2" id="current-score">0</div>
+                    <div class="text-sm text-teal-100">Progress: <span id="progress-text">0/6</span></div>
+                </div>
+            </div>
+
+            <div class="relative z-10 mt-auto">
+                <button id="start-btn" onclick="game.start()" class="w-full bg-yellow-400 hover:bg-yellow-500 text-teal-900 font-bold py-3 px-6 rounded-xl shadow-lg transition transform hover:scale-105 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-play"></i> 開始探險
+                </button>
+                <button id="replay-btn" onclick="game.playCurrentAudio()" class="hidden w-full bg-white/20 hover:bg-white/30 text-white font-bold py-3 px-6 rounded-xl transition flex items-center justify-center gap-2 mb-3">
+                    <i class="fa-solid fa-volume-high"></i> 再聽一次
+                </button>
+                <a href="../index.html" class="block text-center text-teal-200 hover:text-white text-sm mt-4 transition">
+                    <i class="fa-solid fa-arrow-left mr-1"></i> 回首頁
+                </a>
+            </div>
+        </div>
+
+        <!-- 右側：地圖互動區 -->
+        <div class="w-full md:w-2/3 bg-gray-100 relative overflow-hidden">
+            
+            <!-- 地圖背景 -->
+            <div class="w-full h-full map-container relative">
+                
+                <!-- 地點 1: 學校 -->
+                <div id="pin-school" class="location-pin" onclick="game.checkAnswer('picodadan')">
+                    <div class="pin-icon bg-blue-100 border-blue-500 text-blue-600">
+                        <i class="fa-solid fa-school"></i>
+                    </div>
+                    <div class="pin-label">學校 (picodadan)</div>
+                </div>
+
+                <!-- 地點 2: 家 -->
+                <div id="pin-home" class="location-pin" onclick="game.checkAnswer('loma')">
+                    <div class="pin-icon bg-orange-100 border-orange-500 text-orange-600">
+                        <i class="fa-solid fa-house-chimney"></i>
+                    </div>
+                    <div class="pin-label">家 (loma')</div>
+                </div>
+
+                <!-- 地點 3: 商店 -->
+                <div id="pin-store" class="location-pin" onclick="game.checkAnswer('patiyamay')">
+                    <div class="pin-icon bg-purple-100 border-purple-500 text-purple-600">
+                        <i class="fa-solid fa-store"></i>
+                    </div>
+                    <div class="pin-label">商店 (patiyamay)</div>
+                </div>
+
+                <!-- 角色與對話框 -->
+                <!-- ★★★ 修改：對話框加入 onclick 事件以播放問句音檔 ★★★ -->
+                <div class="speech-bubble hidden" id="question-bubble" onclick="game.playQuestionAudio()">
+                    <i class="fa-solid fa-volume-high text-teal-500 mr-2"></i>
+                    <span class="text-lg">Talacowa kiso?</span>
+                </div>
+                <div class="character">
+                    <i class="fa-solid fa-child-reaching text-6xl text-teal-600 drop-shadow-md"></i>
+                </div>
+
+                <!-- 結算遮罩 -->
+                <div id="result-overlay" class="absolute inset-0 bg-teal-900/90 z-50 hidden flex-col items-center justify-center text-white">
+                    <i class="fa-solid fa-trophy text-6xl text-yellow-400 mb-4 animate-bounce"></i>
+                    <h2 class="text-3xl font-bold mb-2">探險完成！</h2>
+                    <p class="text-lg opacity-80 mb-6">你獲得了 <span id="final-score" class="text-4xl font-bold text-yellow-400 mx-2">0</span> 分</p>
+                    <button onclick="location.reload()" class="bg-white text-teal-800 font-bold py-3 px-8 rounded-full hover:bg-gray-100 transition">
+                        再玩一次
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 音效 -->
+    <audio id="audio-player"></audio>
+    <audio id="sfx-correct" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
+    <audio id="sfx-wrong" src="https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3"></audio>
+
+    <!-- 答題回饋 (全螢幕遮罩) -->
+    <div id="feedback-overlay" class="fixed inset-0 bg-black/30 z-[100] hidden items-center justify-center">
+        <div class="bg-white rounded-full p-6 shadow-2xl transform scale-0 transition-transform duration-300" id="feedback-icon-container">
+            <i id="feedback-icon" class="fa-solid text-6xl"></i>
+        </div>
+    </div>
+
+    <!-- 引入會員系統 -->
+    <script src="../js/auth.js"></script>
+
+    <script>
+        // ==========================================
+        // 遊戲資料
+        // ==========================================
+        
+        // ★★★ 新增：共用音檔設定 (問句) ★★★
+        const commonAudio = {
+            question: "../audio/question_talacowa_kiso.wav" // 需準備此檔案
+        };
+
+        const gameData = [
+            { id: 'picodadan', word: "picodadan", audio: "../audio/picodadan.wav" }, // 需準備
+            { id: 'loma',      word: "loma'",     audio: "../audio/loma.wav" },      // 需準備
+            { id: 'patiyamay', word: "patiyamay", audio: "../audio/patiyamay.wav" }  // 需準備
+        ];
+
+        class MapGame {
+            constructor() {
+                this.score = 0;
+                this.currentQ = 0;
+                this.questions = [];
+                this.totalQ = 6; 
+                this.isPlaying = false;
+                this.currentAnswerId = null;
+            }
+
+            start() {
+                if (typeof AuthSystem !== 'undefined' && !AuthSystem.currentUser) {
+                    if(!confirm("您尚未登入，成績將不會被紀錄。\n是否繼續？")) {
+                        AuthSystem.showLoginModal();
+                        return;
+                    }
+                }
+
+                this.questions = [];
+                for(let i=0; i<this.totalQ; i++) {
+                    const randomItem = gameData[Math.floor(Math.random() * gameData.length)];
+                    this.questions.push(randomItem);
+                }
+
+                this.score = 0;
+                this.currentQ = 0;
+                this.isPlaying = true;
+
+                document.getElementById('start-btn').classList.add('hidden');
+                document.getElementById('replay-btn').classList.remove('hidden');
+                document.getElementById('game-info').classList.add('hidden');
+                document.getElementById('score-board').classList.remove('hidden');
+                document.getElementById('question-bubble').classList.remove('hidden');
+
+                // 播放問句
+                this.playQuestionAudio();
+                
+                // 延遲一點再出題
+                setTimeout(() => this.nextQuestion(), 1500);
+            }
+
+            nextQuestion() {
+                if (this.currentQ >= this.totalQ) {
+                    this.endGame();
+                    return;
+                }
+
+                const q = this.questions[this.currentQ];
+                this.currentAnswerId = q.id;
+
+                document.getElementById('progress-text').innerText = `${this.currentQ + 1}/${this.totalQ}`;
+
+                this.playAudio(q.audio);
+            }
+
+            // 播放當前題目
+            playCurrentAudio() {
+                if(this.isPlaying && this.questions[this.currentQ]) {
+                    this.playAudio(this.questions[this.currentQ].audio);
+                }
+            }
+
+            // ★★★ 新增：播放問句音檔功能 ★★★
+            playQuestionAudio() {
+                this.playAudio(commonAudio.question);
+                const bubble = document.getElementById('question-bubble');
+                bubble.classList.add('scale-110');
+                setTimeout(() => bubble.classList.remove('scale-110'), 200);
+            }
+
+            playAudio(src) {
+                const p = document.getElementById('audio-player');
+                p.src = src;
+                p.play().catch(e => console.log("Audio play error", e));
+            }
+
+            checkAnswer(selectedId) {
+                if (!this.isPlaying) return;
+
+                const isCorrect = (selectedId === this.currentAnswerId);
+                this.showFeedback(isCorrect);
+
+                if (isCorrect) {
+                    this.score += Math.floor(100 / this.totalQ);
+                    if(this.currentQ === this.totalQ - 1 && this.score >= 95) this.score = 100;
+                    document.getElementById('current-score').innerText = this.score;
+                    document.getElementById('sfx-correct').play().catch(()=>{});
+                } else {
+                    document.getElementById('sfx-wrong').play().catch(()=>{});
+                }
+
+                setTimeout(() => {
+                    this.currentQ++;
+                    this.nextQuestion();
+                }, 1000);
+            }
+
+            showFeedback(isCorrect) {
+                const overlay = document.getElementById('feedback-overlay');
+                const container = document.getElementById('feedback-icon-container');
+                const icon = document.getElementById('feedback-icon');
+
+                overlay.classList.remove('hidden');
+                overlay.classList.add('flex');
+                
+                if (isCorrect) {
+                    icon.className = "fa-solid fa-check text-green-500";
+                } else {
+                    icon.className = "fa-solid fa-xmark text-red-500";
+                }
+
+                setTimeout(() => container.classList.remove('scale-0'), 10);
+                setTimeout(() => container.classList.add('scale-100'), 10);
+
+                setTimeout(() => {
+                    container.classList.remove('scale-100');
+                    container.classList.add('scale-0');
+                    setTimeout(() => {
+                        overlay.classList.add('hidden');
+                        overlay.classList.remove('flex');
+                    }, 200);
+                }, 800);
+            }
+
+            endGame() {
+                this.isPlaying = false;
+                document.getElementById('result-overlay').classList.remove('hidden');
+                document.getElementById('result-overlay').classList.add('flex');
+                
+                const finalScoreEl = document.getElementById('final-score');
+                let tempScore = 0;
+                const timer = setInterval(() => {
+                    if(tempScore >= this.score) {
+                        tempScore = this.score;
+                        clearInterval(timer);
+                    } else {
+                        tempScore++;
+                    }
+                    finalScoreEl.innerText = tempScore;
+                }, 20);
+
+                if (typeof AuthSystem !== 'undefined' && AuthSystem.currentUser) {
+                    AuthSystem.submitScore("game18", this.score);
+                }
+            }
+        }
+
+        const game = new MapGame();
+
+    </script>
+</body>
+</html>
