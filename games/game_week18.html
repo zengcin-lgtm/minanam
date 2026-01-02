@@ -12,18 +12,17 @@
         
         body {
             font-family: 'Noto Sans TC', sans-serif;
-            background-color: #e0f2f1; /* 淺藍綠色背景 */
+            background-color: #e0f2f1;
             background-image: radial-gradient(#b2dfdb 1px, transparent 1px);
             background-size: 20px 20px;
         }
 
+        /* --- 地圖模式樣式 --- */
         .map-container {
             position: relative;
-            /* ★★★ 修改這裡：改成您部落的地圖路徑 ★★★ */
             background-image: url('../images/map_tribe.jpg'); 
             background-size: cover;
             background-position: center;
-            /* 手機版圓角調整 */
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
@@ -43,45 +42,24 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            /* 手機版稍微縮小 */
             transform: scale(0.8);
         }
         @media (min-width: 768px) {
-            .location-pin {
-                transform: scale(1);
-            }
+            .location-pin { transform: scale(1); }
         }
-        
-        .location-pin:hover {
-            transform: scale(1.1) translateY(-10px); /* 手機上 hover 效果可能不明顯，主要靠點擊 */
-            z-index: 10;
-        }
-        @media (min-width: 768px) {
-            .location-pin:hover {
-                transform: scale(1.1) translateY(-10px);
-            }
-        }
+        .location-pin:active { transform: scale(0.9); }
 
         .pin-icon {
-            width: 50px;
-            height: 50px;
+            width: 50px; height: 50px;
             background-color: white;
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            border: 3px solid #009688; /* 藍綠色 */
-            font-size: 20px;
-            color: #009688;
+            border: 3px solid #009688;
+            font-size: 20px; color: #009688;
         }
         @media (min-width: 768px) {
-            .pin-icon {
-                width: 60px;
-                height: 60px;
-                border: 4px solid #009688;
-                font-size: 24px;
-            }
+            .pin-icon { width: 60px; height: 60px; border: 4px solid #009688; font-size: 24px; }
         }
 
         .pin-label {
@@ -93,84 +71,106 @@
             color: #333;
             font-size: 0.8rem;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            /* 手機版預設顯示文字，避免無法 hover 看到 */
-            opacity: 1; 
-            transition: opacity 0.3s;
             white-space: nowrap;
         }
         @media (min-width: 768px) {
-            .pin-label {
-                padding: 4px 12px;
-                font-size: 1rem;
-                opacity: 0; /* 電腦版維持 hover 顯示 */
-            }
-            .location-pin:hover .pin-label {
-                opacity: 1;
-            }
+            .pin-label { padding: 4px 12px; font-size: 1rem; }
         }
 
-        .character {
+        /* --- 翻牌模式樣式 --- */
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            perspective: 1000px;
+            padding: 20px;
+            height: 100%;
+            align-content: center;
+        }
+
+        .memory-card {
+            background-color: transparent;
+            width: 100%;
+            aspect-ratio: 3/4; /* 卡片比例 */
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .memory-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 1rem;
+        }
+
+        .memory-card.flipped .memory-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .memory-card-front, .memory-card-back {
             position: absolute;
-            bottom: 10px;
-            left: 10px;
-            width: 60px;
-            z-index: 20;
-            transition: all 0.5s;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 4px solid white;
+        }
+
+        .memory-card-front {
+            background-color: #2dd4bf; /* 卡背顏色 (Teal-400) */
+            background-image: radial-gradient(circle, #ccfbf1 2px, transparent 2.5px);
+            background-size: 10px 10px;
+            transform: rotateY(0deg); /* 正面朝下 */
+        }
+
+        .memory-card-back {
+            background-color: white;
+            transform: rotateY(180deg); /* 內容面 */
+            overflow: hidden;
+        }
+        
+        .memory-card-back img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* --- 通用樣式 --- */
+        .character {
+            position: absolute; bottom: 10px; left: 10px; width: 60px; z-index: 20; transition: all 0.5s;
         }
         @media (min-width: 768px) {
-            .character {
-                bottom: 20px;
-                left: 20px;
-                width: 100px;
-            }
+            .character { bottom: 20px; left: 20px; width: 100px; }
         }
 
         .speech-bubble {
-            position: absolute;
-            bottom: 70px;
-            left: 10px;
-            background: white;
-            border-radius: 15px;
-            padding: 8px 12px;
+            position: absolute; bottom: 70px; left: 10px;
+            background: white; border-radius: 15px; padding: 8px 12px;
             box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-            font-weight: bold;
-            color: #444;
-            white-space: nowrap;
-            z-index: 21;
-            cursor: pointer; 
-            transition: transform 0.2s;
-            font-size: 0.9rem;
+            font-weight: bold; color: #444; white-space: nowrap; z-index: 21;
+            cursor: pointer; transition: transform 0.2s; font-size: 0.9rem;
         }
         @media (min-width: 768px) {
-            .speech-bubble {
-                bottom: 110px;
-                left: 80px;
-                padding: 15px 25px;
-                font-size: 1.125rem; /* text-lg */
-                border-radius: 20px;
-            }
+            .speech-bubble { bottom: 110px; left: 80px; padding: 15px 25px; font-size: 1.125rem; border-radius: 20px; }
         }
-        
-        .speech-bubble:hover {
-            transform: scale(1.05);
-        }
+        .speech-bubble:hover { transform: scale(1.05); }
         .speech-bubble::after {
-            content: '';
-            position: absolute;
-            bottom: -8px;
-            left: 20px;
-            border-width: 8px 8px 0;
-            border-style: solid;
-            border-color: white transparent;
+            content: ''; position: absolute; bottom: -8px; left: 20px;
+            border-width: 8px 8px 0; border-style: solid; border-color: white transparent;
         }
         @media (min-width: 768px) {
-            .speech-bubble::after {
-                bottom: -10px;
-                border-width: 10px 10px 0;
-            }
+            .speech-bubble::after { bottom: -10px; border-width: 10px 10px 0; }
         }
 
-        /* 位置設定 (百分比位置) - 手機版稍微調整以避免遮擋 */
+        /* 位置設定 (地圖模式) */
         #pin-school   { top: 15%; left: 50%; transform: translate(-50%, 0) scale(0.8); }
         #pin-home     { top: 55%; left: 15%; transform: scale(0.8); }
         #pin-store    { top: 45%; left: 75%; transform: scale(0.8); }
@@ -184,7 +184,6 @@
         .fade-in { animation: fadeIn 0.5s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
-        /* 避免 iOS Safari 點擊閃爍 */
         * { -webkit-tap-highlight-color: transparent; }
     </style>
 </head>
@@ -193,13 +192,12 @@
     <!-- 遊戲主體 -->
     <div class="w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col-reverse md:flex-row h-auto md:h-[600px] fade-in">
         
-        <!-- 左側：控制與資訊區 (手機版在下方) -->
+        <!-- 左側：控制與資訊區 -->
         <div class="w-full md:w-1/3 bg-teal-600 text-white p-6 md:p-8 flex flex-col justify-between relative overflow-hidden shrink-0">
-            <!-- 裝飾背景紋理 -->
+            <!-- 裝飾背景 -->
             <div class="absolute inset-0 opacity-10" style="background-image: url('data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' viewBox=\'0 0 20 20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M1 1h2v2H1V1zm4 0h2v2H5V1zm4 0h2v2H9V1zm4 0h2v2h-2V1zm4 0h2v2h-2V1zM1 5h2v2H1V5zm4 0h2v2H5V5zm4 0h2v2H9V5zm4 0h2v2h-2V5zm4 0h2v2h-2V5zM1 9h2v2H1V9zm4 0h2v2H5V9zm4 0h2v2H9V9zm4 0h2v2h-2V9zm4 0h2v2h-2V9zM1 13h2v2H1v-2zm4 0h2v2H5v-2zm4 0h2v2H9v-2zm4 0h2v2h-2v-2zm4 0h2v2h-2v-2zM1 17h2v2H1v-2zm4 0h2v2H5v-2zm4 0h2v2H9v-2zm4 0h2v2h-2v-2zm4 0h2v2h-2v-2z\' fill=\'%23ffffff\' fill-opacity=\'1\' fill-rule=\'evenodd\'/%3E%3C/svg%3E');"></div>
             
             <div class="relative z-10 flex flex-col h-full">
-                <!-- 手機版標題簡化 -->
                 <div class="flex items-center gap-2 mb-4 md:mb-6">
                     <div class="w-8 h-8 md:w-10 md:h-10 bg-white rounded-full flex items-center justify-center text-teal-600 font-bold text-lg md:text-xl">18</div>
                     <h1 class="text-xl md:text-2xl font-bold">部落探險</h1>
@@ -208,7 +206,7 @@
                 <div id="game-info" class="mb-4 md:mb-8 flex-grow">
                     <p class="text-teal-100 mb-2 font-bold">你要去哪裡？<br>Talacowa kiso?</p>
                     <div class="h-1 w-12 bg-yellow-400 rounded-full mb-3"></div>
-                    <p class="text-sm opacity-90 leading-relaxed">聽廣播，點擊地圖上的地點！</p>
+                    <p class="text-sm opacity-90 leading-relaxed" id="instruction-text">聽廣播，點擊地圖上的地點！</p>
                 </div>
 
                 <div id="score-board" class="hidden mb-4 flex-grow">
@@ -231,57 +229,52 @@
             </div>
         </div>
 
-        <!-- 右側：地圖互動區 (手機版在上方，佔據大部分高度) -->
+        <!-- 右側：遊戲互動區 -->
         <div class="w-full md:w-2/3 bg-gray-100 relative overflow-hidden h-[400px] md:h-auto shrink-0">
             
-            <!-- 地圖背景 -->
-            <div class="w-full h-full map-container relative">
+            <!-- 模式 1: 地圖探險 (預設顯示) -->
+            <div id="scene-map" class="w-full h-full map-container relative hidden">
                 
-                <!-- 地點 1: 學校 -->
-                <div id="pin-school" class="location-pin" onclick="game.checkAnswer('picodadan')">
-                    <div class="pin-icon bg-blue-100 border-blue-500 text-blue-600">
-                        <i class="fa-solid fa-school"></i>
-                    </div>
+                <div id="pin-school" class="location-pin" onclick="game.checkMapAnswer('picodadan')">
+                    <div class="pin-icon bg-blue-100 border-blue-500 text-blue-600"><i class="fa-solid fa-school"></i></div>
                     <div class="pin-label">學校 (picodadan)</div>
                 </div>
 
-                <!-- 地點 2: 家 -->
-                <div id="pin-home" class="location-pin" onclick="game.checkAnswer('loma')">
-                    <div class="pin-icon bg-orange-100 border-orange-500 text-orange-600">
-                        <i class="fa-solid fa-house-chimney"></i>
-                    </div>
+                <div id="pin-home" class="location-pin" onclick="game.checkMapAnswer('loma')">
+                    <div class="pin-icon bg-orange-100 border-orange-500 text-orange-600"><i class="fa-solid fa-house-chimney"></i></div>
                     <div class="pin-label">家 (loma')</div>
                 </div>
 
-                <!-- 地點 3: 商店 -->
-                <div id="pin-store" class="location-pin" onclick="game.checkAnswer('patiyamay')">
-                    <div class="pin-icon bg-purple-100 border-purple-500 text-purple-600">
-                        <i class="fa-solid fa-store"></i>
-                    </div>
+                <div id="pin-store" class="location-pin" onclick="game.checkMapAnswer('patiyamay')">
+                    <div class="pin-icon bg-purple-100 border-purple-500 text-purple-600"><i class="fa-solid fa-store"></i></div>
                     <div class="pin-label">商店 (patiyamay)</div>
                 </div>
 
-                <!-- 角色與對話框 -->
-                <!-- ★★★ 修改：對話框加入 onclick 事件以播放問句音檔 ★★★ -->
-                <div class="speech-bubble hidden" id="question-bubble" onclick="game.playQuestionAudio()">
+                <div class="speech-bubble hidden" id="question-bubble" onclick="game.playQuestionAudio(true)">
                     <i class="fa-solid fa-volume-high text-teal-500 mr-2"></i>
                     <span class="text-sm md:text-lg">Talacowa kiso?</span>
                 </div>
                 <div class="character">
                     <i class="fa-solid fa-child-reaching text-4xl md:text-6xl text-teal-600 drop-shadow-md"></i>
                 </div>
-
-                <!-- 結算遮罩 -->
-                <div id="result-overlay" class="absolute inset-0 bg-teal-900/95 z-50 hidden flex-col items-center justify-center text-white p-4 text-center">
-                    <i class="fa-solid fa-trophy text-5xl md:text-6xl text-yellow-400 mb-4 animate-bounce"></i>
-                    <h2 class="text-2xl md:text-3xl font-bold mb-2">探險完成！</h2>
-                    <p class="text-base md:text-lg opacity-80 mb-6">你獲得了 <span id="final-score" class="text-3xl md:text-4xl font-bold text-yellow-400 mx-2">0</span> 分</p>
-                    <button onclick="location.reload()" class="bg-white text-teal-800 font-bold py-3 px-8 rounded-full hover:bg-gray-100 transition shadow-lg active:scale-95">
-                        再玩一次
-                    </button>
-                </div>
-
             </div>
+
+            <!-- 模式 2: 翻牌配對 -->
+            <div id="scene-memory" class="w-full h-full bg-teal-50 relative hidden">
+                <!-- 記憶卡片網格 (由 JS 生成) -->
+                <div id="memory-grid" class="memory-grid"></div>
+            </div>
+
+            <!-- 結算遮罩 -->
+            <div id="result-overlay" class="absolute inset-0 bg-teal-900/95 z-50 hidden flex-col items-center justify-center text-white p-4 text-center">
+                <i class="fa-solid fa-trophy text-5xl md:text-6xl text-yellow-400 mb-4 animate-bounce"></i>
+                <h2 class="text-2xl md:text-3xl font-bold mb-2">探險完成！</h2>
+                <p class="text-base md:text-lg opacity-80 mb-6">你獲得了 <span id="final-score" class="text-3xl md:text-4xl font-bold text-yellow-400 mx-2">0</span> 分</p>
+                <button onclick="location.reload()" class="bg-white text-teal-800 font-bold py-3 px-8 rounded-full hover:bg-gray-100 transition shadow-lg active:scale-95">
+                    再玩一次
+                </button>
+            </div>
+
         </div>
     </div>
 
@@ -290,7 +283,7 @@
     <audio id="sfx-correct" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
     <audio id="sfx-wrong" src="https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3"></audio>
 
-    <!-- 答題回饋 (全螢幕遮罩) -->
+    <!-- 答題回饋 -->
     <div id="feedback-overlay" class="fixed inset-0 bg-black/30 z-[100] hidden items-center justify-center backdrop-blur-sm">
         <div class="bg-white rounded-full p-6 shadow-2xl transform scale-0 transition-transform duration-300" id="feedback-icon-container">
             <i id="feedback-icon" class="fa-solid text-6xl"></i>
@@ -305,18 +298,18 @@
         // 遊戲資料
         // ==========================================
         
-        // ★★★ 新增：共用音檔設定 (問句) ★★★
         const commonAudio = {
-            question: "../audio/question_talacowa_kiso.wav" // 需準備此檔案
+            question: "../audio/question_talacowa_kiso.wav"
         };
 
         const gameData = [
-            { id: 'picodadan', word: "picodadan", audio: "../audio/picodadan.wav" }, // 需準備
-            { id: 'loma',      word: "loma'",     audio: "../audio/loma.wav" },      // 需準備
-            { id: 'patiyamay', word: "patiyamay", audio: "../audio/patiyamay.wav" }  // 需準備
+            // 修改圖片路徑為本地檔案
+            { id: 'picodadan', word: "picodadan", audio: "../audio/picodadan.wav", img: "../images/picodadan.jpg" }, 
+            { id: 'loma',      word: "loma'",     audio: "../audio/loma.wav",      img: "../images/loma.jpg" },      
+            { id: 'patiyamay', word: "patiyamay", audio: "../audio/patiyamay.wav", img: "../images/patiyamay.jpg" }  
         ];
 
-        class MapGame {
+        class Week18Game {
             constructor() {
                 this.score = 0;
                 this.currentQ = 0;
@@ -324,6 +317,14 @@
                 this.totalQ = 6; 
                 this.isPlaying = false;
                 this.currentAnswerId = null;
+                
+                // 翻牌相關變數
+                this.cards = [];
+                this.flippedCards = [];
+                this.lockBoard = false;
+                
+                // 問句播放狀態
+                this.isQuestionPlaying = false;
             }
 
             start() {
@@ -334,27 +335,35 @@
                     }
                 }
 
-                this.questions = [];
-                for(let i=0; i<this.totalQ; i++) {
-                    const randomItem = gameData[Math.floor(Math.random() * gameData.length)];
-                    this.questions.push(randomItem);
-                }
-
                 this.score = 0;
                 this.currentQ = 0;
                 this.isPlaying = true;
 
+                // 產生題目序列
+                // Q1-Q3: 地圖探險 (隨機選3個)
+                const mapQs = [];
+                for(let i=0; i<3; i++) {
+                    mapQs.push({ type: 'map', target: gameData[Math.floor(Math.random() * gameData.length)] });
+                }
+                
+                // Q4-Q6: 翻牌配對 (每一題目標一個單字)
+                const memoryQs = [];
+                // 為了讓每個單字都玩到，我們洗牌一下單字列表
+                const shuffledData = [...gameData].sort(() => Math.random() - 0.5);
+                for(let i=0; i<3; i++) {
+                    // 如果單字不夠3個，就循環取
+                    memoryQs.push({ type: 'memory', target: shuffledData[i % shuffledData.length] });
+                }
+
+                this.questions = [...mapQs, ...memoryQs];
+
+                // UI 初始化
                 document.getElementById('start-btn').classList.add('hidden');
                 document.getElementById('replay-btn').classList.remove('hidden');
                 document.getElementById('game-info').classList.add('hidden');
                 document.getElementById('score-board').classList.remove('hidden');
-                document.getElementById('question-bubble').classList.remove('hidden');
-
-                // 播放問句
-                this.playQuestionAudio();
                 
-                // 延遲一點再出題
-                setTimeout(() => this.nextQuestion(), 1500);
+                this.nextQuestion();
             }
 
             nextQuestion() {
@@ -364,38 +373,206 @@
                 }
 
                 const q = this.questions[this.currentQ];
-                this.currentAnswerId = q.id;
-
+                this.currentAnswerId = q.target.id;
                 document.getElementById('progress-text').innerText = `${this.currentQ + 1}/${this.totalQ}`;
 
-                this.playAudio(q.audio);
-            }
-
-            // 播放當前題目
-            playCurrentAudio() {
-                if(this.isPlaying && this.questions[this.currentQ]) {
-                    this.playAudio(this.questions[this.currentQ].audio);
+                if (q.type === 'map') {
+                    this.renderMapPhase();
+                } else {
+                    this.renderMemoryPhase();
                 }
             }
 
-            // ★★★ 新增：播放問句音檔功能 ★★★
-            playQuestionAudio() {
-                this.playAudio(commonAudio.question);
+            // --- Phase 1: 地圖探險邏輯 ---
+            renderMapPhase() {
+                document.getElementById('scene-map').classList.remove('hidden');
+                document.getElementById('scene-memory').classList.add('hidden');
+                document.getElementById('instruction-text').innerText = "聽廣播，點擊地圖上的地點！";
+                document.getElementById('question-bubble').classList.remove('hidden');
+
+                // 播放問句，結束後再播放單字
+                this.playQuestionAudio(false); // false 表示是題目流程的一部分，不是點擊觸發
+            }
+
+            checkMapAnswer(selectedId) {
+                if (!this.isPlaying || this.questions[this.currentQ].type !== 'map') return;
+                // 如果問句或單字正在播放中，是否允許回答？通常允許。
+
+                const isCorrect = (selectedId === this.currentAnswerId);
+                this.handleResult(isCorrect);
+            }
+
+            // --- Phase 2: 翻牌配對邏輯 ---
+            renderMemoryPhase() {
+                document.getElementById('scene-map').classList.add('hidden');
+                document.getElementById('scene-memory').classList.remove('hidden');
+                document.getElementById('instruction-text').innerText = "聽聲音，找出兩張一樣的卡片！";
+                
+                const grid = document.getElementById('memory-grid');
+                grid.innerHTML = '';
+                
+                // 準備卡片：3對 (共6張)
+                const targetPair = [this.questions[this.currentQ].target, this.questions[this.currentQ].target];
+                
+                let distractors = gameData.filter(d => d.id !== this.currentAnswerId);
+                let otherPairs = [];
+                distractors.forEach(d => {
+                    otherPairs.push(d);
+                    otherPairs.push(d);
+                });
+
+                let deck = [...targetPair, ...otherPairs];
+                deck.sort(() => Math.random() - 0.5);
+
+                deck.forEach((item, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'memory-card';
+                    card.dataset.id = item.id;
+                    card.dataset.index = index;
+                    
+                    card.innerHTML = `
+                        <div class="memory-card-inner">
+                            <div class="memory-card-front">
+                                <i class="fa-solid fa-question text-teal-700 text-3xl opacity-50"></i>
+                            </div>
+                            <div class="memory-card-back">
+                                <img src="${item.img}" alt="${item.word}">
+                            </div>
+                        </div>
+                    `;
+                    
+                    card.addEventListener('click', () => this.flipCard(card));
+                    grid.appendChild(card);
+                });
+
+                this.flippedCards = [];
+                this.lockBoard = false;
+
+                // 播放題目聲音 (翻牌模式不需要播問句，直接播單字)
+                this.playAudio(this.questions[this.currentQ].target.audio);
+            }
+
+            flipCard(card) {
+                if (this.lockBoard) return;
+                if (card === this.flippedCards[0]) return; // 不能點同一張
+
+                card.classList.add('flipped');
+                this.flippedCards.push(card);
+
+                if (this.flippedCards.length === 2) {
+                    this.checkForMatch();
+                }
+            }
+
+            checkForMatch() {
+                let card1 = this.flippedCards[0];
+                let card2 = this.flippedCards[1];
+                let id1 = card1.dataset.id;
+                let id2 = card2.dataset.id;
+
+                let isMatch = (id1 === id2);
+
+                if (isMatch) {
+                    // 配對成功！
+                    this.disableCards();
+                    // 檢查是否為題目要求的目標
+                    if (id1 === this.currentAnswerId) {
+                        // 是目標單字 -> 過關！
+                        setTimeout(() => {
+                            this.handleResult(true);
+                        }, 500);
+                    } else {
+                        // 配對成功但不是目標 -> 提示「不是這個」，然後蓋回去
+                        this.lockBoard = true;
+                        setTimeout(() => {
+                            card1.classList.remove('flipped');
+                            card2.classList.remove('flipped');
+                            this.resetBoard();
+                        }, 1000);
+                    }
+                } else {
+                    // 配對失敗
+                    this.unflipCards();
+                }
+            }
+
+            disableCards() {
+                this.flippedCards = [];
+            }
+
+            unflipCards() {
+                this.lockBoard = true;
+                setTimeout(() => {
+                    this.flippedCards[0].classList.remove('flipped');
+                    this.flippedCards[1].classList.remove('flipped');
+                    this.resetBoard();
+                }, 1000);
+            }
+
+            resetBoard() {
+                [this.flippedCards, this.lockBoard] = [[], false];
+            }
+
+            // --- 共用邏輯 ---
+
+            playCurrentAudio() {
+                if(!this.isPlaying || !this.questions[this.currentQ]) return;
+                
+                const q = this.questions[this.currentQ];
+                if (q.type === 'map') {
+                    this.playQuestionAudio(false); // 地圖題重播：問句 + 單字
+                } else {
+                    this.playAudio(q.target.audio); // 翻牌題重播：單字
+                }
+            }
+
+            // 播放問句音檔
+            // isInteractive: 是否為玩家點擊觸發 (如果是，就不自動接續播單字)
+            playQuestionAudio(isInteractive = true) {
                 const bubble = document.getElementById('question-bubble');
                 bubble.classList.add('scale-110');
-                setTimeout(() => bubble.classList.remove('scale-110'), 200);
+                
+                const p = document.getElementById('audio-player');
+                p.src = commonAudio.question;
+                
+                // 如果是題目流程，需要監聽播放結束
+                if (!isInteractive) {
+                    this.isQuestionPlaying = true;
+                    // 先移除舊的監聽器，避免重複綁定
+                    p.onended = null; 
+                    
+                    p.onended = () => {
+                        this.isQuestionPlaying = false;
+                        bubble.classList.remove('scale-110');
+                        // 問句播完，接著播單字
+                        setTimeout(() => {
+                            if(this.questions[this.currentQ]) {
+                                this.playAudio(this.questions[this.currentQ].target.audio);
+                            }
+                        }, 500);
+                        // 清除 onended，避免影響其他播放
+                        p.onended = null;
+                    };
+                } else {
+                    // 單純點擊播放，播完移除特效即可
+                    p.onended = () => {
+                        bubble.classList.remove('scale-110');
+                        p.onended = null;
+                    };
+                }
+
+                p.play().catch(e => console.log("Audio play error", e));
             }
 
             playAudio(src) {
                 const p = document.getElementById('audio-player');
                 p.src = src;
+                // 單字播放不需要特殊 onended 邏輯
+                p.onended = null; 
                 p.play().catch(e => console.log("Audio play error", e));
             }
 
-            checkAnswer(selectedId) {
-                if (!this.isPlaying) return;
-
-                const isCorrect = (selectedId === this.currentAnswerId);
+            handleResult(isCorrect) {
                 this.showFeedback(isCorrect);
 
                 if (isCorrect) {
@@ -410,7 +587,7 @@
                 setTimeout(() => {
                     this.currentQ++;
                     this.nextQuestion();
-                }, 1000);
+                }, 1500); 
             }
 
             showFeedback(isCorrect) {
@@ -463,7 +640,7 @@
             }
         }
 
-        const game = new MapGame();
+        const game = new Week18Game();
 
     </script>
 </body>
