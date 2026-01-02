@@ -3,361 +3,619 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>太巴塱國小附設幼兒園 - 阿美族語學習網</title>
+    <title>第18週遊戲：部落探險 - Talacowa kiso?</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
         
         body {
             font-family: 'Noto Sans TC', sans-serif;
-            background-color: #f3f4f6;
-            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23e5e7eb' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            background-color: #e0f2f1;
+            background-image: radial-gradient(#b2dfdb 1px, transparent 1px);
+            background-size: 20px 20px;
         }
 
-        .text-amis-red { color: #E3002D; }
-        .bg-amis-red { background-color: #E3002D; }
-        .border-amis-red { border-color: #E3002D; }
-
-        .weaving-pattern {
-            height: 24px;
-            width: 100%;
-            background-image: 
-                linear-gradient(135deg, #000000 25%, transparent 25%), 
-                linear-gradient(225deg, #000000 25%, transparent 25%), 
-                linear-gradient(45deg, #000000 25%, transparent 25%), 
-                linear-gradient(315deg, #000000 25%, transparent 25%);
-            background-position: 12px 0, 12px 0, 0 0, 0 0;
-            background-size: 24px 24px;
-            background-repeat: repeat-x;
-            background-color: #ffffff;
-            opacity: 0.9;
-        }
-
-        .vocab-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .vocab-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
-        }
-
-        .chat-bubble {
+        /* --- 地圖模式樣式 --- */
+        .map-container {
             position: relative;
-            padding: 15px 20px;
-            border-radius: 20px;
-            max-width: 80%;
-            margin-bottom: 20px;
+            background-image: url('../images/map_tribe.jpg'); 
+            background-size: cover;
+            background-position: center;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: 4px solid #fff;
         }
-        .chat-left {
+        @media (min-width: 768px) {
+            .map-container {
+                border-radius: 20px;
+                border: 8px solid #fff;
+            }
+        }
+
+        .location-pin {
+            position: absolute;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transform: scale(0.8);
+        }
+        @media (min-width: 768px) {
+            .location-pin { transform: scale(1); }
+        }
+        .location-pin:active { transform: scale(0.9); }
+
+        .pin-icon {
+            width: 50px; height: 50px;
             background-color: white;
-            border: 2px solid #e5e7eb;
-            border-bottom-left-radius: 2px;
-            margin-right: auto;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            border: 3px solid #009688;
+            font-size: 20px; color: #009688;
         }
-        .chat-right {
-            background-color: #FEF3C7;
-            border: 2px solid #FCD34D;
-            border-bottom-right-radius: 2px;
-            margin-left: auto;
+        @media (min-width: 768px) {
+            .pin-icon { width: 60px; height: 60px; border: 4px solid #009688; font-size: 24px; }
         }
+
+        .pin-label {
+            margin-top: 5px;
+            background-color: rgba(255,255,255,0.9);
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: #333;
+            font-size: 0.8rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            white-space: nowrap;
+        }
+        @media (min-width: 768px) {
+            .pin-label { padding: 4px 12px; font-size: 1rem; }
+        }
+
+        /* --- 翻牌模式樣式 --- */
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            perspective: 1000px;
+            padding: 20px;
+            height: 100%;
+            align-content: center;
+        }
+
+        .memory-card {
+            background-color: transparent;
+            width: 100%;
+            aspect-ratio: 3/4; /* 卡片比例 */
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .memory-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 1rem;
+        }
+
+        .memory-card.flipped .memory-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .memory-card-front, .memory-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 4px solid white;
+        }
+
+        .memory-card-front {
+            background-color: #2dd4bf; /* 卡背顏色 (Teal-400) */
+            background-image: radial-gradient(circle, #ccfbf1 2px, transparent 2.5px);
+            background-size: 10px 10px;
+            transform: rotateY(0deg); /* 正面朝下 */
+        }
+
+        .memory-card-back {
+            background-color: white;
+            transform: rotateY(180deg); /* 內容面 */
+            overflow: hidden;
+        }
+        
+        .memory-card-back img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* --- 通用樣式 --- */
+        .character {
+            position: absolute; bottom: 10px; left: 10px; width: 60px; z-index: 20; transition: all 0.5s;
+        }
+        @media (min-width: 768px) {
+            .character { bottom: 20px; left: 20px; width: 100px; }
+        }
+
+        .speech-bubble {
+            position: absolute; bottom: 70px; left: 10px;
+            background: white; border-radius: 15px; padding: 8px 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            font-weight: bold; color: #444; white-space: nowrap; z-index: 21;
+            cursor: pointer; transition: transform 0.2s; font-size: 0.9rem;
+        }
+        @media (min-width: 768px) {
+            .speech-bubble { bottom: 110px; left: 80px; padding: 15px 25px; font-size: 1.125rem; border-radius: 20px; }
+        }
+        .speech-bubble:hover { transform: scale(1.05); }
+        .speech-bubble::after {
+            content: ''; position: absolute; bottom: -8px; left: 20px;
+            border-width: 8px 8px 0; border-style: solid; border-color: white transparent;
+        }
+        @media (min-width: 768px) {
+            .speech-bubble::after { bottom: -10px; border-width: 10px 10px 0; }
+        }
+
+        /* 位置設定 (地圖模式) */
+        #pin-school   { top: 15%; left: 50%; transform: translate(-50%, 0) scale(0.8); }
+        #pin-home     { top: 55%; left: 15%; transform: scale(0.8); }
+        #pin-store    { top: 45%; left: 75%; transform: scale(0.8); }
+
+        @media (min-width: 768px) {
+            #pin-school   { top: 20%; left: 50%; transform: translate(-50%, 0) scale(1); }
+            #pin-home     { top: 60%; left: 20%; transform: scale(1); }
+            #pin-store    { top: 50%; left: 80%; transform: scale(1); }
+        }
+
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        * { -webkit-tap-highlight-color: transparent; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="min-h-screen flex items-center justify-center p-2 md:p-4">
 
-    <!-- 頂部導覽列 -->
-    <header class="bg-white shadow-md sticky top-0 z-50">
-        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <div class="w-12 h-12 bg-amis-red rounded-full flex items-center justify-center text-white font-bold text-2xl shadow-sm">T</div>
-                <div class="flex flex-col">
-                    <span class="text-xl font-bold text-gray-800 tracking-wide leading-tight">阿美族語學習網</span>
-                    <span class="text-sm text-gray-500 font-medium">太巴塱國小附設幼兒園</span>
-                </div>
-            </div>
-            <div class="hidden md:block">
-                <a href="../index.html" class="text-gray-500 hover:text-amis-red font-bold transition flex items-center">
-                    <i class="fa-solid fa-house mr-2"></i>回首頁
-                </a>
-            </div>
-        </div>
-        <div class="weaving-pattern"></div>
-    </header>
-
-    <main class="flex-grow max-w-4xl mx-auto px-4 py-8 w-full space-y-10">
-
-        <!-- 頁面標題 (由 JS 填入) -->
-        <div class="text-center mb-8">
-            <h1 id="page-title" class="text-3xl font-bold text-gray-800 mb-2">載入中...</h1>
-            <div class="h-1 w-20 bg-amis-red mx-auto rounded-full"></div>
-        </div>
-
-        <!-- 1. 句型練習區 -->
-        <section>
-            <div class="flex items-center mb-6">
-                <div class="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center text-white mr-3 shadow-md">
-                    <i class="fa-solid fa-comments"></i>
-                </div>
-                <h2 class="text-2xl font-bold text-gray-800">句型練習</h2>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border-2 border-gray-100">
-                
-                <!-- 老師問 (由 JS 填入) -->
-                <div class="flex items-end mb-6">
-                    <div class="w-12 h-12 rounded-full bg-gray-200 flex-shrink-0 mr-4 overflow-hidden border-2 border-white shadow-sm flex items-center justify-center">
-                        <i class="fa-solid fa-user-tie text-2xl text-gray-400"></i>
-                    </div>
-                    <div class="chat-bubble chat-left">
-                        <div class="text-gray-500 text-xs font-bold mb-1">老師 (Singsi)</div>
-                        <p id="teacher-sentence" class="text-xl font-bold text-gray-800">...</p>
-                        <p id="teacher-trans" class="text-gray-500 text-sm mt-1">...</p>
-                        <button id="teacher-audio-btn" class="absolute -right-10 bottom-0 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 hover:text-amis-red hover:bg-red-50 transition shadow-sm">
-                            <i class="fa-solid fa-volume-high"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 小朋友答 (由 JS 填入) -->
-                <div class="flex items-end flex-row-reverse">
-                    <div class="w-12 h-12 rounded-full bg-yellow-100 flex-shrink-0 ml-4 overflow-hidden border-2 border-white shadow-sm flex items-center justify-center">
-                        <i class="fa-solid fa-child text-2xl text-yellow-500"></i>
-                    </div>
-                    <div class="chat-bubble chat-right">
-                        <div class="text-yellow-700 text-xs font-bold mb-1 text-right">小朋友 (Wawa)</div>
-                        <p id="student-sentence" class="text-xl font-bold text-gray-800">...</p>
-                        <p id="student-trans" class="text-gray-500 text-sm mt-1 text-right">...</p>
-                        <button id="student-audio-btn" class="absolute -left-10 bottom-0 w-8 h-8 bg-yellow-50 rounded-full flex items-center justify-center text-yellow-600 hover:bg-yellow-200 transition shadow-sm">
-                            <i class="fa-solid fa-volume-high"></i>
-                        </button>
-                    </div>
-                </div>
-
-            </div>
-        </section>
-
-        <!-- 2. 單字學習區 -->
-        <section>
-            <div class="flex items-center mb-6">
-                <div class="w-10 h-10 bg-amis-red rounded-full flex items-center justify-center text-white mr-3 shadow-md">
-                    <i class="fa-solid fa-book"></i>
-                </div>
-                <h2 class="text-2xl font-bold text-gray-800">單字練習</h2>
-            </div>
-
-            <!-- 單字卡片容器 (由 JS 自動生成) -->
-            <div id="vocab-container" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- 這裡的內容會由程式自動產生，不需要手動寫 HTML -->
-            </div>
-        </section>
-
-        <!-- 3. 功能按鈕區 -->
-        <section class="bg-red-50 rounded-3xl p-8 text-center border-2 border-red-100 mt-10">
-            <h3 class="text-xl font-bold text-gray-800 mb-6">學習挑戰區</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
-                
-                <!-- 下載學習單 -->
-                <a id="worksheet-link" href="#" class="flex items-center justify-center bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-200 font-bold py-4 px-6 rounded-xl transition shadow-sm hover:shadow-md group">
-                    <i class="fa-solid fa-file-arrow-down text-2xl mr-3 text-blue-500 group-hover:scale-110 transition"></i>
-                    <div class="text-left">
-                        <div class="text-lg">下載學習單</div>
-                        <div class="text-xs text-gray-400">PDF 練習檔案</div>
-                    </div>
-                </a>
-
-                <!-- 遊戲挑戰 -->
-                <a id="game-link" href="#" target="_blank" class="flex items-center justify-center bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-6 rounded-xl transition shadow-md hover:shadow-lg hover:scale-105 transform">
-                    <i class="fa-solid fa-gamepad text-3xl mr-3 text-yellow-300"></i>
-                    <div class="text-left">
-                        <div class="text-lg">遊戲挑戰</div>
-                        <div class="text-xs text-red-200">測驗看看學會了嗎？</div>
-                    </div>
-                </a>
-
-            </div>
-        </section>
-
-        <!-- 底部導覽 -->
-        <div class="text-center pt-8 pb-4">
-            <a href="../index.html" class="inline-flex items-center text-gray-500 hover:text-amis-red font-bold transition px-4 py-2 rounded-full hover:bg-white">
-                <i class="fa-solid fa-house mr-2"></i> 回網站首頁
-            </a>
-        </div>
-
-    </main>
-
-    <!-- 頁尾 -->
-    <footer class="bg-gray-800 text-gray-300 py-10 mt-8">
-        <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
-            <div class="mb-6 md:mb-0 text-center md:text-left">
-                <h4 class="text-white font-bold text-xl mb-2">太巴塱國民小學附設幼兒園</h4>
-                <p class="text-sm opacity-80"><i class="fa-solid fa-location-dot mr-2"></i>花蓮縣光復鄉中正路二段23號</p>
-                <p class="text-sm opacity-80 mt-1">傳承文化，快樂學習</p>
-            </div>
-            <div class="border-t border-gray-700 mt-8 pt-6 text-center text-xs text-gray-500 w-full md:w-auto md:border-t-0 md:mt-0">
-                &copy; 2023 Tafalong Elementary School Preschool.
-            </div>
-        </div>
-    </footer>
-
-    <!-- 音效播放器 -->
-    <audio id="audio-player"></audio>
-
-
-    <!-- ========================================== -->
-    <!--          JAVASCRIPT 設定與邏輯區           -->
-    <!-- ========================================== -->
-    <script>
-        // =================================================================
-        // ★★★ 請在此處修改每週的課程內容 (只要改這裡就好) ★★★
-        // =================================================================
+    <!-- 遊戲主體 -->
+    <div class="w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col-reverse md:flex-row h-auto md:h-[600px] fade-in">
         
-        const lessonData = {
-            // 1. 頁面標題
-            title: "第18週線上學習",
+        <!-- 左側：控制與資訊區 -->
+        <div class="w-full md:w-1/3 bg-teal-600 text-white p-6 md:p-8 flex flex-col justify-between relative overflow-hidden shrink-0">
+            <!-- 裝飾背景 -->
+            <div class="absolute inset-0 opacity-10" style="background-image: url('data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' viewBox=\'0 0 20 20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M1 1h2v2H1V1zm4 0h2v2H5V1zm4 0h2v2H9V1zm4 0h2v2h-2V1zm4 0h2v2h-2V1zM1 5h2v2H1V5zm4 0h2v2H5V5zm4 0h2v2H9V5zm4 0h2v2h-2V5zm4 0h2v2h-2V5zM1 9h2v2H1V9zm4 0h2v2H5V9zm4 0h2v2H9V9zm4 0h2v2h-2V9zm4 0h2v2h-2V9zM1 13h2v2H1v-2zm4 0h2v2H5v-2zm4 0h2v2H9v-2zm4 0h2v2h-2v-2zm4 0h2v2h-2v-2zM1 17h2v2H1v-2zm4 0h2v2H5v-2zm4 0h2v2H9v-2zm4 0h2v2h-2v-2zm4 0h2v2h-2v-2z\' fill=\'%23ffffff\' fill-opacity=\'1\' fill-rule=\'evenodd\'/%3E%3C/svg%3E');"></div>
             
-            // 2. 句型練習 (老師問，小朋友答)
-            sentence: {
-                teacher: {
-                    text: "Talacowa kiso?",              // 族語句子
-                    translation: "你要去哪裡？",            // 中文翻譯
-                    audio: "../audio/question_talacowa_kiso.wav" // 音檔路徑
-                },
-                student: {
-                    text: "Talapicodadan kako.",            // 族語句子
-                    translation: "我要去學校。",            // 中文翻譯
-                    audio: "../audio/sentence_picodadan.wav"      // 音檔路徑
-                }
-            },
-
-            // 3. 單字列表 (您可以自由新增或減少 {} 區塊)
-            // 顏色可選: orange (橘), blue (藍), amber (黃), red (紅), emerald (綠), purple (紫)
-            vocabList: [
-                {
-                    word: "picodadan",
-                    subText: "",
-                    translation: "學校",
-                    image: "../images/picodadan.jpg",
-                    audio: "../audio/picodadan.wav",
-                    color: "emerald" 
-                },
-                {
-                    word: "loma'",
-                    subText: "", // 如果沒有附註，留空即可
-                    translation: "家",
-                    image: "../images/loma.jpg",
-                    audio: "../audio/loma.wav",
-                    color: "orange"
-                },
-                {
-                    word: "ʼpatiyamay",
-                    subText: "",
-                    translation: "商店",
-                    image: "../images/patiyamay.jpg",
-                    audio: "../audio/patiyamay.wav",
-                    color: "blue"
-                }
-            ],
-
-            // 4. 下方按鈕連結
-            links: {
-                // 學習單連結 (如果是 '#' 則點擊會跳出提示)
-                worksheet: "#", 
-                worksheetAlert: "學習單尚未上傳喔！", // 當連結是 # 時顯示的提示文字
+            <div class="relative z-10 flex flex-col h-full">
+                <div class="flex items-center gap-2 mb-4 md:mb-6">
+                    <div class="w-8 h-8 md:w-10 md:h-10 bg-white rounded-full flex items-center justify-center text-teal-600 font-bold text-lg md:text-xl">18</div>
+                    <h1 class="text-xl md:text-2xl font-bold">部落探險</h1>
+                </div>
                 
-                // 遊戲連結
-                game: "../games/game_week18.html"
-            }
+                <div id="game-info" class="mb-4 md:mb-8 flex-grow">
+                    <p class="text-teal-100 mb-2 font-bold">你要去哪裡？<br>Talacowa kiso?</p>
+                    <div class="h-1 w-12 bg-yellow-400 rounded-full mb-3"></div>
+                    <p class="text-sm opacity-90 leading-relaxed" id="instruction-text">聽廣播，點擊地圖上的地點！</p>
+                </div>
+
+                <div id="score-board" class="hidden mb-4 flex-grow">
+                    <div class="text-xs md:text-sm text-teal-200 uppercase tracking-widest mb-1">Score</div>
+                    <div class="text-4xl md:text-5xl font-bold text-yellow-400 mb-1" id="current-score">0</div>
+                    <div class="text-xs md:text-sm text-teal-100">Progress: <span id="progress-text">0/6</span></div>
+                </div>
+
+                <div class="mt-auto">
+                    <button id="start-btn" onclick="game.start()" class="w-full bg-yellow-400 hover:bg-yellow-500 text-teal-900 font-bold py-3 px-6 rounded-xl shadow-lg transition transform active:scale-95 flex items-center justify-center gap-2 text-sm md:text-base">
+                        <i class="fa-solid fa-play"></i> 開始探險
+                    </button>
+                    <button id="replay-btn" onclick="game.playCurrentAudio()" class="hidden w-full bg-white/20 hover:bg-white/30 text-white font-bold py-3 px-6 rounded-xl transition flex items-center justify-center gap-2 mb-3 text-sm md:text-base active:bg-white/40">
+                        <i class="fa-solid fa-volume-high"></i> 再聽一次
+                    </button>
+                    <a href="../index.html" class="block text-center text-teal-200 hover:text-white text-xs md:text-sm mt-3 transition p-2">
+                        <i class="fa-solid fa-arrow-left mr-1"></i> 回首頁
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右側：遊戲互動區 -->
+        <div class="w-full md:w-2/3 bg-gray-100 relative overflow-hidden h-[400px] md:h-auto shrink-0">
+            
+            <!-- 模式 1: 地圖探險 (預設顯示) -->
+            <div id="scene-map" class="w-full h-full map-container relative hidden">
+                
+                <div id="pin-school" class="location-pin" onclick="game.checkMapAnswer('picodadan')">
+                    <div class="pin-icon bg-blue-100 border-blue-500 text-blue-600"><i class="fa-solid fa-school"></i></div>
+                    <div class="pin-label">學校 (picodadan)</div>
+                </div>
+
+                <div id="pin-home" class="location-pin" onclick="game.checkMapAnswer('loma')">
+                    <div class="pin-icon bg-orange-100 border-orange-500 text-orange-600"><i class="fa-solid fa-house-chimney"></i></div>
+                    <div class="pin-label">家 (loma')</div>
+                </div>
+
+                <div id="pin-store" class="location-pin" onclick="game.checkMapAnswer('patiyamay')">
+                    <div class="pin-icon bg-purple-100 border-purple-500 text-purple-600"><i class="fa-solid fa-store"></i></div>
+                    <div class="pin-label">商店 (patiyamay)</div>
+                </div>
+
+                <div class="speech-bubble hidden" id="question-bubble" onclick="game.playQuestionAudio()">
+                    <i class="fa-solid fa-volume-high text-teal-500 mr-2"></i>
+                    <span class="text-sm md:text-lg">Talacowa kiso?</span>
+                </div>
+                <div class="character">
+                    <i class="fa-solid fa-child-reaching text-4xl md:text-6xl text-teal-600 drop-shadow-md"></i>
+                </div>
+            </div>
+
+            <!-- 模式 2: 翻牌配對 -->
+            <div id="scene-memory" class="w-full h-full bg-teal-50 relative hidden">
+                <!-- 記憶卡片網格 (由 JS 生成) -->
+                <div id="memory-grid" class="memory-grid"></div>
+            </div>
+
+            <!-- 結算遮罩 -->
+            <div id="result-overlay" class="absolute inset-0 bg-teal-900/95 z-50 hidden flex-col items-center justify-center text-white p-4 text-center">
+                <i class="fa-solid fa-trophy text-5xl md:text-6xl text-yellow-400 mb-4 animate-bounce"></i>
+                <h2 class="text-2xl md:text-3xl font-bold mb-2">探險完成！</h2>
+                <p class="text-base md:text-lg opacity-80 mb-6">你獲得了 <span id="final-score" class="text-3xl md:text-4xl font-bold text-yellow-400 mx-2">0</span> 分</p>
+                <button onclick="location.reload()" class="bg-white text-teal-800 font-bold py-3 px-8 rounded-full hover:bg-gray-100 transition shadow-lg active:scale-95">
+                    再玩一次
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 音效 -->
+    <audio id="audio-player"></audio>
+    <audio id="sfx-correct" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
+    <audio id="sfx-wrong" src="https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3"></audio>
+
+    <!-- 答題回饋 -->
+    <div id="feedback-overlay" class="fixed inset-0 bg-black/30 z-[100] hidden items-center justify-center backdrop-blur-sm">
+        <div class="bg-white rounded-full p-6 shadow-2xl transform scale-0 transition-transform duration-300" id="feedback-icon-container">
+            <i id="feedback-icon" class="fa-solid text-6xl"></i>
+        </div>
+    </div>
+
+    <!-- 引入會員系統 -->
+    <script src="../js/auth.js"></script>
+
+    <script>
+        // ==========================================
+        // 遊戲資料
+        // ==========================================
+        
+        const commonAudio = {
+            question: "../audio/question_talacowa_kiso.wav"
         };
 
-        // =================================================================
-        // 下方程式碼負責將資料填入網頁，通常不需要修改
-        // =================================================================
+        const gameData = [
+            // 修改圖片路徑為本地檔案
+            { id: 'picodadan', word: "picodadan", audio: "../audio/picodadan.wav", img: "../images/picodadan.jpg" }, 
+            { id: 'loma',      word: "loma'",     audio: "../audio/loma.wav",      img: "../images/loma.jpg" },      
+            { id: 'patiyamay', word: "patiyamay", audio: "../audio/patiyamay.wav", img: "../images/patiyamay.jpg" }  
+        ];
 
-        function initPage() {
-            // 設定標題
-            document.title = "太巴塱國小附設幼兒園 - " + lessonData.title;
-            document.getElementById('page-title').textContent = lessonData.title;
+        class Week18Game {
+            constructor() {
+                this.score = 0;
+                this.currentQ = 0;
+                this.questions = [];
+                this.totalQ = 6; 
+                this.isPlaying = false;
+                this.currentAnswerId = null;
+                
+                // 翻牌相關變數
+                this.cards = [];
+                this.flippedCards = [];
+                this.lockBoard = false;
+            }
 
-            // 設定句型
-            document.getElementById('teacher-sentence').textContent = lessonData.sentence.teacher.text;
-            document.getElementById('teacher-trans').textContent = lessonData.sentence.teacher.translation;
-            document.getElementById('teacher-audio-btn').onclick = () => playAudio(lessonData.sentence.teacher.audio);
+            start() {
+                if (typeof AuthSystem !== 'undefined' && !AuthSystem.currentUser) {
+                    if(!confirm("您尚未登入，成績將不會被紀錄。\n是否繼續？")) {
+                        AuthSystem.showLoginModal();
+                        return;
+                    }
+                }
 
-            document.getElementById('student-sentence').textContent = lessonData.sentence.student.text;
-            document.getElementById('student-trans').textContent = lessonData.sentence.student.translation;
-            document.getElementById('student-audio-btn').onclick = () => playAudio(lessonData.sentence.student.audio);
+                this.score = 0;
+                this.currentQ = 0;
+                this.isPlaying = true;
 
-            // 設定單字卡
-            const vocabContainer = document.getElementById('vocab-container');
-            vocabContainer.innerHTML = ''; // 清空目前內容
+                // 產生題目序列
+                // Q1-Q3: 地圖探險 (隨機選3個)
+                const mapQs = [];
+                for(let i=0; i<3; i++) {
+                    mapQs.push({ type: 'map', target: gameData[Math.floor(Math.random() * gameData.length)] });
+                }
+                
+                // Q4-Q6: 翻牌配對 (每一題目標一個單字)
+                const memoryQs = [];
+                // 為了讓每個單字都玩到，我們洗牌一下單字列表
+                const shuffledData = [...gameData].sort(() => Math.random() - 0.5);
+                for(let i=0; i<3; i++) {
+                    // 如果單字不夠3個，就循環取
+                    memoryQs.push({ type: 'memory', target: shuffledData[i % shuffledData.length] });
+                }
 
-            lessonData.vocabList.forEach(item => {
-                // 顏色對應樣式
-                const colorMap = {
-                    orange: { border: 'border-orange-500', bg: 'bg-orange-50', text: 'text-orange-600', hover: 'hover:bg-orange-100' },
-                    blue:   { border: 'border-blue-500',   bg: 'bg-blue-50',   text: 'text-blue-600',   hover: 'hover:bg-blue-100' },
-                    amber:  { border: 'border-amber-600',  bg: 'bg-amber-50',  text: 'text-amber-600',  hover: 'hover:bg-amber-100' },
-                    red:    { border: 'border-red-500',    bg: 'bg-red-50',    text: 'text-red-600',    hover: 'hover:bg-red-100' },
-                    emerald:{ border: 'border-emerald-500',bg: 'bg-emerald-50',text: 'text-emerald-600',hover: 'hover:bg-emerald-100' },
-                    purple: { border: 'border-purple-500', bg: 'bg-purple-50', text: 'text-purple-600', hover: 'hover:bg-purple-100' },
-                };
-                // 預設橘色
-                const style = colorMap[item.color] || colorMap.orange;
+                this.questions = [...mapQs, ...memoryQs];
 
-                const cardHtml = `
-                    <div class="vocab-card bg-white rounded-2xl overflow-hidden shadow-md border-b-4 ${style.border}">
-                        <div class="h-48 bg-gray-100 flex items-center justify-center relative group cursor-pointer border-b border-gray-100" onclick="playAudio('${item.audio}')">
-                            <img src="${item.image}" class="w-full h-full object-contain p-4" alt="${item.translation}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2663/2663046.png'">
-                            <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition flex items-center justify-center">
-                                <i class="fa-solid fa-volume-high text-white opacity-0 group-hover:opacity-100 text-4xl drop-shadow-md"></i>
+                // UI 初始化
+                document.getElementById('start-btn').classList.add('hidden');
+                document.getElementById('replay-btn').classList.remove('hidden');
+                document.getElementById('game-info').classList.add('hidden');
+                document.getElementById('score-board').classList.remove('hidden');
+                
+                this.nextQuestion();
+            }
+
+            nextQuestion() {
+                if (this.currentQ >= this.totalQ) {
+                    this.endGame();
+                    return;
+                }
+
+                const q = this.questions[this.currentQ];
+                this.currentAnswerId = q.target.id;
+                document.getElementById('progress-text').innerText = `${this.currentQ + 1}/${this.totalQ}`;
+
+                if (q.type === 'map') {
+                    this.renderMapPhase();
+                } else {
+                    this.renderMemoryPhase();
+                }
+            }
+
+            // --- Phase 1: 地圖探險邏輯 ---
+            renderMapPhase() {
+                document.getElementById('scene-map').classList.remove('hidden');
+                document.getElementById('scene-memory').classList.add('hidden');
+                document.getElementById('instruction-text').innerText = "聽廣播，點擊地圖上的地點！";
+                document.getElementById('question-bubble').classList.remove('hidden');
+
+                // 播放問句 + 單字
+                this.playQuestionAudio();
+                setTimeout(() => {
+                    this.playAudio(this.questions[this.currentQ].target.audio);
+                }, 1500);
+            }
+
+            checkMapAnswer(selectedId) {
+                if (!this.isPlaying || this.questions[this.currentQ].type !== 'map') return;
+
+                const isCorrect = (selectedId === this.currentAnswerId);
+                this.handleResult(isCorrect);
+            }
+
+            // --- Phase 2: 翻牌配對邏輯 ---
+            renderMemoryPhase() {
+                document.getElementById('scene-map').classList.add('hidden');
+                document.getElementById('scene-memory').classList.remove('hidden');
+                document.getElementById('instruction-text').innerText = "聽聲音，找出兩張一樣的卡片！";
+                
+                const grid = document.getElementById('memory-grid');
+                grid.innerHTML = '';
+                
+                // 準備卡片：3對 (共6張)
+                // 包含：1對是正確答案，2對是干擾項
+                // 確保每一輪都有正確答案對
+                const targetPair = [this.questions[this.currentQ].target, this.questions[this.currentQ].target];
+                
+                // 隨機選2個其他單字作為干擾
+                let distractors = gameData.filter(d => d.id !== this.currentAnswerId);
+                // 確保干擾項足夠 (若只有3個單字，剩2個剛好)
+                let otherPairs = [];
+                distractors.forEach(d => {
+                    otherPairs.push(d);
+                    otherPairs.push(d);
+                });
+
+                // 合併並洗牌
+                let deck = [...targetPair, ...otherPairs];
+                deck.sort(() => Math.random() - 0.5);
+
+                // 生成 HTML
+                deck.forEach((item, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'memory-card';
+                    card.dataset.id = item.id;
+                    card.dataset.index = index;
+                    
+                    card.innerHTML = `
+                        <div class="memory-card-inner">
+                            <div class="memory-card-front">
+                                <i class="fa-solid fa-question text-teal-700 text-3xl opacity-50"></i>
+                            </div>
+                            <div class="memory-card-back">
+                                <img src="${item.img}" alt="${item.word}">
                             </div>
                         </div>
-                        <div class="p-5 text-center">
-                            <h3 class="text-3xl font-bold text-gray-800 mb-1">${item.word}</h3>
-                            ${item.subText ? `<p class="text-xs text-gray-400 mb-2">${item.subText}</p>` : '<div class="mb-2"></div>'}
-                            <p class="text-gray-500 text-lg">${item.translation}</p>
-                            <button onclick="playAudio('${item.audio}')" class="mt-4 w-full ${style.bg} ${style.hover} ${style.text} py-2 rounded-lg font-bold transition text-sm flex items-center justify-center">
-                                <i class="fa-solid fa-play mr-2"></i> 聽發音
-                            </button>
-                        </div>
-                    </div>
-                `;
-                vocabContainer.innerHTML += cardHtml;
-            });
-
-            // 設定連結
-            const worksheetBtn = document.getElementById('worksheet-link');
-            worksheetBtn.href = lessonData.links.worksheet;
-            if (lessonData.links.worksheet === '#' && lessonData.links.worksheetAlert) {
-                worksheetBtn.onclick = (e) => {
-                    e.preventDefault();
-                    alert(lessonData.links.worksheetAlert);
-                };
-            }
-
-            const gameBtn = document.getElementById('game-link');
-            gameBtn.href = lessonData.links.game;
-        }
-
-        // 播放音效函數
-        function playAudio(src) {
-            const player = document.getElementById('audio-player');
-            player.src = src;
-            const playPromise = player.play();
-            if (playPromise !== undefined) {
-                playPromise.catch(error => {
-                    console.log("Audio not found: " + src);
+                    `;
+                    
+                    card.addEventListener('click', () => this.flipCard(card));
+                    grid.appendChild(card);
                 });
+
+                this.flippedCards = [];
+                this.lockBoard = false;
+
+                // 播放題目聲音
+                this.playAudio(this.questions[this.currentQ].target.audio);
+            }
+
+            flipCard(card) {
+                if (this.lockBoard) return;
+                if (card === this.flippedCards[0]) return; // 不能點同一張
+
+                card.classList.add('flipped');
+                this.flippedCards.push(card);
+
+                if (this.flippedCards.length === 2) {
+                    this.checkForMatch();
+                }
+            }
+
+            checkForMatch() {
+                let card1 = this.flippedCards[0];
+                let card2 = this.flippedCards[1];
+                let id1 = card1.dataset.id;
+                let id2 = card2.dataset.id;
+
+                let isMatch = (id1 === id2);
+
+                if (isMatch) {
+                    // 配對成功！
+                    this.disableCards();
+                    // 檢查是否為題目要求的目標
+                    if (id1 === this.currentAnswerId) {
+                        // 是目標單字 -> 過關！
+                        setTimeout(() => {
+                            this.handleResult(true);
+                        }, 500);
+                    } else {
+                        // 配對成功但不是目標 -> 提示「不是這個」，然後蓋回去
+                        // 或者保留開啟？ 題目要求「找出」目標，通常保留開啟比較友善
+                        // 這裡設定：保留開啟，但不會觸發下一題，需要繼續找
+                        // 為了避免混淆，這裡簡單提示並蓋回去，強迫專注聽音
+                        this.lockBoard = true;
+                        setTimeout(() => {
+                            // 提示音效 (可選)
+                            // reset
+                            card1.classList.remove('flipped');
+                            card2.classList.remove('flipped');
+                            this.resetBoard();
+                        }, 1000);
+                    }
+                } else {
+                    // 配對失敗
+                    this.unflipCards();
+                }
+            }
+
+            disableCards() {
+                // 這裡其實不需要做什麼，因為已經翻開了
+                // 如果希望翻對的卡片不能再點，可以移除監聽器，但上面有檢查 flipped 狀態
+                this.flippedCards = [];
+            }
+
+            unflipCards() {
+                this.lockBoard = true;
+                setTimeout(() => {
+                    this.flippedCards[0].classList.remove('flipped');
+                    this.flippedCards[1].classList.remove('flipped');
+                    this.resetBoard();
+                }, 1000);
+            }
+
+            resetBoard() {
+                [this.flippedCards, this.lockBoard] = [[], false];
+            }
+
+            // --- 共用邏輯 ---
+
+            playCurrentAudio() {
+                if(this.isPlaying && this.questions[this.currentQ]) {
+                    this.playAudio(this.questions[this.currentQ].target.audio);
+                }
+            }
+
+            playQuestionAudio() {
+                this.playAudio(commonAudio.question);
+                const bubble = document.getElementById('question-bubble');
+                bubble.classList.add('scale-110');
+                setTimeout(() => bubble.classList.remove('scale-110'), 200);
+            }
+
+            playAudio(src) {
+                const p = document.getElementById('audio-player');
+                p.src = src;
+                p.play().catch(e => console.log("Audio play error", e));
+            }
+
+            handleResult(isCorrect) {
+                this.showFeedback(isCorrect);
+
+                if (isCorrect) {
+                    this.score += Math.floor(100 / this.totalQ);
+                    if(this.currentQ === this.totalQ - 1 && this.score >= 95) this.score = 100;
+                    document.getElementById('current-score').innerText = this.score;
+                    document.getElementById('sfx-correct').play().catch(()=>{});
+                } else {
+                    document.getElementById('sfx-wrong').play().catch(()=>{});
+                }
+
+                setTimeout(() => {
+                    this.currentQ++;
+                    this.nextQuestion();
+                }, 1500); // 稍微久一點讓動畫跑完
+            }
+
+            showFeedback(isCorrect) {
+                const overlay = document.getElementById('feedback-overlay');
+                const container = document.getElementById('feedback-icon-container');
+                const icon = document.getElementById('feedback-icon');
+
+                overlay.classList.remove('hidden');
+                overlay.classList.add('flex');
+                
+                if (isCorrect) {
+                    icon.className = "fa-solid fa-check text-green-500";
+                } else {
+                    icon.className = "fa-solid fa-xmark text-red-500";
+                }
+
+                setTimeout(() => container.classList.remove('scale-0'), 10);
+                setTimeout(() => container.classList.add('scale-100'), 10);
+
+                setTimeout(() => {
+                    container.classList.remove('scale-100');
+                    container.classList.add('scale-0');
+                    setTimeout(() => {
+                        overlay.classList.add('hidden');
+                        overlay.classList.remove('flex');
+                    }, 200);
+                }, 800);
+            }
+
+            endGame() {
+                this.isPlaying = false;
+                document.getElementById('result-overlay').classList.remove('hidden');
+                document.getElementById('result-overlay').classList.add('flex');
+                
+                const finalScoreEl = document.getElementById('final-score');
+                let tempScore = 0;
+                const timer = setInterval(() => {
+                    if(tempScore >= this.score) {
+                        tempScore = this.score;
+                        clearInterval(timer);
+                    } else {
+                        tempScore++;
+                    }
+                    finalScoreEl.innerText = tempScore;
+                }, 20);
+
+                if (typeof AuthSystem !== 'undefined' && AuthSystem.currentUser) {
+                    AuthSystem.submitScore("game18", this.score);
+                }
             }
         }
 
-        // 當頁面載入完成後執行初始化
-        window.onload = initPage;
+        const game = new Week18Game();
+
     </script>
-    <script src="../js/auth.js"></script>
 </body>
 </html>
-
-
-
