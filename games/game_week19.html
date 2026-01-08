@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第19週遊戲：生活動作大考驗 - Mimaan kiso?</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #fff7ed; /* 溫暖的米色背景 */
+            background-image: 
+                radial-gradient(#fed7aa 2px, transparent 2px),
+                radial-gradient(#fed7aa 2px, transparent 2px);
+            background-size: 30px 30px;
+            background-position: 0 0, 15px 15px;
+        }
+
+        .game-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(234, 88, 12, 0.15);
+            overflow: hidden;
+            border: 4px solid #fff;
+            position: relative;
+        }
+
+        .option-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            border: 3px solid transparent;
+            opacity: 0.6; /* 預設半透明，表示不可點 */
+            pointer-events: none; /* 預設不可點擊 */
+        }
+        
+        /* 當可以作答時的樣式 */
+        .can-answer .option-card {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .can-answer .option-card:hover {
+            transform: translateY(-5px);
+            border-color: #fb923c; /* 橘色邊框 */
+            box-shadow: 0 10px 20px rgba(251, 146, 60, 0.2);
+        }
+        
+        .option-card:active {
+            transform: scale(0.98);
+        }
+
+        .selected-option {
+            border-color: #f97316 !important;
+            background-color: #fff7ed;
+            transform: scale(1.02);
+        }
+
+        /* 角色動畫 */
+        .character-float {
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        /* 進度條動畫 */
+        .progress-fill {
+            transition: width 0.5s ease-out;
+        }
+
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* 快速反應模式專用樣式 */
+        .reaction-img {
+            transition: opacity 0.2s;
+        }
+        .reaction-active {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(249, 115, 22, 0.5);
+            border: 4px solid #f97316;
+        }
+
+        /* 播放中動畫 */
+        .playing-audio {
+            animation: pulse-orange 1.5s infinite;
+        }
+        @keyframes pulse-orange {
+            0% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(249, 115, 22, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); }
+        }
+
+        /* 避免手機點擊閃爍 */
+        * { -webkit-tap-highlight-color: transparent; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div class="game-container w-full min-h-[600px] flex flex-col fade-in">
+        
+        <!-- 頂部資訊列 -->
+        <div class="bg-orange-500 text-white p-4 flex justify-between items-center relative overflow-hidden">
+            <div class="flex items-center gap-3 z-10">
+                <div class="w-10 h-10 bg-white text-orange-600 rounded-full flex items-center justify-center font-bold text-xl shadow-sm">19</div>
+                <div>
+                    <h1 class="font-bold text-lg md:text-xl">生活動作大考驗</h1>
+                    <p class="text-xs text-orange-100">Mimaan kiso? 你在做什麼？</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4 z-10">
+                <div class="text-right hidden md:block">
+                    <div class="text-xs text-orange-200">SCORE</div>
+                    <div class="font-bold text-2xl" id="current-score">0</div>
+                </div>
+                <!-- 進度圈 -->
+                <div class="relative w-12 h-12 flex items-center justify-center">
+                    <svg class="w-full h-full transform -rotate-90">
+                        <circle cx="24" cy="24" r="20" stroke="rgba(255,255,255,0.3)" stroke-width="4" fill="none"></circle>
+                        <circle id="progress-circle" cx="24" cy="24" r="20" stroke="white" stroke-width="4" fill="none" stroke-dasharray="126" stroke-dashoffset="126" class="transition-all duration-500"></circle>
+                    </svg>
+                    <span id="q-num" class="absolute text-xs font-bold">1/6</span>
+                </div>
+            </div>
+
+            <!-- 背景裝飾 -->
+            <div class="absolute -right-6 -bottom-6 text-orange-400 opacity-30 text-8xl transform rotate-12">
+                <i class="fa-solid fa-shapes"></i>
+            </div>
+        </div>
+
+        <!-- 遊戲主畫面 -->
+        <div class="flex-grow relative bg-gray-50 flex flex-col">
+            
+            <!-- 1. 開始畫面 -->
+            <div id="scene-start" class="absolute inset-0 flex flex-col items-center justify-center p-8 bg-white z-20 text-center">
+                <div class="mb-8 character-float">
+                    <i class="fa-solid fa-person-running text-8xl text-orange-500"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">準備好挑戰了嗎？</h2>
+                <p class="text-gray-600 mb-8 max-w-md">
+                    這裡有三個重要的動作：<br>
+                    <span class="text-orange-600 font-bold">minanam</span> (學習)、
+                    <span class="text-orange-600 font-bold">micakay</span> (買)、
+                    <span class="text-orange-600 font-bold">komaen</span> (吃)。<br>
+                    仔細聽，選出正確的答案！
+                </p>
+                <button onclick="game.start()" class="bg-orange-500 hover:bg-orange-600 text-white text-xl font-bold py-4 px-12 rounded-full shadow-lg transform transition hover:scale-105 active:scale-95 flex items-center gap-2">
+                    <i class="fa-solid fa-play"></i> 開始遊戲
+                </button>
+                <div class="mt-4 text-sm text-gray-400">
+                    <i class="fa-solid fa-circle-info mr-1"></i> 記得先登入才能紀錄成績喔！
+                </div>
+            </div>
+
+            <!-- 2. 遊戲進行區 -->
+            <div id="scene-game" class="hidden flex-col h-full p-4 md:p-8">
+                
+                <!-- 題目顯示區 -->
+                <div class="flex-grow flex flex-col items-center justify-center mb-6">
+                    
+                    <!-- 提示文字 -->
+                    <div id="instruction" class="text-gray-500 font-bold mb-6 text-lg text-center animate-bounce">
+                        聽聽看，這是什麼動作？
+                    </div>
+
+                    <!-- 題目主體 (圖片或播放鈕) -->
+                    <div id="question-area" class="mb-8">
+                        <!-- JS 動態插入內容 -->
+                    </div>
+
+                    <!-- 選項區 -->
+                    <div id="options-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-4xl">
+                        <!-- JS 動態插入選項 -->
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- 3. 結算畫面 -->
+            <div id="scene-result" class="hidden absolute inset-0 flex flex-col items-center justify-center p-8 bg-white z-20 text-center">
+                <div class="text-6xl text-yellow-400 mb-4 animate-bounce">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+                <h2 class="text-4xl font-bold text-gray-800 mb-2">挑戰完成！</h2>
+                <div class="text-lg text-gray-500 mb-6">你的總分是</div>
+                <div class="text-7xl font-bold text-orange-500 mb-8" id="final-score">0</div>
+                
+                <div class="flex gap-4 w-full max-w-sm">
+                    <button onclick="location.reload()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 rounded-xl transition">
+                        再玩一次
+                    </button>
+                    <a href="../index.html" class="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-xl transition flex items-center justify-center">
+                        回首頁
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 音效播放器 -->
+    <audio id="audio-player"></audio>
+    <audio id="sfx-correct" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
+    <audio id="sfx-wrong" src="https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3"></audio>
+
+    <!-- 答題回饋遮罩 -->
+    <div id="feedback-overlay" class="fixed inset-0 bg-black/40 z-50 hidden items-center justify-center backdrop-blur-sm">
+        <div class="bg-white rounded-full p-8 shadow-2xl transform scale-0 transition-transform duration-300" id="feedback-icon-container">
+            <i id="feedback-icon" class="fa-solid text-8xl"></i>
+        </div>
+    </div>
+
+    <!-- 引入會員系統 -->
+    <script src="../js/auth.js"></script>
+
+    <script>
+        // ==========================================
+        // 遊戲資料
+        // ==========================================
+        
+        // 共用音檔
+        const commonAudio = {
+            question: "../audio/question_mimaan_kiso.wav" // 需準備：Mimaan kiso?
+        };
+
+        // 單字與對應素材
+        const vocabData = [
+            { 
+                id: 'nanam', 
+                word: "minanam", 
+                sentence: "Minanam kako.", 
+                trans: "我在學習", 
+                img: "../images/minanam.jpg",  // 圖片：學習
+                audio_word: "../audio/nanam.wav", 
+                audio_sentence: "../audio/sentence_minanam.wav" 
+            },
+            { 
+                id: 'cakay', 
+                word: "micakay", 
+                sentence: "Micakay kako.", 
+                trans: "我在買東西", 
+                img: "../images/micakay.jpg", // 圖片：買東西
+                audio_word: "../audio/cakay.wav", 
+                audio_sentence: "../audio/sentence_micakay.wav" 
+            },
+            { 
+                id: 'kaen', 
+                word: "komaen", 
+                sentence: "Komaen kako.", 
+                trans: "我在吃飯", 
+                img: "../images/komaen.jpg", // 圖片：吃飯
+                audio_word: "../audio/kaen.wav", 
+                audio_sentence: "../audio/sentence_komaen.wav" 
+            }
+        ];
+
+        class Week19Game {
+            constructor() {
+                this.score = 0;
+                this.currentQ = 0;
+                this.questions = [];
+                this.totalQ = 6;
+                this.isPlaying = false;
+                this.currentAnswerId = null;
+                
+                this.canAnswer = false; // ★★★ 新增：是否允許作答
+                
+                // 快速反應題使用
+                this.currentDisplayImage = null;
+                this.reactionTimer = null;
+            }
+
+            start() {
+                if (typeof AuthSystem !== 'undefined' && !AuthSystem.currentUser) {
+                    if(!confirm("您尚未登入，成績將不會被紀錄。\n是否繼續？")) {
+                        AuthSystem.showLoginModal();
+                        return;
+                    }
+                }
+
+                // 產生題目：6題混合模式
+                this.questions = [];
+                const shuffledVocab = [...vocabData].sort(() => Math.random() - 0.5);
+                
+                // Phase 1: 聽音選圖 (單字) x 2
+                for(let i=0; i<2; i++) {
+                    this.questions.push({ 
+                        type: 'audio-img', 
+                        target: shuffledVocab[i % shuffledVocab.length],
+                        audio: shuffledVocab[i % shuffledVocab.length].audio_word
+                    });
+                }
+                
+                // Phase 2: 看圖選音 (句子) x 2
+                for(let i=0; i<2; i++) {
+                    this.questions.push({ 
+                        type: 'img-audio', 
+                        target: shuffledVocab[(i+1) % shuffledVocab.length],
+                        audio: shuffledVocab[(i+1) % shuffledVocab.length].audio_sentence
+                    });
+                }
+
+                // Phase 3: 快速反應 (聽指令 -> 看到正確圖片按鈕) x 2
+                for(let i=0; i<2; i++) {
+                    this.questions.push({ 
+                        type: 'reaction', 
+                        target: shuffledVocab[(i+2) % shuffledVocab.length],
+                        audio: shuffledVocab[(i+2) % shuffledVocab.length].audio_sentence 
+                    });
+                }
+
+                this.score = 0;
+                this.currentQ = 0;
+                this.isPlaying = true;
+
+                document.getElementById('scene-start').classList.add('hidden');
+                document.getElementById('scene-game').classList.remove('hidden');
+                document.getElementById('scene-game').classList.add('flex');
+
+                this.nextQuestion();
+            }
+
+            nextQuestion() {
+                if (this.currentQ >= this.totalQ) {
+                    this.endGame();
+                    return;
+                }
+
+                const q = this.questions[this.currentQ];
+                this.currentAnswerId = q.target.id;
+                
+                // ★★★ 重置作答狀態 ★★★
+                this.canAnswer = false; 
+                document.getElementById('scene-game').classList.remove('can-answer');
+
+                document.getElementById('q-num').innerText = `${this.currentQ + 1}/${this.totalQ}`;
+                const offset = 126 - (126 * ((this.currentQ + 1) / this.totalQ));
+                document.getElementById('progress-circle').style.strokeDashoffset = offset;
+
+                const instruction = document.getElementById('instruction');
+                const qArea = document.getElementById('question-area');
+                const optGrid = document.getElementById('options-grid');
+                
+                qArea.innerHTML = '';
+                optGrid.innerHTML = '';
+
+                // --- 選項準備 ---
+                let options = [q.target];
+                let distractors = vocabData.filter(v => v.id !== q.target.id);
+                options = [...options, ...distractors];
+                options.sort(() => Math.random() - 0.5);
+
+                if (q.type === 'audio-img') {
+                    // Phase 1: 聽音選圖
+                    instruction.innerText = "聽聽看，選出正確的圖片！";
+                    
+                    const playBtnId = 'play-btn-' + this.currentQ;
+                    qArea.innerHTML = `
+                        <button id="${playBtnId}" class="bg-orange-400 hover:bg-orange-500 text-white w-24 h-24 rounded-full text-4xl shadow-lg transition transform hover:scale-110 active:scale-95 flex items-center justify-center animate-pulse">
+                            <i class="fa-solid fa-volume-high"></i>
+                        </button>
+                    `;
+                    // 綁定點擊播放
+                    document.getElementById(playBtnId).onclick = () => {
+                        this.playAudio(q.audio, () => {
+                            // 播放結束後解鎖
+                            this.canAnswer = true;
+                            document.getElementById('scene-game').classList.add('can-answer');
+                            instruction.innerText = "現在，請選擇！";
+                        });
+                    };
+
+                    // 自動播放第一次
+                    setTimeout(() => {
+                        this.playAudio(q.audio, () => {
+                            this.canAnswer = true;
+                            document.getElementById('scene-game').classList.add('can-answer');
+                            instruction.innerText = "現在，請選擇！";
+                        });
+                    }, 500);
+
+                    options.forEach(opt => {
+                        const el = document.createElement('div');
+                        el.className = "option-card bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center h-48 justify-center";
+                        el.onclick = () => this.checkAnswer(opt.id);
+                        el.innerHTML = `
+                            <img src="${opt.img}" class="w-full h-32 object-contain rounded-lg mb-2" alt="option">
+                            <div class="text-gray-300 text-xs font-bold">???</div>
+                        `;
+                        optGrid.appendChild(el);
+                    });
+
+                } else if (q.type === 'img-audio') {
+                    // Phase 2: 看圖選音 (維持原樣，點擊即播音且算作答，不需強制聽完題目，因為題目是圖片)
+                    // 但我們可以加一個 "請先看圖片" 的延遲
+                    this.canAnswer = true; // 看圖題直接允許作答 (點選項會播音)
+                    document.getElementById('scene-game').classList.add('can-answer');
+
+                    instruction.innerText = "看圖片，哪一個聲音是對的？";
+                    qArea.innerHTML = `
+                        <img src="${q.target.img}" class="w-48 h-48 object-cover rounded-2xl shadow-lg border-4 border-white transform rotate-2">
+                    `;
+
+                    options.forEach(opt => {
+                        const el = document.createElement('button');
+                        el.className = "option-card bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex items-center gap-4 w-full text-left group";
+                        el.onclick = () => {
+                            this.playAudio(opt.audio_sentence);
+                            setTimeout(() => this.checkAnswer(opt.id), 800);
+                        };
+                        el.innerHTML = `
+                            <div class="w-12 h-12 rounded-full bg-orange-100 text-orange-500 flex items-center justify-center text-xl group-hover:bg-orange-500 group-hover:text-white transition-colors">
+                                <i class="fa-solid fa-play"></i>
+                            </div>
+                            <div>
+                                <div class="font-bold text-gray-800 text-lg">選項 ${options.indexOf(opt) + 1}</div>
+                                <div class="text-xs text-gray-400">點擊播放並選擇</div>
+                            </div>
+                        `;
+                        optGrid.appendChild(el);
+                    });
+
+                } else if (q.type === 'reaction') {
+                    // Phase 3: 快速反應
+                    // 這個模式本身就是聽完才開始跳圖，所以邏輯內建了
+                    this.canAnswer = false; // 還沒開始跳圖前不能按
+                    
+                    instruction.innerText = "聽到指令後，看到正確圖片馬上按按鈕！";
+                    
+                    const playBtnId = 'play-react-' + this.currentQ;
+                    qArea.innerHTML = `
+                        <div class="flex flex-col items-center">
+                            <div class="text-orange-500 font-bold mb-2">請仔細聽...</div>
+                            <button id="${playBtnId}" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-full shadow-md text-sm flex items-center gap-2 mb-6">
+                                <i class="fa-solid fa-volume-high"></i> 重聽指令
+                            </button>
+                            
+                            <div id="reaction-display" class="w-48 h-48 rounded-2xl shadow-lg border-4 border-gray-100 overflow-hidden relative bg-white flex items-center justify-center">
+                                <div class="text-gray-400">準備中...</div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.getElementById(playBtnId).onclick = () => {
+                        this.playAudio(q.audio, () => {
+                            this.startReactionLoop(q.target.id);
+                        });
+                    };
+                    
+                    optGrid.className = "flex justify-center w-full"; 
+                    optGrid.innerHTML = `
+                        <button id="reaction-btn" onclick="game.checkReaction()" class="bg-red-500 hover:bg-red-600 text-white text-2xl font-bold py-6 px-12 rounded-full shadow-xl transform active:scale-95 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all opacity-50 cursor-not-allowed">
+                            就是這個！
+                        </button>
+                    `;
+
+                    // 自動播放
+                    setTimeout(() => {
+                        this.playAudio(q.audio, () => {
+                            this.startReactionLoop(q.target.id);
+                        });
+                    }, 500);
+                }
+            }
+
+            // --- 快速反應模式專用邏輯 ---
+            startReactionLoop(targetId) {
+                const display = document.getElementById('reaction-display');
+                const btn = document.getElementById('reaction-btn');
+                if (!display || !btn) return;
+
+                // 啟用按鈕
+                btn.disabled = false;
+                btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                this.canAnswer = true;
+
+                let pool = [...vocabData]; 
+                
+                if (this.reactionTimer) clearInterval(this.reactionTimer);
+
+                this.reactionTimer = setInterval(() => {
+                    const randomItem = pool[Math.floor(Math.random() * pool.length)];
+                    this.currentDisplayImage = randomItem; 
+
+                    display.innerHTML = `
+                        <img src="${randomItem.img}" class="w-full h-full object-cover reaction-img fade-in" alt="image">
+                    `;
+                }, 1200); 
+            }
+
+            checkReaction() {
+                if (!this.canAnswer || !this.currentDisplayImage) return;
+
+                const isCorrect = (this.currentDisplayImage.id === this.currentAnswerId);
+                
+                if (this.reactionTimer) clearInterval(this.reactionTimer);
+
+                // 強制檢查，不用傳 ID，直接用當前的圖片 ID
+                this.checkAnswer(this.currentDisplayImage.id); 
+            }
+
+            // ★★★ 修改：新增 callback 參數 ★★★
+            playAudio(src, callback) {
+                const p = document.getElementById('audio-player');
+                p.src = src;
+                
+                // 添加播放中視覺效果 (可選)
+                const btns = document.querySelectorAll('button i.fa-volume-high');
+                btns.forEach(b => b.parentElement.classList.add('playing-audio'));
+
+                p.onended = () => {
+                    btns.forEach(b => b.parentElement.classList.remove('playing-audio'));
+                    if (callback) callback();
+                };
+
+                p.play().catch(e => {
+                    console.log("Audio play error", e);
+                    // 如果播放失敗，也應該執行 callback 以免卡關
+                    if (callback) callback();
+                });
+            }
+
+            checkAnswer(selectedId) {
+                // ★★★ 關鍵：檢查是否允許作答 ★★★
+                if (!this.isPlaying || !this.canAnswer) return;
+
+                const isCorrect = (selectedId === this.currentAnswerId);
+                
+                const overlay = document.getElementById('feedback-overlay');
+                const container = document.getElementById('feedback-icon-container');
+                const icon = document.getElementById('feedback-icon');
+
+                overlay.classList.remove('hidden');
+                overlay.classList.add('flex');
+                
+                if (isCorrect) {
+                    icon.className = "fa-solid fa-check text-green-500";
+                    this.score += Math.floor(100 / this.totalQ);
+                    if(this.currentQ === this.totalQ - 1 && this.score >= 95) this.score = 100;
+                    document.getElementById('current-score').innerText = this.score;
+                    document.getElementById('sfx-correct').play().catch(()=>{});
+                } else {
+                    icon.className = "fa-solid fa-xmark text-red-500";
+                    document.getElementById('sfx-wrong').play().catch(()=>{});
+                }
+
+                setTimeout(() => {
+                    container.classList.remove('scale-0');
+                    container.classList.add('scale-100');
+                }, 10);
+
+                setTimeout(() => {
+                    container.classList.remove('scale-100');
+                    container.classList.add('scale-0');
+                    setTimeout(() => {
+                        overlay.classList.add('hidden');
+                        overlay.classList.remove('flex');
+                        this.currentQ++;
+                        this.nextQuestion();
+                    }, 200);
+                }, 1200);
+            }
+
+            endGame() {
+                this.isPlaying = false;
+                if (this.reactionTimer) clearInterval(this.reactionTimer);
+                
+                document.getElementById('scene-game').classList.add('hidden');
+                document.getElementById('scene-game').classList.remove('flex');
+                document.getElementById('scene-result').classList.remove('hidden');
+                
+                const finalScoreEl = document.getElementById('final-score');
+                let tempScore = 0;
+                const timer = setInterval(() => {
+                    if(tempScore >= this.score) {
+                        tempScore = this.score;
+                        clearInterval(timer);
+                    } else {
+                        tempScore++;
+                    }
+                    finalScoreEl.innerText = tempScore;
+                }, 20);
+
+                if (typeof AuthSystem !== 'undefined' && AuthSystem.currentUser) {
+                    AuthSystem.submitScore("game19", this.score);
+                }
+            }
+        }
+
+        const game = new Week19Game();
+
+    </script>
+</body>
+</html>
