@@ -55,10 +55,12 @@
             transform: scale(0.98);
         }
 
+        /* 選中狀態樣式 */
         .selected-option {
             border-color: #f97316 !important;
-            background-color: #fff7ed;
+            background-color: #fff7ed !important;
             transform: scale(1.02);
+            box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.2);
         }
 
         /* 角色動畫 */
@@ -274,7 +276,8 @@
                 this.isPlaying = false;
                 this.currentAnswerId = null;
                 
-                this.canAnswer = false; // ★★★ 新增：是否允許作答
+                this.canAnswer = false; // 是否允許作答
+                this.selectedOptionIndex = -1; // 目前選中的選項索引
                 
                 // 快速反應題使用
                 this.currentDisplayImage = null;
@@ -340,8 +343,9 @@
                 const q = this.questions[this.currentQ];
                 this.currentAnswerId = q.target.id;
                 
-                // ★★★ 重置作答狀態 ★★★
+                // 重置狀態
                 this.canAnswer = false; 
+                this.selectedOptionIndex = -1;
                 document.getElementById('scene-game').classList.remove('can-answer');
 
                 document.getElementById('q-num').innerText = `${this.currentQ + 1}/${this.totalQ}`;
@@ -394,38 +398,50 @@
                         const el = document.createElement('div');
                         el.className = "option-card bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center h-48 justify-center";
                         el.onclick = () => this.checkAnswer(opt.id);
+                        // ★★★ 修改：移除了 ??? 文字 ★★★
                         el.innerHTML = `
-                            <img src="${opt.img}" class="w-full h-32 object-contain rounded-lg mb-2" alt="option">
-                            <div class="text-gray-300 text-xs font-bold">???</div>
+                            <img src="${opt.img}" class="w-full h-32 object-contain rounded-lg" alt="option">
                         `;
                         optGrid.appendChild(el);
                     });
 
                 } else if (q.type === 'img-audio') {
-                    // Phase 2: 看圖選音 (維持原樣，點擊即播音且算作答，不需強制聽完題目，因為題目是圖片)
-                    // 但我們可以加一個 "請先看圖片" 的延遲
-                    this.canAnswer = true; // 看圖題直接允許作答 (點選項會播音)
+                    // Phase 2: 看圖選音 (邏輯更新：先點播放，再點選取)
+                    instruction.innerText = "看圖片，哪一個聲音是對的？";
+                    // 這裡也需要解鎖狀態，雖然沒有"聽完題目"的限制，但為了邏輯一致性
+                    this.canAnswer = true; 
                     document.getElementById('scene-game').classList.add('can-answer');
 
-                    instruction.innerText = "看圖片，哪一個聲音是對的？";
                     qArea.innerHTML = `
                         <img src="${q.target.img}" class="w-48 h-48 object-cover rounded-2xl shadow-lg border-4 border-white transform rotate-2">
                     `;
 
-                    options.forEach(opt => {
+                    options.forEach((opt, index) => {
                         const el = document.createElement('button');
+                        el.id = `option-btn-${index}`; // 給予 ID 以便控制
                         el.className = "option-card bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex items-center gap-4 w-full text-left group";
+                        
+                        // ★★★ 修改：點擊邏輯 ★★★
                         el.onclick = () => {
+                            // 1. 播放聲音
                             this.playAudio(opt.audio_sentence);
-                            setTimeout(() => this.checkAnswer(opt.id), 800);
+                            
+                            // 2. 如果已經選中這個，再次點擊則送出答案
+                            if (this.selectedOptionIndex === index) {
+                                this.checkAnswer(opt.id);
+                            } else {
+                                // 3. 否則，設定為選中狀態
+                                this.selectOptionUI(index, options.length);
+                            }
                         };
+                        
                         el.innerHTML = `
                             <div class="w-12 h-12 rounded-full bg-orange-100 text-orange-500 flex items-center justify-center text-xl group-hover:bg-orange-500 group-hover:text-white transition-colors">
                                 <i class="fa-solid fa-play"></i>
                             </div>
                             <div>
-                                <div class="font-bold text-gray-800 text-lg">選項 ${options.indexOf(opt) + 1}</div>
-                                <div class="text-xs text-gray-400">點擊播放並選擇</div>
+                                <div class="font-bold text-gray-800 text-lg">選項 ${index + 1}</div>
+                                <div class="text-xs text-gray-400 hint-text">點擊試聽</div>
                             </div>
                         `;
                         optGrid.appendChild(el);
@@ -433,8 +449,7 @@
 
                 } else if (q.type === 'reaction') {
                     // Phase 3: 快速反應
-                    // 這個模式本身就是聽完才開始跳圖，所以邏輯內建了
-                    this.canAnswer = false; // 還沒開始跳圖前不能按
+                    this.canAnswer = false; 
                     
                     instruction.innerText = "聽到指令後，看到正確圖片馬上按按鈕！";
                     
@@ -474,6 +489,25 @@
                 }
             }
 
+            // 處理選取狀態的 UI 切換
+            selectOptionUI(index, total) {
+                this.selectedOptionIndex = index;
+                for(let i=0; i<total; i++) {
+                    const el = document.getElementById(`option-btn-${i}`);
+                    const hintText = el.querySelector('.hint-text');
+                    
+                    if(i === index) {
+                        el.classList.add('selected-option');
+                        if(hintText) hintText.innerText = "再次點擊以確認";
+                        if(hintText) hintText.classList.add('text-orange-600', 'font-bold');
+                    } else {
+                        el.classList.remove('selected-option');
+                        if(hintText) hintText.innerText = "點擊試聽";
+                        if(hintText) hintText.classList.remove('text-orange-600', 'font-bold');
+                    }
+                }
+            }
+
             // --- 快速反應模式專用邏輯 ---
             startReactionLoop(targetId) {
                 const display = document.getElementById('reaction-display');
@@ -506,7 +540,6 @@
                 
                 if (this.reactionTimer) clearInterval(this.reactionTimer);
 
-                // 強制檢查，不用傳 ID，直接用當前的圖片 ID
                 this.checkAnswer(this.currentDisplayImage.id); 
             }
 
@@ -515,7 +548,6 @@
                 const p = document.getElementById('audio-player');
                 p.src = src;
                 
-                // 添加播放中視覺效果 (可選)
                 const btns = document.querySelectorAll('button i.fa-volume-high');
                 btns.forEach(b => b.parentElement.classList.add('playing-audio'));
 
@@ -526,7 +558,6 @@
 
                 p.play().catch(e => {
                     console.log("Audio play error", e);
-                    // 如果播放失敗，也應該執行 callback 以免卡關
                     if (callback) callback();
                 });
             }
