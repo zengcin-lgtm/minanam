@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3/9 族語簡報：家裡的老照片</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f3f4f6;
+            overflow: hidden;
+        }
+        .slide {
+            display: none;
+            height: 100vh;
+            width: 100vw;
+            padding: 2rem;
+            transition: all 0.5s ease;
+        }
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .amis-text {
+            color: #15803d; /* Kangdaw Green */
+            font-weight: 900;
+        }
+        .btn-nav {
+            background-color: #15803d;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 9999px;
+            font-size: 1.5rem;
+            transition: transform 0.2s;
+        }
+        .btn-nav:hover {
+            transform: scale(1.1);
+        }
+        .photo-frame {
+            border: 15px solid #d1d5db;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            transform: rotate(-2deg);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Slide 1: Title -->
+    <div class="slide active bg-yellow-50" id="slide1">
+        <h2 class="text-3xl font-bold text-gray-600 mb-4">第二週：我從哪裡來</h2>
+        <h1 class="text-6xl font-black text-green-800 mb-8">家裡的老照片</h1>
+        <div class="photo-frame bg-white p-4 w-64 h-80 flex items-center justify-center">
+            <span class="text-6xl">📸</span>
+        </div>
+        <p class="mt-8 text-2xl text-gray-500">Mitala kiso? (你準備好了嗎？)</p>
+    </div>
+
+    <!-- Slide 2: Motivation -->
+    <div class="slide bg-white" id="slide2">
+        <h1 class="text-5xl font-bold mb-10 text-orange-600">這是誰的照片？</h1>
+        <div class="flex space-x-8">
+            <div class="text-center">
+                <div class="w-48 h-48 bg-blue-100 rounded-full flex items-center justify-center text-6xl mb-4">👴</div>
+                <p class="text-3xl font-bold">Akong (阿公)</p>
+            </div>
+            <div class="text-center">
+                <div class="w-48 h-48 bg-pink-100 rounded-full flex items-center justify-center text-6xl mb-4">👵</div>
+                <p class="text-3xl font-bold">Ama (阿嬤)</p>
+            </div>
+        </div>
+        <p class="mt-12 text-3xl">請把你的老照片傳給好朋友看一看！</p>
+    </div>
+
+    <!-- Slide 3: Observation -->
+    <div class="slide bg-green-50" id="slide3">
+        <h1 class="text-5xl font-bold mb-8">阿美族的樣子</h1>
+        <div class="grid grid-cols-2 gap-8 w-full max-w-4xl">
+            <div class="bg-white p-6 rounded-3xl shadow-lg flex items-center space-x-4">
+                <span class="text-5xl">👀</span>
+                <p class="text-3xl">深邃的大眼睛</p>
+            </div>
+            <div class="bg-white p-6 rounded-3xl shadow-lg flex items-center space-x-4">
+                <span class="text-5xl">☀️</span>
+                <p class="text-3xl">健康的膚色</p>
+            </div>
+            <div class="bg-white p-6 rounded-3xl shadow-lg flex items-center space-x-4">
+                <span class="text-5xl">👃</span>
+                <p class="text-3xl">高挺的鼻子</p>
+            </div>
+            <div class="bg-white p-6 rounded-3xl shadow-lg flex items-center space-x-4">
+                <span class="text-5xl">✨</span>
+                <p class="text-3xl">開朗的笑容</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4: Language learning -->
+    <div class="slide bg-orange-50" id="slide4">
+        <h1 class="text-4xl font-bold mb-4 text-gray-600">大家一起跟我說：</h1>
+        <div class="text-center">
+            <h2 class="text-9xl amis-text mb-4 animate-bounce">Fangcal!</h2>
+            <p class="text-5xl font-bold text-gray-700">( 漂亮 / 好 )</p>
+        </div>
+    </div>
+
+    <!-- Slide 5: Practice -->
+    <div class="slide bg-white" id="slide5">
+        <h1 class="text-5xl font-bold mb-10">讚美我的家人</h1>
+        <div class="space-y-6 text-center">
+            <div class="p-8 bg-green-100 rounded-full">
+                <p class="text-5xl font-black text-green-800">Fangcalay a akong!</p>
+                <p class="text-2xl text-green-600 mt-2">帥氣的阿公！</p>
+            </div>
+            <div class="p-8 bg-pink-100 rounded-full">
+                <p class="text-5xl font-black text-pink-800">Fangcalay a ama!</p>
+                <p class="text-2xl text-pink-600 mt-2">漂亮的阿嬤！</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 6: Conclusion -->
+    <div class="slide bg-yellow-400" id="slide6">
+        <h1 class="text-6xl font-black text-white mb-8">上台分享時間</h1>
+        <p class="text-4xl text-white font-bold text-center leading-relaxed">
+            拿著你的照片，<br>
+            對大家說一句讚美的話吧！
+        </p>
+        <div class="mt-12 text-9xl">👏</div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="fixed bottom-8 w-full flex justify-between px-12 items-center">
+        <button onclick="prevSlide()" class="btn-nav opacity-50 hover:opacity-100" id="prevBtn">⬅️ 上一步</button>
+        <div class="text-xl font-bold text-gray-400" id="slideIndicator">1 / 6</div>
+        <button onclick="nextSlide()" class="btn-nav" id="nextBtn">下一步 ➡️</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 6;
+
+        function updateSlide() {
+            document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+            document.getElementById('slide' + currentSlide).classList.add('active');
+            document.getElementById('slideIndicator').innerText = currentSlide + ' / ' + totalSlides;
+            
+            // Button visibility
+            document.getElementById('prevBtn').style.visibility = currentSlide === 1 ? 'hidden' : 'visible';
+            document.getElementById('nextBtn').innerText = currentSlide === totalSlides ? '重來 ↺' : '下一步 ➡️';
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides) {
+                currentSlide++;
+            } else {
+                currentSlide = 1;
+            }
+            updateSlide();
+        }
+
+        function prevSlide() {
+            if (currentSlide > 1) {
+                currentSlide--;
+                updateSlide();
+            }
+        }
+
+        // Keyboard support
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
+        });
+
+        updateSlide();
+    </script>
+</body>
+</html>
