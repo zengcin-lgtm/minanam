@@ -325,14 +325,30 @@ class AuthSystemClass {
     updateUIAfterLogin() {
         if (!this.currentUser) return;
         
-        // 顯示右下角小工具
+        // 1. 更新右下角小工具 (如果頁面有這個元素的話)
         const widget = document.getElementById('user-widget');
         if (widget) {
             widget.classList.remove('hidden');
             document.getElementById('widget-username').innerText = this.currentUser.name;
         }
 
-        // 如果首頁的區塊存在，也更新
+        // 2. ★★★ 更新頂部導覽列的使用者名稱 ★★★
+        const headerLoginBtn = document.getElementById('header-login-btn');
+        const headerUserInfo = document.getElementById('header-user-info');
+        const headerUsername = document.getElementById('header-username');
+        
+        if (headerLoginBtn) {
+            headerLoginBtn.classList.add('hidden'); // 隱藏登入按鈕
+        }
+        if (headerUserInfo) {
+            headerUserInfo.classList.remove('hidden');
+            headerUserInfo.classList.add('flex'); // 顯示使用者資訊區塊
+        }
+        if (headerUsername) {
+            headerUsername.innerText = this.currentUser.name; // 填入使用者名字
+        }
+
+        // 3. 更新首頁專屬的成就與貼紙區塊
         const stickerSection = document.getElementById('sticker-section');
         const achieveSection = document.getElementById('achievement-section');
         const nameDisplay = document.getElementById('user-name-display');
@@ -342,7 +358,7 @@ class AuthSystemClass {
             achieveSection.classList.remove('hidden');
             achieveSection.classList.add('flex');
         }
-        if(nameDisplay) nameDisplay.innerText = this.currentUser.name;
+        if (nameDisplay) nameDisplay.innerText = this.currentUser.name;
     }
 
     // ==========================================
