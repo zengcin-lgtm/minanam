@@ -6,7 +6,7 @@
 class AuthSystemClass {
     constructor() {
         // ★★★ 請將這裡換成您 Google Apps Script 發布後的網址 ★★★
-        this.API_URL = "https://script.google.com/macros/s/AKfycbxxxx_Your_API_URL_xxxx/exec"; 
+        this.API_URL = "https://script.google.com/macros/s/AKfycbzihyxv1NyH1IgBF8kWBVXLNE1-FVETTYxy-6Y49te7DTULQj5cZeDe6BLtBadEvk44/exec"; 
         
         this.currentUser = null;
         this.init();
