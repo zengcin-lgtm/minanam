@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>太巴塱國小附設幼兒園 - 阿美族語學習網</title>
+    
+    <!-- ★★★ 1. 設定 Favicon (網頁標籤圖示) ★★★ -->
+    <link rel="icon" type="image/jpeg" href="../images/logo.jpg">
+    <link rel="shortcut icon" type="image/jpeg" href="../images/logo.jpg">
+
+    <!-- ★★★ 2. 設定 Open Graph (分享預覽圖) ★★★ -->
+    <meta property="og:title" content="第19週：生活動作大考驗 - 阿美族語學習網">
+    <meta property="og:description" content="本週主題：生活動作。學習如何說「學習」、「買東西」與「吃飯」。">
+    <meta property="og:image" content="../images/logo.jpg">
+    <meta property="og:url" content="">
+    <meta property="og:type" content="article">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- ★★★ 1. 引入 PDF 製作工具 (證書功能需要) ★★★ -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f3f4f6;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23e5e7eb' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .text-theme-primary { color: #0ea5e9; } /* 換成海洋藍 */
+        .bg-theme-primary { background-color: #0ea5e9; }
+        .border-theme-primary { border-color: #0ea5e9; }
+        
+        .weaving-pattern {
+            height: 24px;
+            width: 100%;
+            background-image: 
+                linear-gradient(135deg, #000000 25%, transparent 25%), 
+                linear-gradient(225deg, #000000 25%, transparent 25%), 
+                linear-gradient(45deg, #000000 25%, transparent 25%), 
+                linear-gradient(315deg, #000000 25%, transparent 25%);
+            background-position: 12px 0, 12px 0, 0 0, 0 0;
+            background-size: 24px 24px;
+            background-repeat: repeat-x;
+            background-color: #ffffff;
+            opacity: 0.9;
+        }
+
+        .lesson-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+        .lesson-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .hero-pattern {
+            background-color: #0ea5e9; /* 換成海洋藍 */
+            background-image: radial-gradient(#ffffff 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* 自定義捲軸 */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* 貼紙樣式 */
+        .sticker-locked {
+            filter: grayscale(100%) opacity(50%);
+            transition: all 0.3s;
+        }
+        .sticker-unlocked {
+            filter: grayscale(0%) opacity(100%);
+            transform: scale(1.05);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .sticker-unlocked:hover {
+            transform: scale(1.15) rotate(5deg);
+        }
+
+        /* ★★★ 2. 證書樣式 (必須加入才能正常截圖) ★★★ */
+        #certificate-template {
+            width: 1123px; /* A4 橫向像素 */
+            height: 794px;
+            padding: 40px;
+            background-color: #fff;
+            background-image: url("https://www.transparenttextures.com/patterns/cream-paper.png");
+            position: fixed; /* 隱藏在螢幕外 */
+            top: -9999px;
+            left: -9999px;
+            font-family: 'Noto Sans TC', serif;
+            text-align: center;
+            color: #333;
+            border: 20px solid #0ea5e9; /* 換成海洋藍 */
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: -1;
+        }
+        
+        .cert-border-inner {
+            border: 5px solid #FBBF24;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        /* 舊的 CSS stamp 樣式保留作為 fallback，但移除了絕對定位，改為 flex 佈局 */
+        .cert-stamp-fallback {
+            width: 150px;
+            height: 150px;
+            border: 4px solid #E3002D;
+            border-radius: 50%;
+            color: #E3002D;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 24px;
+            transform: rotate(-15deg);
+            opacity: 0.8;
+            border-style: double;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- 頂部導覽列 -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 bg-theme-primary rounded-full flex items-center justify-center text-white font-bold text-2xl shadow-sm overflow-hidden border-2 border-white">
+                    <!-- ★★★ 3. Logo 顯示在 Header ★★★ -->
+                    <img src="images/logo.jpg" alt="Logo" class="w-full h-full object-cover" onerror="this.style.display='none'; this.parentElement.innerText='T'">
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-xl font-bold text-gray-800 tracking-wide leading-tight">阿美族語學習網</span>
+                    <span class="text-sm text-gray-500 font-medium">太巴塱國小附設幼兒園</span>
+                </div>
+            </div>
+        </div>
+        <div class="weaving-pattern"></div>
+    </header>
+
+    <!-- 歡迎橫幅 -->
+    <div class="hero-pattern text-white py-12 md:py-16 px-4 relative overflow-hidden">
+        <div class="max-w-4xl mx-auto text-center relative z-10">
+            <h1 class="text-3xl md:text-5xl font-bold mb-4 drop-shadow-md">Nga'ay ho! 歡迎來到族語小教室</h1>
+            <p class="text-lg md:text-xl opacity-90 mb-8">快樂學習，傳承文化</p>
+            <div class="inline-block bg-white/20 backdrop-blur-sm px-6 py-2 rounded-full border border-white/30 text-sm font-bold">
+                <i class="fa-regular fa-calendar-check mr-2"></i>114學年第2學期
+            </div>
+        </div>
+        <!-- 裝飾背景圓 -->
+        <div class="absolute top-0 left-0 w-64 h-64 bg-white opacity-10 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl"></div>
+        <div class="absolute bottom-0 right-0 w-96 h-96 bg-yellow-400 opacity-20 rounded-full translate-x-1/3 translate-y-1/3 blur-3xl"></div>
+    </div>
+
+    <!-- 主要內容區 -->
+    <main class="flex-grow max-w-6xl mx-auto px-4 py-12 w-full">
+        
+        <!-- ★★★ 榮譽排行榜 Top 3 (橫向) ★★★ -->
+        <div class="mb-12">
+            <div class="flex items-center justify-center mb-6">
+                <i class="fa-solid fa-trophy text-yellow-500 text-3xl mr-3 animate-bounce"></i>
+                <h2 class="text-3xl font-bold text-gray-800">榮譽排行榜 TOP 3</h2>
+            </div>
+            
+            <div id="leaderboard-top3" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- 內容由 JS 產生 -->
+                <div class="col-span-full text-center py-8 text-gray-400 bg-white rounded-2xl shadow-sm border border-gray-100">
+                    <i class="fa-solid fa-spinner fa-spin mr-2"></i>正在讀取排行榜...
+                </div>
+            </div>
+        </div>
+
+        <!-- ★★★ 成就與貼紙區塊 (兩欄式) ★★★ -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
+            
+            <!-- 左側：我的貼紙簿 -->
+            <div id="sticker-section" class="lg:col-span-2 bg-white rounded-2xl p-6 shadow-lg border-t-8 border-pink-400 hidden">
+                <div class="flex items-center mb-4">
+                    <i class="fa-solid fa-star text-pink-400 text-2xl mr-3"></i>
+                    <h2 class="text-xl font-bold text-gray-800">我的貼紙簿</h2>
+                </div>
+                <div id="sticker-container" class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-4">
+                    <!-- 貼紙由 JS 自動生成 -->
+                    <div class="col-span-full text-center py-4 text-gray-400">
+                        <i class="fa-solid fa-spinner fa-spin mr-2"></i>檢查貼紙中...
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右側：學習成就中心 -->
+            <div id="achievement-section" class="lg:col-span-1 bg-white rounded-2xl p-6 shadow-lg border-t-8 border-yellow-400 hidden flex-col justify-center items-center text-center">
+                <div class="mb-4">
+                    <h2 class="text-xl font-bold text-gray-800 mb-2">
+                        <i class="fa-solid fa-medal text-yellow-500 mr-2"></i>學習成就中心
+                    </h2>
+                    <p class="text-gray-600 text-sm">
+                        你好，<span id="user-name-display" class="font-bold text-blue-600">同學</span>！<br>
+                        目前完成度：<span id="progress-text" class="font-bold">點擊按鈕檢查</span>
+                    </p>
+                </div>
+                <button onclick="AuthSystem.checkAndDownloadCertificate()" class="w-full bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white font-bold py-3 px-6 rounded-full shadow-md transform transition hover:scale-105 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-file-pdf"></i>
+                    領取結業證書
+                </button>
+            </div>
+        </div>
+
+        <!-- 課程列表容器 (由 JS 自動生成) -->
+        <h3 class="text-2xl font-bold text-gray-700 mb-6 border-l-4 border-theme-primary pl-4">課程單元</h3>
+        <div id="lessons-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="col-span-full text-center text-gray-500 py-10">
+                <i class="fa-solid fa-spinner fa-spin text-3xl mb-3"></i>
+                <p>正在載入課程...</p>
+            </div>
+        </div>
+
+        <!-- ★★★ 新增：時光機 (回顧上學期) ★★★ -->
+        <div class="mt-16 text-center border-t border-gray-200 pt-10">
+            <p class="text-gray-500 mb-4">想看看以前學過什麼嗎？</p>
+            <a href="index_114_1.html" class="inline-flex items-center text-sky-600 hover:text-white font-bold transition px-8 py-4 rounded-full bg-sky-50 hover:bg-sky-500 border-2 border-sky-200 hover:border-sky-500 shadow-sm">
+                <i class="fa-solid fa-clock-rotate-left mr-2 text-xl"></i> 搭乘時光機，回顧 114學年第1學期
+            </a>
+        </div>
+
+    </main>
+
+    <!-- 頁尾 -->
+    <footer class="bg-gray-800 text-gray-300 py-10 mt-auto">
+        <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
+            <div class="mb-6 md:mb-0 text-center md:text-left">
+                <h4 class="text-white font-bold text-xl mb-2">太巴塱國民小學附設幼兒園</h4>
+                <p class="text-sm opacity-80"><i class="fa-solid fa-location-dot mr-2"></i>花蓮縣光復鄉中正路二段23號</p>
+                <p class="text-sm opacity-80 mt-1">傳承文化，快樂學習</p>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-6 text-center text-xs text-gray-500 w-full md:w-auto md:border-t-0 md:mt-0">
+                &copy; 2023 Tafalong Elementary School Preschool.
+            </div>
+        </div>
+    </footer>
+
+    <!-- ★★★ 4. 隱藏的證書 HTML 模板 ★★★ -->
+    <div id="certificate-template">
+        <div class="cert-border-inner">
+            <!-- 裝飾花紋 -->
+            <div class="absolute top-0 left-0 text-6xl text-red-600 opacity-20 p-4"><i class="fa-solid fa-sun"></i></div>
+            <div class="absolute top-0 right-0 text-6xl text-red-600 opacity-20 p-4"><i class="fa-solid fa-sun"></i></div>
+            <div class="absolute bottom-0 left-0 text-6xl text-red-600 opacity-20 p-4"><i class="fa-solid fa-mountain"></i></div>
+            <div class="absolute bottom-0 right-0 text-6xl text-red-600 opacity-20 p-4"><i class="fa-solid fa-mountain"></i></div>
+
+            <h1 class="text-6xl font-bold mb-8 text-red-700 tracking-widest">結業證書</h1>
+            
+            <p class="text-2xl mb-2 text-gray-600">茲證明學生</p>
+            <h2 id="cert-student-name" class="text-5xl font-bold mb-6 border-b-2 border-gray-300 pb-2 px-10">王小明</h2>
+            
+            <p class="text-xl mb-8 max-w-2xl leading-loose">
+                於114學年第2學期通過阿美族語學習網所有遊戲挑戰關卡，<br>
+                成績優異，展現對阿美族文化之熱愛與傳承精神，<br>
+                特頒此證，以資鼓勵。
+            </p>
+
+            <div class="mt-12 flex justify-between w-3/4 items-end">
+                <div class="text-center relative" style="width: 200px;">
+                    <!-- 1:1 正方形戳章 -->
+                    <img src="images/stamp.png" 
+                         alt="太巴塱幼兒園" 
+                         class="mx-auto opacity-80" 
+                         style="width: 150px; height: 150px; object-fit: contain; transform: rotate(-15deg);"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                    <!-- 備用文字戳章 (如果圖檔載入失敗) -->
+                    <div class="cert-stamp-fallback hidden">太巴塱<br>幼兒園</div>
+                </div>
+                <div class="text-center">
+                    <p class="text-lg text-gray-500 mb-1">頒發日期</p>
+                    <p id="cert-date" class="text-2xl font-bold">2023 年 12 月 25 日</p>
+                </div>
+                <div class="text-center relative" style="width: 200px;">
+                    <!-- 11:3 比例校長簽章 -->
+                    <img src="images/signature.png" 
+                         alt="校長簽章" 
+                         class="mx-auto mb-2"
+                         style="width: 165px; height: 45px; object-fit: contain;"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+                    <!-- 備用橫線 (如果圖檔載入失敗) -->
+                    <div class="w-32 h-1 border-b-2 border-black mb-2 mx-auto hidden"></div>
+                    <p class="text-xl font-bold">校長簽章</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!--          JAVASCRIPT 設定與邏輯區           -->
+    <!-- ========================================== -->
+    
+    <!-- 先載入 Auth.js -->
+    <script src="js/auth.js"></script>
+
+    <script>
+        // =================================================================
+        // ★★★ 設定區：請在此處維護您的網站內容 ★★★
+        // =================================================================
+        
+        const appConfig = {
+            // 課程列表
+            lessons: [
+                {
+                    week: "第 20 週",
+                    title: "新學期準備中",
+                    subtitle: "Nga'ay ho",
+                    desc: "全新的學期即將開始，老師正在準備好玩的新課程與新挑戰喔！敬請期待！",
+                    icon: "fa-seedling", 
+                    color: "green",
+                    status: "lock",
+                    link: "#"
+                }
+            ],
+            // 貼紙設定
+            stickers: [
+                // 這裡等待新學期加入新的貼紙
+            ]
+        };
+
+        // =================================================================
+        // 負責產生卡片的函式
+        // =================================================================
+
+        function renderLessons() {
+            const container = document.getElementById('lessons-container');
+            if (!container) return;
+            
+            container.innerHTML = ''; // 清空目前內容
+
+            appConfig.lessons.forEach(lesson => {
+                // 定義顏色樣式
+                const colors = {
+                    red:    { bg: 'bg-red-500',    text: 'text-red-600',    light: 'bg-red-50',    border: 'border-red-200' },
+                    orange: { bg: 'bg-orange-500', text: 'text-orange-600', light: 'bg-orange-50', border: 'border-orange-200' },
+                    yellow: { bg: 'bg-yellow-500', text: 'text-yellow-600', light: 'bg-yellow-50', border: 'border-yellow-200' },
+                    green:  { bg: 'bg-green-500',  text: 'text-green-600',  light: 'bg-green-50',  border: 'border-green-200' },
+                    teal:   { bg: 'bg-teal-500',   text: 'text-teal-600',   light: 'bg-teal-50',   border: 'border-teal-200' },
+                    blue:   { bg: 'bg-blue-500',   text: 'text-blue-600',   light: 'bg-blue-50',   border: 'border-blue-200' },
+                    indigo: { bg: 'bg-indigo-500', text: 'text-indigo-600', light: 'bg-indigo-50', border: 'border-indigo-200' },
+                    purple: { bg: 'bg-purple-500', text: 'text-purple-600', light: 'bg-purple-50', border: 'border-purple-200' },
+                    pink:   { bg: 'bg-pink-500',   text: 'text-pink-600',   light: 'bg-pink-50',   border: 'border-pink-200' },
+                    gray:   { bg: 'bg-gray-500',   text: 'text-gray-600',   light: 'bg-gray-50',   border: 'border-gray-200' }
+                };
+                
+                const theme = colors[lesson.color] || colors.blue;
+                
+                let statusBadge = '';
+                if (lesson.status === 'new') {
+                    statusBadge = `<span class="absolute top-4 right-4 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-md shadow-sm animate-pulse">NEW</span>`;
+                } else if (lesson.status === 'lock') {
+                    statusBadge = `<span class="absolute top-4 right-4 bg-gray-400 text-white text-xs font-bold px-2 py-1 rounded-md shadow-sm"><i class="fa-solid fa-lock mr-1"></i>LOCKED</span>`;
+                }
+
+                const isLocked = lesson.status === 'lock';
+                const linkAttr = isLocked ? 'javascript:void(0)' : `href="${lesson.link}"`;
+                const cursorClass = isLocked ? 'cursor-not-allowed opacity-75 grayscale' : 'cursor-pointer';
+
+                const html = `
+                    <a ${linkAttr} class="lesson-card group relative bg-white rounded-2xl overflow-hidden shadow-md border border-gray-100 flex flex-col ${cursorClass}">
+                        ${statusBadge}
+                        <div class="h-32 ${theme.bg} relative overflow-hidden">
+                             <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(white 1px, transparent 1px); background-size: 10px 10px;"></div>
+                             <div class="absolute -bottom-6 -right-6 text-white opacity-20 transform rotate-12 group-hover:scale-110 transition duration-500">
+                                <i class="fa-solid ${lesson.icon} text-9xl"></i>
+                             </div>
+                             <div class="absolute bottom-4 left-6 text-white">
+                                <span class="inline-block bg-white/20 backdrop-blur-md px-2 py-0.5 rounded text-xs font-bold mb-1 border border-white/20">${lesson.week}</span>
+                                <h3 class="text-2xl font-bold tracking-wide">${lesson.title}</h3>
+                             </div>
+                        </div>
+                        <div class="p-6 flex-grow flex flex-col">
+                            <h4 class="text-sm font-bold text-gray-400 mb-2 uppercase tracking-wider">${lesson.subtitle}</h4>
+                            <p class="text-gray-600 text-sm leading-relaxed mb-4 flex-grow">${lesson.desc}</p>
+                            
+                            <div class="mt-auto pt-4 border-t border-gray-100 flex justify-between items-center">
+                                <span class="text-xs font-bold ${theme.text} bg-white px-2 py-1 rounded border ${theme.border}">
+                                    <i class="fa-solid fa-book-open mr-1"></i> 開始學習
+                                </span>
+                                <div class="w-8 h-8 rounded-full ${theme.light} flex items-center justify-center ${theme.text} group-hover:translate-x-1 transition">
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                `;
+                container.innerHTML += html;
+            });
+        }
+
+        // ★★★ 自定義：橫向載入 Top 3 排行榜 ★★★
+        async function loadTop3Leaderboard() {
+            const container = document.getElementById('leaderboard-top3');
+            if (!container || typeof AuthSystem === 'undefined') return;
+
+            try {
+                // 1. 呼叫後端 API
+                const response = await fetch(AuthSystem.API_URL, {
+                    method: "POST",
+                    mode: "cors",
+                    redirect: "follow",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify({ action: "getLeaderboard" })
+                });
+                
+                const text = await response.text();
+                const data = JSON.parse(text);
+
+                // 2. 清空容器
+                container.innerHTML = '';
+
+                // 3. 處理資料
+                if ((data.status === "success" || data.result === "success") && data.leaderboard && data.leaderboard.length > 0) {
+                    
+                    // 只取前 3 名
+                    const top3 = data.leaderboard.slice(0, 3);
+                    
+                    const medals = [
+                        { color: "text-yellow-400", bg: "bg-yellow-50 border-yellow-200", label: "冠軍", icon: "fa-trophy" },
+                        { color: "text-gray-400", bg: "bg-gray-50 border-gray-200", label: "亞軍", icon: "fa-medal" },
+                        { color: "text-orange-400", bg: "bg-orange-50 border-orange-200", label: "季軍", icon: "fa-medal" }
+                    ];
+
+                    top3.forEach((item, index) => {
+                        const style = medals[index];
+                        const html = `
+                            <div class="relative bg-white rounded-2xl p-4 shadow-md border-2 ${style.bg} flex flex-col items-center justify-center transform transition hover:-translate-y-1">
+                                <div class="absolute -top-4 bg-white rounded-full p-2 shadow-sm border border-gray-100">
+                                    <i class="fa-solid ${style.icon} ${style.color} text-2xl"></i>
+                                </div>
+                                <div class="mt-4 font-bold text-gray-500 text-xs uppercase tracking-wider">${style.label}</div>
+                                <h3 class="text-xl font-bold text-gray-800 my-1 truncate w-full text-center">${item.name}</h3>
+                                <div class="text-2xl font-bold text-red-500">${item.score} <span class="text-sm text-gray-400">分</span></div>
+                            </div>
+                        `;
+                        container.innerHTML += html;
+                    });
+
+                    // 如果不足 3 人，補上空位
+                    for(let i = top3.length; i < 3; i++) {
+                        container.innerHTML += `
+                            <div class="bg-gray-50 rounded-2xl p-4 border-2 border-dashed border-gray-200 flex flex-col items-center justify-center opacity-50">
+                                <i class="fa-solid fa-user text-gray-300 text-3xl mb-2"></i>
+                                <span class="text-gray-400 text-sm">虛位以待</span>
+                            </div>
+                        `;
+                    }
+
+                } else {
+                    container.innerHTML = `<div class="col-span-full text-center py-8 text-gray-400">目前還沒有成績紀錄喔！</div>`;
+                }
+            } catch (e) {
+                console.error("排行榜讀取失敗", e);
+                container.innerHTML = `<div class="col-span-full text-center py-8 text-red-300">排行榜暫時無法讀取</div>`;
+            }
+        }
+
+        // ★★★ 自定義：載入貼紙簿 ★★★
+        async function loadStickers() {
+            const container = document.getElementById('sticker-container');
+            const progressText = document.getElementById('progress-text');
+            if (!container || !AuthSystem.currentUser) return;
+
+            try {
+                // 1. 查詢該使用者的所有成績
+                const response = await fetch(AuthSystem.API_URL, {
+                    method: "POST",
+                    mode: "cors",
+                    redirect: "follow",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify({
+                        action: "getScores",
+                        userID: AuthSystem.currentUser.userID
+                    })
+                });
+                
+                const text = await response.text();
+                const data = JSON.parse(text);
+                
+                // 2. 顯示完成度
+                if(data.scores && progressText) {
+                    const passedCount = Object.values(data.scores).filter(s => s >= 60).length;
+                    progressText.innerText = `已收集 ${passedCount} 張貼紙`;
+                }
+
+                // 3. 渲染貼紙列表
+                container.innerHTML = '';
+                
+                if (appConfig.stickers.length === 0) {
+                    container.innerHTML = `<div class="col-span-full text-center py-4 text-gray-400">新學期的貼紙即將推出！敬請期待！</div>`;
+                    return;
+                }
+
+                // 使用 appConfig 中的貼紙資料
+                appConfig.stickers.forEach(s => {
+                    const score = data.scores ? data.scores[s.id] : 0;
+                    const isUnlocked = score >= 60;
+                    
+                    const html = `
+                        <div class="flex flex-col items-center group">
+                            <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center border-2 border-gray-200 mb-2 shadow-sm ${isUnlocked ? 'sticker-unlocked bg-white border-yellow-400' : 'sticker-locked'}">
+                                <i class="fa-solid ${s.icon} ${isUnlocked ? s.color : 'text-gray-400'} text-3xl"></i>
+                            </div>
+                            <span class="text-xs font-bold ${isUnlocked ? 'text-gray-700' : 'text-gray-400'}">${s.name}</span>
+                        </div>
+                    `;
+                    container.innerHTML += html;
+                });
+
+            } catch (e) {
+                console.error("貼紙載入失敗", e);
+                container.innerHTML = `<div class="col-span-full text-center text-red-300">無法載入貼紙</div>`;
+            }
+        }
+
+        // =================================================================
+        // 初始化與執行
+        // =================================================================
+
+        window.addEventListener('DOMContentLoaded', () => {
+            // 1. 產生課程卡片
+            renderLessons();
+
+            // 2. 檢查會員狀態，顯示證書區塊
+            if (typeof AuthSystem !== 'undefined') {
+                if (AuthSystem.currentUser) {
+                    const stickerSection = document.getElementById('sticker-section');
+                    const achieveSection = document.getElementById('achievement-section');
+                    
+                    // 顯示這兩個區塊
+                    if (stickerSection) stickerSection.classList.remove('hidden');
+                    if (achieveSection) {
+                        achieveSection.classList.remove('hidden');
+                        achieveSection.classList.add('flex');
+                    }
+
+                    const nameDisplay = document.getElementById('user-name-display');
+                    if(nameDisplay) nameDisplay.innerText = AuthSystem.currentUser.name;
+                    
+                    // 載入貼紙
+                    loadStickers();
+                }
+                
+                // 3. ★★★ 載入橫向 Top 3 排行榜 ★★★
+                loadTop3Leaderboard();
+            }
+        });
+    </script>
+</body>
+</html>
