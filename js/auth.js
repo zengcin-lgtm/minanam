@@ -1,325 +1,499 @@
 /**
- * 阿美族語學習網 - 會員與成績系統 (v4.0 含排行榜功能)
+ * 阿美族語學習網 - 會員與認證系統 (auth.js)
+ * 包含：登入、註冊、成績上傳、讀取等功能
  */
 
-const AuthSystem = {
-    // ★★★ 請確認您的 Google Apps Script 網址是正確的 ★★★
-    API_URL: "https://script.google.com/macros/s/AKfycbzihyxv1NyH1IgBF8kWBVXLNE1-FVETTYxy-6Y49te7DTULQj5cZeDe6BLtBadEvk44/exec",
+class AuthSystemClass {
+    constructor() {
+        // ★★★ 請將這裡換成您 Google Apps Script 發布後的網址 ★★★
+        this.API_URL = "https://script.google.com/macros/s/AKfycbxxxx_Your_API_URL_xxxx/exec"; 
+        
+        this.currentUser = null;
+        this.init();
+    }
 
-    currentUser: null,
-
-    init: function() {
-        console.log("AuthSystem v4.0 初始化中..."); 
-        this.checkLoginStatus();
-        this.injectStyles();
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => this.renderUI());
-        } else {
-            this.renderUI();
-        }
-    },
-
-    checkLoginStatus: function() {
+    init() {
+        // 檢查 localStorage 中是否有登入紀錄
         const savedUser = localStorage.getItem('amis_user');
         if (savedUser) {
-            try {
-                this.currentUser = JSON.parse(savedUser);
-            } catch (e) {
-                console.error("使用者資料損毀，重置登入狀態");
-                localStorage.removeItem('amis_user');
-            }
+            this.currentUser = JSON.parse(savedUser);
+            this.updateUIAfterLogin();
         }
-    },
 
-    // 登入
-    login: async function(userID, password) {
-        this.showLoading("登入中...");
-        try {
-            const response = await fetch(this.API_URL, {
-                method: "POST",
-                mode: "cors",
-                redirect: "follow",
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify({ action: "login", userID: userID, password: password })
-            });
-            const text = await response.text();
-            const data = JSON.parse(text);
-
-            if (data.status === "success" || data.result === "success") {
-                this.handleAuthSuccess(data);
-                return true;
-            } else {
-                alert("登入失敗：" + (data.message || "帳號或密碼錯誤"));
-                return false;
-            }
-        } catch (error) {
-            console.error(error);
-            alert("連線錯誤，請檢查網路。");
-        } finally {
-            this.hideLoading();
+        // 確保 DOM 載入後建立 Modal
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.createModal());
+        } else {
+            this.createModal();
         }
-    },
+    }
 
-    // 註冊
-    register: async function(userID, password, name) {
-        this.showLoading("正在建立帳號...");
-        try {
-            const response = await fetch(this.API_URL, {
-                method: "POST",
-                mode: "cors",
-                redirect: "follow",
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify({ 
-                    action: "register", 
-                    userID: userID, 
-                    password: password,
-                    name: name
-                })
-            });
-            const text = await response.text();
-            const data = JSON.parse(text);
+    // 建立登入/註冊的 UI 畫面 (Modal)
+    createModal() {
+        if (document.getElementById('auth-modal')) return;
 
-            if (data.status === "success" || data.result === "success") {
-                alert("註冊成功！自動為您登入。");
-                this.handleAuthSuccess(data);
-                return true;
-            } else {
-                alert("註冊失敗：" + (data.message || "帳號可能已重複"));
-                return false;
-            }
-        } catch (error) {
-            console.error(error);
-            alert("連線錯誤，請檢查網路。");
-        } finally {
-            this.hideLoading();
+        const modalHtml = `
+            <div id="auth-modal" class="fixed inset-0 bg-black/50 z-[100] hidden items-center justify-center backdrop-blur-sm px-4">
+                <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all">
+                    
+                    <!-- 標題區 -->
+                    <div class="bg-sky-500 text-white p-6 text-center relative">
+                        <h2 class="text-2xl font-bold" id="auth-title">登入學習網</h2>
+                        <button onclick="AuthSystem.closeModal()" class="absolute top-4 right-4 text-white/80 hover:text-white text-xl">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+
+                    <div class="p-6">
+                        <!-- 頁籤切換 -->
+                        <div class="flex mb-6 border-b-2 border-gray-100">
+                            <button onclick="AuthSystem.switchTab('login')" id="tab-login" class="flex-1 pb-2 font-bold text-sky-500 border-b-2 border-sky-500">登入</button>
+                            <button onclick="AuthSystem.switchTab('register')" id="tab-register" class="flex-1 pb-2 font-bold text-gray-400 hover:text-gray-600">註冊新帳號</button>
+                        </div>
+
+                        <!-- ==================== 登入表單 ==================== -->
+                        <div id="form-login" class="space-y-4">
+                            <!-- 身分選擇 -->
+                            <div class="mb-4">
+                                <label class="block text-gray-700 text-sm font-bold mb-2">請選擇您的身分：</label>
+                                <div class="flex gap-4">
+                                    <label class="flex items-center cursor-pointer">
+                                        <input type="radio" name="loginType" id="login-type-student" value="student" class="mr-2 text-sky-500 focus:ring-sky-500" checked onchange="AuthSystem.toggleLoginFields()">
+                                        <span class="text-gray-700 font-bold">太巴塱附幼</span>
+                                    </label>
+                                    <label class="flex items-center cursor-pointer">
+                                        <input type="radio" name="loginType" id="login-type-public" value="public" class="mr-2 text-sky-500 focus:ring-sky-500" onchange="AuthSystem.toggleLoginFields()">
+                                        <span class="text-gray-700">一般民眾</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label id="login-id-label" class="block text-gray-700 text-sm font-bold mb-2">座號</label>
+                                <input type="text" id="login-id" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-sky-500 focus:ring-2 focus:ring-sky-200 outline-none transition" placeholder="請輸入座號 (例如: 01)">
+                            </div>
+                            
+                            <div id="login-password-container" style="display: none;">
+                                <label class="block text-gray-700 text-sm font-bold mb-2">密碼</label>
+                                <input type="password" id="login-password" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-sky-500 focus:ring-2 focus:ring-sky-200 outline-none transition" placeholder="請輸入密碼">
+                            </div>
+
+                            <button onclick="AuthSystem.handleLogin()" id="btn-login" class="w-full bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 px-4 rounded-xl transition shadow-md mt-4 flex justify-center items-center">
+                                <span>登入</span>
+                            </button>
+                        </div>
+
+                        <!-- ==================== 註冊表單 ==================== -->
+                        <div id="form-register" class="space-y-3 hidden">
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-1">帳號</label>
+                                <input type="text" id="reg-id" class="w-full px-4 py-2 rounded-xl border border-gray-300 focus:border-sky-500 outline-none" placeholder="設定登入帳號">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-1">密碼</label>
+                                <input type="password" id="reg-password" class="w-full px-4 py-2 rounded-xl border border-gray-300 focus:border-sky-500 outline-none" placeholder="設定密碼">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-1">真實姓名 / 暱稱</label>
+                                <input type="text" id="reg-name" class="w-full px-4 py-2 rounded-xl border border-gray-300 focus:border-sky-500 outline-none" placeholder="您在網站上的顯示名稱">
+                            </div>
+                            
+                            <!-- 新增：族別 -->
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-1">族別</label>
+                                <select id="reg-tribe" class="w-full px-4 py-2 rounded-xl border border-gray-300 focus:border-sky-500 outline-none bg-white">
+                                    <option value="">請選擇族別...</option>
+                                    <option value="阿美族">阿美族 (Amis)</option>
+                                    <option value="泰雅族">泰雅族 (Atayal)</option>
+                                    <option value="排灣族">排灣族 (Paiwan)</option>
+                                    <option value="布農族">布農族 (Bunun)</option>
+                                    <option value="太魯閣族">太魯閣族 (Truku)</option>
+                                    <option value="卑南族">卑南族 (Puyuma)</option>
+                                    <option value="其他原住民族">其他原住民族</option>
+                                    <option value="非原住民族">非原住民族</option>
+                                </select>
+                            </div>
+
+                            <!-- 新增：出生年月 -->
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-1">出生年月</label>
+                                <input type="month" id="reg-birth" class="w-full px-4 py-2 rounded-xl border border-gray-300 focus:border-sky-500 outline-none text-gray-600">
+                            </div>
+
+                            <button onclick="AuthSystem.handleRegister()" id="btn-register" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-xl transition shadow-md mt-4 flex justify-center items-center">
+                                <span>註冊</span>
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- 網頁右下角的使用者狀態小工具 -->
+            <div id="user-widget" class="fixed bottom-4 right-4 z-40 hidden">
+                <div class="bg-white rounded-full shadow-lg border border-gray-200 p-2 flex items-center gap-3 cursor-pointer hover:bg-gray-50 transition" onclick="AuthSystem.logout()">
+                    <div class="w-10 h-10 bg-sky-100 text-sky-600 rounded-full flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                    <div class="pr-4">
+                        <div class="text-xs text-gray-400">登入中</div>
+                        <div class="font-bold text-sm text-gray-700" id="widget-username">Name</div>
+                    </div>
+                    <div class="pr-2 text-gray-400 hover:text-red-500" title="登出">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+    }
+
+    // 切換登入身分的欄位顯示
+    toggleLoginFields() {
+        const isStudent = document.getElementById('login-type-student').checked;
+        const pwdContainer = document.getElementById('login-password-container');
+        const idLabel = document.getElementById('login-id-label');
+        const idInput = document.getElementById('login-id');
+
+        if (isStudent) {
+            pwdContainer.style.display = 'none';
+            idLabel.innerText = '座號';
+            idInput.placeholder = '請輸入座號 (例如: 01)';
+        } else {
+            pwdContainer.style.display = 'block';
+            idLabel.innerText = '帳號';
+            idInput.placeholder = '請輸入帳號';
         }
-    },
+    }
 
-    handleAuthSuccess: function(data) {
-        this.currentUser = { userID: data.userID, name: data.name };
-        localStorage.setItem('amis_user', JSON.stringify(this.currentUser));
-        this.closeModal();
-        this.renderUI();
-        if(location.pathname.endsWith('index.html') || location.pathname.endsWith('/')) {
-            setTimeout(() => location.reload(), 500);
+    showLoginModal() {
+        document.getElementById('auth-modal').classList.remove('hidden');
+        document.getElementById('auth-modal').classList.add('flex');
+    }
+
+    closeModal() {
+        document.getElementById('auth-modal').classList.add('hidden');
+        document.getElementById('auth-modal').classList.remove('flex');
+    }
+
+    switchTab(tab) {
+        if (tab === 'login') {
+            document.getElementById('form-login').classList.remove('hidden');
+            document.getElementById('form-register').classList.add('hidden');
+            document.getElementById('tab-login').className = "flex-1 pb-2 font-bold text-sky-500 border-b-2 border-sky-500";
+            document.getElementById('tab-register').className = "flex-1 pb-2 font-bold text-gray-400 hover:text-gray-600 border-b-2 border-transparent";
+            document.getElementById('auth-title').innerText = "登入學習網";
+        } else {
+            document.getElementById('form-login').classList.add('hidden');
+            document.getElementById('form-register').classList.remove('hidden');
+            document.getElementById('tab-register').className = "flex-1 pb-2 font-bold text-orange-500 border-b-2 border-orange-500";
+            document.getElementById('tab-login').className = "flex-1 pb-2 font-bold text-gray-400 hover:text-gray-600 border-b-2 border-transparent";
+            document.getElementById('auth-title').innerText = "註冊新帳號";
         }
-    },
+    }
 
-    logout: function() {
-        if(confirm("確定要登出嗎？")) {
-            localStorage.removeItem('amis_user');
-            this.currentUser = null;
-            this.renderUI();
-            location.reload();
-        }
-    },
+    // ==========================================
+    // 登入邏輯
+    // ==========================================
+    async handleLogin() {
+        const isStudent = document.getElementById('login-type-student').checked;
+        const userID = document.getElementById('login-id').value.trim();
+        let password = document.getElementById('login-password').value.trim();
 
-    submitScore: async function(gameId, score) {
-        if (!this.currentUser) {
-            alert("請先登入才能儲存成績喔！");
-            this.showLoginModal();
+        if (!userID) {
+            alert(isStudent ? "請輸入座號！" : "請輸入帳號！");
             return;
         }
-        if (score <= 0) return;
 
-        this.showLoading("正在儲存成績...");
+        // 如果是附幼學生，自動將密碼設定為跟座號一樣
+        if (isStudent) {
+            password = userID; 
+        } else if (!password) {
+            alert("請輸入密碼！");
+            return;
+        }
+
+        const btn = document.getElementById('btn-login');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> 登入中...';
+        btn.disabled = true;
+
         try {
             const response = await fetch(this.API_URL, {
                 method: "POST",
                 mode: "cors",
-                redirect: "follow",
                 headers: { "Content-Type": "text/plain;charset=utf-8" },
                 body: JSON.stringify({
-                    action: "updateScore",
+                    action: "login",
+                    userID: userID,
+                    password: password
+                })
+            });
+
+            const result = await response.json();
+            
+            if (result.status === "success" || result.result === "success") {
+                this.currentUser = {
+                    userID: userID,
+                    name: result.name || "同學",
+                    role: isStudent ? "student" : "public"
+                };
+                localStorage.setItem('amis_user', JSON.stringify(this.currentUser));
+                this.updateUIAfterLogin();
+                this.closeModal();
+                alert(`Nga'ay ho! 歡迎回來，${this.currentUser.name}！`);
+                
+                // 如果在首頁，重新載入貼紙
+                if (typeof loadStickers === 'function') loadStickers();
+                
+            } else {
+                alert("登入失敗：" + (result.message || "帳號或密碼錯誤。如果是學生，請確認座號是否正確。"));
+            }
+        } catch (error) {
+            console.error("Login Error:", error);
+            alert("系統連線發生錯誤，請稍後再試。如果您尚未設定 API，請確認 auth.js 中的 API_URL。");
+        } finally {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    }
+
+    // ==========================================
+    // 註冊邏輯
+    // ==========================================
+    async handleRegister() {
+        const userID = document.getElementById('reg-id').value.trim();
+        const password = document.getElementById('reg-password').value.trim();
+        const name = document.getElementById('reg-name').value.trim();
+        const tribe = document.getElementById('reg-tribe').value;
+        const birthDate = document.getElementById('reg-birth').value;
+
+        if (!userID || !password || !name) {
+            alert("帳號、密碼、姓名為必填欄位喔！");
+            return;
+        }
+
+        const btn = document.getElementById('btn-register');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> 註冊中...';
+        btn.disabled = true;
+
+        try {
+            const response = await fetch(this.API_URL, {
+                method: "POST",
+                mode: "cors",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify({
+                    action: "register",
+                    userID: userID,
+                    password: password,
+                    name: name,
+                    tribe: tribe,         // 新增欄位
+                    birthDate: birthDate  // 新增欄位
+                })
+            });
+
+            const result = await response.json();
+            
+            if (result.status === "success" || result.result === "success") {
+                alert("註冊成功！請使用新帳號登入。");
+                this.switchTab('login');
+                // 將註冊的帳號自動帶入一般民眾的登入框
+                document.getElementById('login-type-public').click();
+                document.getElementById('login-id').value = userID;
+            } else {
+                alert("註冊失敗：" + (result.message || "帳號可能已存在。"));
+            }
+        } catch (error) {
+            console.error("Register Error:", error);
+            alert("系統連線發生錯誤。如果您尚未設定 API，請確認 auth.js 中的 API_URL。");
+        } finally {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    }
+
+    logout() {
+        if(confirm("確定要登出嗎？")) {
+            this.currentUser = null;
+            localStorage.removeItem('amis_user');
+            location.reload(); // 重新整理頁面
+        }
+    }
+
+    updateUIAfterLogin() {
+        if (!this.currentUser) return;
+        
+        // 顯示右下角小工具
+        const widget = document.getElementById('user-widget');
+        if (widget) {
+            widget.classList.remove('hidden');
+            document.getElementById('widget-username').innerText = this.currentUser.name;
+        }
+
+        // 如果首頁的區塊存在，也更新
+        const stickerSection = document.getElementById('sticker-section');
+        const achieveSection = document.getElementById('achievement-section');
+        const nameDisplay = document.getElementById('user-name-display');
+        
+        if (stickerSection) stickerSection.classList.remove('hidden');
+        if (achieveSection) {
+            achieveSection.classList.remove('hidden');
+            achieveSection.classList.add('flex');
+        }
+        if(nameDisplay) nameDisplay.innerText = this.currentUser.name;
+    }
+
+    // ==========================================
+    // 遊戲成績上傳邏輯
+    // ==========================================
+    async submitScore(gameID, score) {
+        if (!this.currentUser) return false;
+
+        try {
+            const response = await fetch(this.API_URL, {
+                method: "POST",
+                mode: "cors",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify({
+                    action: "submitScore",
                     userID: this.currentUser.userID,
-                    gameId: gameId,
+                    gameID: gameID,
                     score: score
                 })
             });
-            const text = await response.text();
-            const data = JSON.parse(text);
 
-            if(data.status === "success" || data.result === "success") {
-                this.showToast(`成績已上傳！(${score}分)`);
+            const result = await response.json();
+            if (result.status === "success" || result.result === "success") {
+                console.log("成績上傳成功");
+                return true;
             } else {
-                 this.showToast("成績上傳失敗：" + (data.message || "未知錯誤"));
+                console.warn("成績上傳失敗:", result.message);
+                return false;
             }
-        } catch (e) {
-            this.showToast("成績上傳失敗 (連線錯誤)");
-        } finally {
-            this.hideLoading();
+        } catch (error) {
+            console.error("Submit Score Error:", error);
+            return false;
         }
-    },
+    }
 
-    checkAndDownloadCertificate: async function() {
+    // ==========================================
+    // 結業證書邏輯 (需要 jspdf 與 html2canvas)
+    // ==========================================
+    async checkAndDownloadCertificate() {
         if (!this.currentUser) {
-            alert("請先登入！");
+            this.showLoginModal();
             return;
         }
-        this.showLoading("正在向學校主機確認成績...");
+
+        // 提示檢查中
+        const btn = document.querySelector('#achievement-section button');
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>檢查資格中...';
+        btn.disabled = true;
+
         try {
+            // 抓取成績
             const response = await fetch(this.API_URL, {
                 method: "POST",
                 mode: "cors",
-                redirect: "follow",
                 headers: { "Content-Type": "text/plain;charset=utf-8" },
                 body: JSON.stringify({
                     action: "getScores",
                     userID: this.currentUser.userID
                 })
             });
-            const text = await response.text();
-            const data = JSON.parse(text);
-
-            if (data.status === "success" || data.result === "success") {
-                if (data.allPassed) {
-                    this.hideLoading();
-                    if(confirm("恭喜你！所有關卡都通過了！\n是否要現在下載證書？")) {
-                        this.generatePDF();
+            
+            const data = await response.json();
+            
+            // 判斷是否過關 (我們假設大於 0 分就算過關，或者依照您的需求調整)
+            // 這裡抓取 appConfig.stickers 中所有的貼紙 id
+            let passedCount = 0;
+            let totalGames = 0;
+            
+            if (typeof appConfig !== 'undefined' && appConfig.stickers) {
+                totalGames = appConfig.stickers.length;
+                appConfig.stickers.forEach(s => {
+                    if (data.scores && data.scores[s.id] >= 60) {
+                        passedCount++;
                     }
-                } else {
-                    alert(`很可惜，還有遊戲未完成或未達 60 分喔！\n請繼續加油！`);
-                }
-            } else {
-                alert("查詢失敗：" + (data.message || "未知原因"));
-            }
-        } catch (e) {
-            console.error(e);
-            alert("系統連線錯誤，無法查詢成績。");
-        } finally {
-            this.hideLoading();
-        }
-    },
-
-    // ★★★ 新增：載入排行榜 ★★★
-    loadLeaderboard: async function(containerId) {
-        const container = document.getElementById(containerId);
-        if (!container) return;
-
-        // 顯示載入中狀態
-        container.innerHTML = `
-            <div class="flex items-center justify-center py-8 text-gray-500">
-                <i class="fa-solid fa-spinner fa-spin mr-2"></i> 正在讀取排行榜...
-            </div>`;
-
-        try {
-            const response = await fetch(this.API_URL, {
-                method: "POST",
-                mode: "cors",
-                redirect: "follow",
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify({ action: "getLeaderboard" })
-            });
-            const text = await response.text();
-            const data = JSON.parse(text);
-
-            if ((data.status === "success" || data.result === "success") && data.leaderboard) {
-                if (data.leaderboard.length === 0) {
-                    container.innerHTML = `<div class="text-center py-4 text-gray-500">目前還沒有成績紀錄喔！</div>`;
-                    return;
-                }
-
-                // 產生排行榜 HTML
-                let html = `<div class="space-y-3">`;
-                data.leaderboard.forEach((item, index) => {
-                    // 前三名加上獎牌圖示
-                    let rankIcon = `<span class="w-8 h-8 flex items-center justify-center font-bold text-gray-500">${index + 1}</span>`;
-                    if (index === 0) rankIcon = `<i class="fa-solid fa-medal text-yellow-400 text-2xl w-8 text-center"></i>`;
-                    if (index === 1) rankIcon = `<i class="fa-solid fa-medal text-gray-400 text-2xl w-8 text-center"></i>`;
-                    if (index === 2) rankIcon = `<i class="fa-solid fa-medal text-orange-400 text-2xl w-8 text-center"></i>`;
-
-                    // 高亮顯示自己
-                    const isMe = this.currentUser && (item.name === this.currentUser.name);
-                    const bgClass = isMe ? "bg-yellow-50 border-yellow-200" : "bg-white border-gray-100";
-
-                    html += `
-                        <div class="flex items-center p-3 rounded-xl border ${bgClass} shadow-sm transition hover:shadow-md">
-                            <div class="flex-shrink-0 mr-4">${rankIcon}</div>
-                            <div class="flex-grow">
-                                <div class="font-bold text-gray-800">${item.name}</div>
-                            </div>
-                            <div class="font-bold text-red-600">${item.score} <span class="text-xs text-gray-400">分</span></div>
-                        </div>
-                    `;
                 });
-                html += `</div>`;
-                container.innerHTML = html;
-            } else {
-                container.innerHTML = `<div class="text-center text-red-400">讀取失敗</div>`;
+            } else if (data.scores) {
+                // fallback：如果沒有設定檔，就計算所有有成績大於60的數量
+                passedCount = Object.values(data.scores).filter(s => s >= 60).length;
+                totalGames = 1; // 假設至少要過1關
             }
+
+            if (passedCount > 0 && passedCount >= totalGames) {
+                // 資格符合，產製證書
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>製作證書中...';
+                await this.generatePDF(this.currentUser.name);
+                btn.innerHTML = originalHtml;
+            } else {
+                alert(`還差一點點喔！\n你目前收集了 ${passedCount} 張貼紙，需要 ${totalGames} 張才能領取證書。繼續加油！`);
+                btn.innerHTML = originalHtml;
+            }
+
         } catch (e) {
             console.error(e);
-            container.innerHTML = `<div class="text-center text-red-400">無法連線</div>`;
+            alert("無法檢查成績，請稍後再試。");
+            btn.innerHTML = originalHtml;
+        } finally {
+            btn.disabled = false;
         }
-    },
+    }
 
-    generatePDF: function() {
-        this.showLoading("正在印製證書 (PDF製作中)...");
+    async generatePDF(studentName) {
+        // 確保模板存在
         const template = document.getElementById('certificate-template');
         if (!template) {
-            alert("找不到證書模板");
-            this.hideLoading();
+            alert("找不到證書模板，請確認 index.html 包含模板代碼。");
             return;
         }
-        document.getElementById('cert-student-name').innerText = this.currentUser.name;
+
+        // 更新證書內容
+        document.getElementById('cert-student-name').innerText = studentName;
         const today = new Date();
-        document.getElementById('cert-date').innerText = `${today.getFullYear()} 年 ${today.getMonth()+1} 月 ${today.getDate()} 日`;
-        template.style.display = 'flex';
-        html2canvas(template, { scale: 2, useCORS: true }).then(canvas => {
-            const imgData = canvas.toDataURL('image/png');
+        document.getElementById('cert-date').innerText = `${today.getFullYear()} 年 ${today.getMonth() + 1} 月 ${today.getDate()} 日`;
+
+        // 顯示模板以進行截圖
+        template.style.zIndex = "1000";
+        template.style.top = "0";
+        template.style.left = "0";
+
+        try {
+            // 載入必要套件
             const { jsPDF } = window.jspdf;
+            
+            // 將 HTML 轉為 Canvas (提高解析度 scale: 2)
+            const canvas = await html2canvas(template, { 
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#ffffff'
+            });
+            
+            const imgData = canvas.toDataURL('image/jpeg', 1.0);
+            
+            // 建立 A4 橫向 PDF
             const pdf = new jsPDF('l', 'mm', 'a4');
-            pdf.addImage(imgData, 'PNG', 0, 0, pdf.internal.pageSize.getWidth(), pdf.internal.pageSize.getHeight());
-            pdf.save(`阿美族語結業證書_${this.currentUser.name}.pdf`);
-            this.hideLoading();
-            this.showToast("證書下載成功！");
-        }).catch(err => {
-            console.error(err);
-            alert("證書製作失敗");
-            this.hideLoading();
-        });
-    },
-
-    renderUI: function() {
-        const oldBtn = document.getElementById('amis-auth-btn');
-        if (oldBtn) oldBtn.remove();
-        const container = document.createElement('div');
-        container.id = 'amis-auth-btn';
-        container.style.cssText = "position: fixed; top: 15px; right: 15px; z-index: 9999;";
-        if (this.currentUser) {
-            container.innerHTML = `<div class="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-lg border border-yellow-400"><div class="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center text-white font-bold">${this.currentUser.name[0]}</div><span class="font-bold text-gray-700 hidden md:inline">${this.currentUser.name}</span><button onclick="AuthSystem.logout()" class="text-xs text-red-500 hover:underline ml-2">登出</button></div>`;
-        } else {
-            container.innerHTML = `<button onclick="AuthSystem.showLoginModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full shadow-lg font-bold transition flex items-center gap-2"><i class="fa-solid fa-user"></i> 學生登入</button>`;
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+            
+            pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+            pdf.save(`${studentName}_太巴塱附幼族語結業證書.pdf`);
+            
+        } catch (error) {
+            console.error("PDF 產生失敗:", error);
+            alert("產生證書時發生錯誤，請稍後再試。");
+        } finally {
+            // 隱藏模板
+            template.style.top = "-9999px";
+            template.style.left = "-9999px";
+            template.style.zIndex = "-1";
         }
-        document.body.appendChild(container);
-    },
+    }
+}
 
-    showLoginModal: function(view = 'login') {
-        if (document.getElementById('amis-login-modal')) return;
-        const modal = document.createElement('div');
-        modal.id = 'amis-login-modal';
-        modal.className = "fixed inset-0 bg-black/50 flex items-center justify-center z-[10000] backdrop-blur-sm";
-        const loginForm = `<div id="auth-login-view"><div class="text-center mb-6"><div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-600"><i class="fa-solid fa-user-graduate text-3xl"></i></div><h3 class="text-2xl font-bold text-gray-800">學生登入</h3><p class="text-gray-500 text-sm">輸入帳號密碼開始學習</p></div><div class="space-y-4"><div><label class="block text-sm font-medium text-gray-700 mb-1">帳號 / 學號</label><input type="text" id="login-id" class="w-full px-4 py-3 rounded-lg border border-gray-300 outline-none" placeholder="例如: s01"></div><div><label class="block text-sm font-medium text-gray-700 mb-1">密碼</label><input type="password" id="login-pwd" class="w-full px-4 py-3 rounded-lg border border-gray-300 outline-none" placeholder="輸入密碼"></div><button onclick="AuthSystem.handleLoginClick()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow">登入系統</button><div class="text-center mt-4"><button onclick="AuthSystem.switchAuthView('register')" class="text-sm text-blue-600 hover:underline">還沒有帳號？註冊一個</button></div></div></div>`;
-        const registerForm = `<div id="auth-register-view" style="display:none"><div class="text-center mb-6"><div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-green-600"><i class="fa-solid fa-user-plus text-3xl"></i></div><h3 class="text-2xl font-bold text-gray-800">建立新帳號</h3><p class="text-gray-500 text-sm">請填寫您的資料</p></div><div class="space-y-3"><div><label class="block text-sm font-medium text-gray-700 mb-1">您的姓名</label><input type="text" id="reg-name" class="w-full px-4 py-2 rounded-lg border border-gray-300 outline-none" placeholder="例如: 王小明"></div><div><label class="block text-sm font-medium text-gray-700 mb-1">設定帳號</label><input type="text" id="reg-id" class="w-full px-4 py-2 rounded-lg border border-gray-300 outline-none" placeholder="請設定帳號 (英文數字)"></div><div><label class="block text-sm font-medium text-gray-700 mb-1">設定密碼</label><input type="password" id="reg-pwd" class="w-full px-4 py-2 rounded-lg border border-gray-300 outline-none" placeholder="請設定密碼"></div><button onclick="AuthSystem.handleRegisterClick()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg shadow mt-2">立即註冊</button><div class="text-center mt-4"><button onclick="AuthSystem.switchAuthView('login')" class="text-sm text-gray-500 hover:underline">已經有帳號？返回登入</button></div></div></div>`;
-        modal.innerHTML = `<div class="bg-white rounded-2xl p-8 max-w-sm w-full mx-4 shadow-2xl transform transition-all scale-100 relative"><button onclick="AuthSystem.closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-xl"></i></button>${loginForm}${registerForm}</div>`;
-        document.body.appendChild(modal);
-        if (view === 'register') this.switchAuthView('register');
-    },
-
-    switchAuthView: function(view) {
-        const loginView = document.getElementById('auth-login-view');
-        const regView = document.getElementById('auth-register-view');
-        if (view === 'register') { loginView.style.display = 'none'; regView.style.display = 'block'; } 
-        else { loginView.style.display = 'block'; regView.style.display = 'none'; }
-    },
-
-    closeModal: function() { const modal = document.getElementById('amis-login-modal'); if (modal) modal.remove(); },
-    handleLoginClick: function() { const id = document.getElementById('login-id').value.trim(); const pwd = document.getElementById('login-pwd').value.trim(); if (!id || !pwd) { alert("請輸入完整的帳號密碼"); return; } this.login(id, pwd); },
-    handleRegisterClick: function() { const name = document.getElementById('reg-name').value.trim(); const id = document.getElementById('reg-id').value.trim(); const pwd = document.getElementById('reg-pwd').value.trim(); if (!name || !id || !pwd) { alert("所有欄位都必須填寫喔！"); return; } if (id.length < 3) { alert("帳號至少要 3 個字"); return; } this.register(id, pwd, name); },
-    showLoading: function(msg) { const loader = document.createElement('div'); loader.id = 'amis-loader'; loader.className = "fixed inset-0 bg-black/30 z-[10001] flex items-center justify-center text-white font-bold flex-col"; loader.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-4xl mb-3"></i><div>${msg}</div>`; document.body.appendChild(loader); },
-    hideLoading: function() { const loader = document.getElementById('amis-loader'); if (loader) loader.remove(); },
-    showToast: function(msg) { const toast = document.createElement('div'); toast.className = "fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full shadow-lg z-[10002] transition-opacity duration-500 flex items-center gap-2"; toast.innerHTML = `<i class="fa-solid fa-circle-check text-green-400"></i> ${msg}`; document.body.appendChild(toast); setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 500); }, 3000); },
-    injectStyles: function() {}
-};
-
-AuthSystem.init();
+// 實例化全域物件
+const AuthSystem = new AuthSystemClass();
