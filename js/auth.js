@@ -1,217 +1,177 @@
-// ==========================================
-// 阿美族語學習網 - 後端 API (Google Apps Script)
-// ==========================================
+/**
+ * 阿美族語學習網 - 會員與認證系統 (auth.js)
+ * 包含：登入、註冊、成績上傳、讀取等功能
+ */
 
-// ★★★ 分別設定兩個工作表的名稱 ★★★
-var SHEET_USERS = "users"; 
-var SHEET_SCORES = "scores"; 
-
-function doOptions(e) {
-  return buildResponse({status: "success"});
-}
-
-function doPost(e) {
-  try {
-    var payload = JSON.parse(e.postData.contents);
-    var action = payload.action;
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    
-    // 取得兩個工作表
-    var sheetUsers = ss.getSheetByName(SHEET_USERS);
-    var sheetScores = ss.getSheetByName(SHEET_SCORES);
-    
-    if (!sheetUsers) return buildResponse({status: "error", message: "找不到指定的工作表: " + SHEET_USERS});
-    if (!sheetScores) return buildResponse({status: "error", message: "找不到指定的工作表: " + SHEET_SCORES});
-
-    // 根據 action 導向不同的處理函式
-    if (action === "login") {
-      return handleLogin(sheetUsers, payload);
-    } else if (action === "register") {
-      return handleRegister(sheetUsers, sheetScores, payload);
-    } else if (action === "submitScore") {
-      return handleSubmitScore(sheetScores, payload);
-    } else if (action === "getScores") {
-      return handleGetScores(sheetScores, payload);
-    } else if (action === "getLeaderboard") {
-      return handleGetLeaderboard(sheetScores);
+class AuthSystemClass {
+    constructor() {
+        // ★★★ 請將這裡換成您 Google Apps Script 發布後的網址 ★★★
+        this.API_URL = "https://script.google.com/macros/s/AKfycbzihyxv1NyH1IgBF8kWBVXLNE1-FVETTYxy-6Y49te7DTULQj5cZeDe6BLtBadEvk44/exec"; 
+        
+        this.currentUser = null;
+        this.init();
     }
-    
-    return buildResponse({status: "error", message: "未知的 action"});
-    
-  } catch (error) {
-    return buildResponse({status: "error", message: error.toString()});
-  }
-}
 
-// ==========================================
-// 1. 處理註冊 (users 與 scores 分頁同步建立)
-// ==========================================
-function handleRegister(sheetUsers, sheetScores, payload) {
-  var data = sheetUsers.getDataRange().getValues();
-  
-  // 檢查帳號是否已存在
-  for (var i = 1; i < data.length; i++) {
-    if (data[i][0] == payload.userID) {
-      return buildResponse({status: "error", message: "此帳號已經被註冊過囉！"});
-    }
-  }
-  
-  var now = new Date();
-  var timestamp = Utilities.formatDate(now, Session.getScriptTimeZone(), "yyyy/MM/dd HH:mm:ss");
-
-  // 寫入 users 分頁 (A~G 欄)
-  var newUserRow = [
-    payload.userID,           // A: userID
-    payload.password,         // B: password
-    payload.name,             // C: name
-    timestamp,                // D: created_at
-    "public",                 // E: 身分
-    payload.tribe || "",      // F: 族別
-    payload.birthDate || ""   // G: 出生年月
-  ];
-  sheetUsers.appendRow(newUserRow);
-  
-  // 防呆：如果 scores 工作表全空，先加標題
-  if (sheetScores.getLastRow() === 0) {
-    sheetScores.appendRow(["userID", "name"]);
-  }
-  var newScoreRow = [payload.userID, payload.name];
-  sheetScores.appendRow(newScoreRow);
-  
-  return buildResponse({status: "success", message: "註冊成功"});
-}
-
-// ==========================================
-// 2. 處理登入 (讀取 users 分頁)
-// ==========================================
-function handleLogin(sheetUsers, payload) {
-  var data = sheetUsers.getDataRange().getValues();
-  
-  for (var i = 1; i < data.length; i++) {
-    if (data[i][0] == payload.userID && data[i][1] == payload.password) {
-      return buildResponse({
-        status: "success", 
-        name: data[i][2], // C欄: name
-        role: data[i][4]  // E欄: 身分
-      });
-    }
-  }
-  return buildResponse({status: "error", message: "帳號或密碼錯誤"});
-}
-
-// ==========================================
-// 3. 處理上傳成績 (寫入 scores 分頁)
-// ==========================================
-function handleSubmitScore(sheetScores, payload) {
-  if (sheetScores.getLastRow() === 0) {
-    sheetScores.appendRow(["userID", "name"]);
-  }
-
-  var data = sheetScores.getDataRange().getValues();
-  var headers = data[0] || ["userID", "name"];
-  var gameID = payload.gameID;
-  var score = parseInt(payload.score) || 0;
-  
-  var colIndex = headers.indexOf(gameID);
-  if (colIndex === -1) {
-    colIndex = headers.length;
-    sheetScores.getRange(1, colIndex + 1).setValue(gameID);
-  }
-  
-  var userFound = false;
-  for (var i = 1; i < data.length; i++) {
-    if (data[i][0] == payload.userID) {
-      userFound = true;
-      var currentScore = parseInt(data[i][colIndex]) || 0;
-      if (score > currentScore) {
-        sheetScores.getRange(i + 1, colIndex + 1).setValue(score);
-      }
-      break;
-    }
-  }
-  
-  if (!userFound) {
-      var userName = "未知姓名";
-      var sheetUsers = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_USERS);
-      if (sheetUsers) {
-        var uData = sheetUsers.getDataRange().getValues();
-        for (var u = 1; u < uData.length; u++) {
-          if (uData[u][0] == payload.userID) {
-            userName = uData[u][2];
-            break;
-          }
+    init() {
+        // 檢查 localStorage 中是否有登入紀錄
+        const savedUser = localStorage.getItem('amis_user');
+        if (savedUser) {
+            this.currentUser = JSON.parse(savedUser);
+            this.updateUIAfterLogin();
         }
-      }
 
-      var newRow = [payload.userID, userName];
-      while (newRow.length < colIndex) {
-        newRow.push("");
-      }
-      newRow[colIndex] = score;
-      sheetScores.appendRow(newRow);
-  }
-
-  return buildResponse({status: "success"});
-}
-
-// ==========================================
-// 4. 取得個人所有成績 (讀取 scores 分頁)
-// ==========================================
-function handleGetScores(sheetScores, payload) {
-  var data = sheetScores.getDataRange().getValues();
-  if (data.length === 0) return buildResponse({status: "success", scores: {}});
-
-  var headers = data[0];
-  var scores = {};
-  
-  for (var i = 1; i < data.length; i++) {
-    if (data[i][0] == payload.userID) {
-      for (var j = 2; j < headers.length; j++) {
-        if (headers[j]) {
-          scores[headers[j]] = parseInt(data[i][j]) || 0;
+        // 確保 DOM 載入後建立 Modal
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.createModal());
+        } else {
+            this.createModal();
         }
-      }
-      return buildResponse({status: "success", scores: scores});
     }
-  }
-  return buildResponse({status: "success", scores: {}});
-}
 
-// ==========================================
-// 5. 取得榮譽排行榜 (讀取 scores 分頁)
-// ==========================================
-function handleGetLeaderboard(sheetScores) {
-  var data = sheetScores.getDataRange().getValues();
-  if (data.length <= 1) return buildResponse({status: "success", leaderboard: []});
+    // 建立登入/註冊的 UI 畫面 (Modal)
+    createModal() {
+        if (document.getElementById('auth-modal')) return;
 
-  var headers = data[0];
-  var leaderboard = [];
-  
-  for (var i = 1; i < data.length; i++) {
-    var name = data[i][1];
-    if (!name || name === "未知姓名") continue;
-    
-    var totalScore = 0;
-    for (var j = 2; j < headers.length; j++) {
-      totalScore += parseInt(data[i][j]) || 0;
+        const modalHtml = `
+            <div id="auth-modal" class="fixed inset-0 bg-black/50 z-[100] hidden items-center justify-center backdrop-blur-sm px-4">
+                <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all">
+                    
+                    <!-- 標題區 -->
+                    <div class="bg-sky-500 text-white p-6 text-center relative">
+                        <h2 class="text-2xl font-bold" id="auth-title">登入學習網</h2>
+                        <button onclick="AuthSystem.closeModal()" class="absolute top-4 right-4 text-white/80 hover:text-white text-xl">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+
+                    <div class="p-6">
+                        <!-- 頁籤切換 -->
+                        <div class="flex mb-6 border-b-2 border-gray-100">
+                            <button onclick="AuthSystem.switchTab('login')" id="tab-login" class="flex-1 pb-2 font-bold text-sky-500 border-b-2 border-sky-500">登入</button>
+                            <button onclick="AuthSystem.switchTab('register')" id="tab-register" class="flex-1 pb-2 font-bold text-gray-400 hover:text-gray-600">註冊新帳號</button>
+                        </div>
+
+                        <!-- ==================== 登入表單 ==================== -->
+                        <div id="form-login" class="space-y-4">
+                            <!-- 身分選擇 -->
+                            <div class="mb-4">
+                                <label class="block text-gray-700 text-sm font-bold mb-2">請選擇您的身分：</label>
+                                <div class="flex gap-4">
+                                    <label class="flex items-center cursor-pointer">
+                                        <input type="radio" name="loginType" id="login-type-student" value="student" class="mr-2 text-sky-500 focus:ring-sky-500" checked onchange="AuthSystem.toggleLoginFields()">
+                                        <span class="text-gray-700 font-bold">太巴塱附幼</span>
+                                    </label>
+                                    <label class="flex items-center cursor-pointer">
+                                        <input type="radio" name="loginType" id="login-type-public" value="public" class="mr-2 text-sky-500 focus:ring-sky-500" onchange="AuthSystem.toggleLoginFields()">
+                                        <span class="text-gray-700">一般民眾</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label id="login-id-label" class="block text-gray-700 text-sm font-bold mb-2">座號</label>
+                                <input type="text" id="login-id" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-sky-500 focus:ring-2 focus:ring-sky-200 outline-none transition" placeholder="請輸入座號 (例如: 01)">
+                            </div>
+                            
+                            <div id="login-password-container" style="display: none;">
+                                <label class="block text-gray-700 text-sm font-bold mb-2">密碼</label>
+                                <input type="password" id="login-password" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-sky-500 focus:ring-2 focus:ring-sky-200 outline-none transition" placeholder="請輸入密碼">
+                            </div>
+
+                            <button onclick="AuthSystem.handleLogin()" id="btn-login" class="w-full bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 px-4 rounded-xl transition shadow-md mt-4 flex justify-center items-center">
+                                <span>登入</span>
+                            </button>
+                        </div>
+
+                        <!-- ==================== 註冊表單 ==================== -->
+                        <div id="form-register" class="space-y-3 hidden">
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-1">帳號</label>
+                                <input type="text" id="reg-id" class="w-full px-4 py-2 rounded-xl border border-gray-300 focus:border-sky-500 outline-none" placeholder="設定登入帳號">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-1">密碼</label>
+                                <input type="password" id="reg-password" class="w-full px-4 py-2 rounded-xl border border-gray-300 focus:border-sky-500 outline-none" placeholder="設定密碼">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-1">真實姓名 / 暱稱</label>
+                                <input type="text" id="reg-name" class="w-full px-4 py-2 rounded-xl border border-gray-300 focus:border-sky-500 outline-none" placeholder="您在網站上的顯示名稱">
+                            </div>
+                            
+                            <!-- 新增：族別 -->
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-1">族別</label>
+                                <select id="reg-tribe" class="w-full px-4 py-2 rounded-xl border border-gray-300 focus:border-sky-500 outline-none bg-white">
+                                    <option value="">請選擇族別...</option>
+                                    <option value="阿美族">阿美族 (Amis)</option>
+                                    <option value="泰雅族">泰雅族 (Atayal)</option>
+                                    <option value="排灣族">排灣族 (Paiwan)</option>
+                                    <option value="布農族">布農族 (Bunun)</option>
+                                    <option value="太魯閣族">太魯閣族 (Truku)</option>
+                                    <option value="卑南族">卑南族 (Puyuma)</option>
+                                    <option value="其他原住民族">其他原住民族</option>
+                                    <option value="非原住民族">非原住民族</option>
+                                </select>
+                            </div>
+
+                            <!-- 新增：出生年月 -->
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-1">出生年月</label>
+                                <input type="month" id="reg-birth" class="w-full px-4 py-2 rounded-xl border border-gray-300 focus:border-sky-500 outline-none text-gray-600">
+                            </div>
+
+                            <button onclick="AuthSystem.handleRegister()" id="btn-register" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-xl transition shadow-md mt-4 flex justify-center items-center">
+                                <span>註冊</span>
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- 網頁右下角的使用者狀態小工具 -->
+            <div id="user-widget" class="fixed bottom-4 right-4 z-40 hidden">
+                <div class="bg-white rounded-full shadow-lg border border-gray-200 p-2 flex items-center gap-3 cursor-pointer hover:bg-gray-50 transition" onclick="AuthSystem.logout()">
+                    <div class="w-10 h-10 bg-sky-100 text-sky-600 rounded-full flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                    <div class="pr-4">
+                        <div class="text-xs text-gray-400">登入中</div>
+                        <div class="font-bold text-sm text-gray-700" id="widget-username">Name</div>
+                    </div>
+                    <div class="pr-2 text-gray-400 hover:text-red-500" title="登出">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
     }
-    
-    if (totalScore > 0) {
-      leaderboard.push({ name: name, score: totalScore });
-    }
-  }
-  
-  leaderboard.sort(function(a, b) {
-    return b.score - a.score;
-  });
-  
-  return buildResponse({status: "success", leaderboard: leaderboard});
-}
 
-// ==========================================
-// 共用：建立 JSON 回應 (★已移除會當機的 setHeader)
-// ==========================================
-function buildResponse(content) {
-  return ContentService.createTextOutput(JSON.stringify(content))
-    .setMimeType(ContentService.MimeType.JSON);
-}
+    // 切換登入身分的欄位顯示
+    toggleLoginFields() {
+        const isStudent = document.getElementById('login-type-student').checked;
+        const pwdContainer = document.getElementById('login-password-container');
+        const idLabel = document.getElementById('login-id-label');
+        const idInput = document.getElementById('login-id');
+
+        if (isStudent) {
+            pwdContainer.style.display = 'none';
+            idLabel.innerText = '座號';
+            idInput.placeholder = '請輸入座號 (例如: 01)';
+        } else {
+            pwdContainer.style.display = 'block';
+            idLabel.innerText = '帳號';
+            idInput.placeholder = '請輸入帳號';
+        }
+    }
+
+    showLoginModal() {
+        document.getElementById('auth-modal').classList.remove('hidden');
+        document.getElementById('auth-modal').classList.add('flex');
+    }
+
+    closeModal() {
+        document.getElementById('auth-modal').classList.add('hidden');
+        document.getElementById('aut
