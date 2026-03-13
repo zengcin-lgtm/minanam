@@ -283,7 +283,8 @@
 
             start() {
                 if (typeof AuthSystem !== 'undefined' && !AuthSystem.currentUser) {
-                    if(!confirm("您尚未登入，成績將不會被紀錄。\n是否繼續？")) {
+                    // 如果還是沒登入，再次提醒並確認是否以訪客遊玩
+                    if(!confirm("您尚未登入，成績將不會被紀錄喔！\n確定要以「訪客身分」繼續玩遊戲嗎？")) {
                         AuthSystem.showLoginModal();
                         return;
                     }
@@ -628,6 +629,17 @@
         }
 
         const game = new Week3Game();
+
+        // ★★★ 新增：頁面載入後自動檢查登入狀態 ★★★
+        window.addEventListener('DOMContentLoaded', () => {
+            // 稍微延遲 0.5 秒，確保畫面先載入完成且 auth.js 初始化完畢
+            setTimeout(() => {
+                if (typeof AuthSystem !== 'undefined' && !AuthSystem.currentUser) {
+                    // 若未登入，自動彈出登入視窗
+                    AuthSystem.showLoginModal();
+                }
+            }, 500);
+        });
 
     </script>
 </body>
