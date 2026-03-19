@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>太巴塱的嘴巴與耳朵｜部落街頭生存實戰</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap');
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #FAFAFA;
+        }
+        .bg-tribal-pattern {
+            background-color: #2D3748;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234a5568' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        .text-accent { color: #D97736; }
+        .bg-accent { background-color: #D97736; }
+        .hover-bg-accent:hover { background-color: #c0652a; }
+        .border-accent { border-color: #D97736; }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2F4858', /* 深藍綠，象徵穩重與山林 */
+                        secondary: '#869D7A', /* 鼠尾草綠 */
+                        accent: '#D97736', /* 溫暖的磚橘色，象徵紅糯米/泥土 */
+                        light: '#F4F1E1' /* 米白色背景 */
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="text-gray-800 antialiased">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 bg-white/90 backdrop-blur-md shadow-sm transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                <div class="flex-shrink-0 flex items-center">
+                    <a href="#" class="font-black text-2xl text-primary tracking-wider">
+                        <i class="fa-solid fa-leaf text-accent mr-2"></i>嘴巴與耳朵
+                    </a>
+                </div>
+                <div class="hidden md:flex space-x-8 items-center">
+                    <a href="#about" class="text-gray-600 hover:text-accent font-medium transition">課程介紹</a>
+                    <a href="#target" class="text-gray-600 hover:text-accent font-medium transition">適合對象</a>
+                    <a href="#syllabus" class="text-gray-600 hover:text-accent font-medium transition">實戰大綱</a>
+                    <a href="#team" class="text-gray-600 hover:text-accent font-medium transition">師資陣容</a>
+                    <a href="#register" class="bg-accent hover:bg-orange-700 text-white px-6 py-2.5 rounded-full font-bold shadow-lg shadow-orange-500/30 transition transform hover:-translate-y-0.5">立即報名</a>
+                </div>
+                <!-- Mobile menu button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="text-gray-600 hover:text-primary focus:outline-none p-2">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-100">
+            <div class="px-2 pt-2 pb-4 space-y-1 sm:px-3 shadow-lg">
+                <a href="#about" class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-accent hover:bg-gray-50 rounded-md">課程介紹</a>
+                <a href="#target" class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-accent hover:bg-gray-50 rounded-md">適合對象</a>
+                <a href="#syllabus" class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-accent hover:bg-gray-50 rounded-md">實戰大綱</a>
+                <a href="#team" class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-accent hover:bg-gray-50 rounded-md">師資陣容</a>
+                <a href="#register" class="block px-3 py-2 text-base font-bold text-accent hover:bg-gray-50 rounded-md">立即報名</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative pt-20 pb-32 flex items-center min-h-[90vh] bg-tribal-pattern overflow-hidden">
+        <div class="absolute inset-0 bg-primary/80 mix-blend-multiply"></div>
+        <!-- Decorative blob -->
+        <div class="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full bg-accent/20 blur-3xl"></div>
+        <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-secondary/30 blur-3xl"></div>
+
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center z-10 pt-16">
+            <span class="inline-block py-1 px-3 rounded-full bg-accent/20 border border-accent/50 text-orange-200 text-sm font-bold tracking-widest mb-6">
+                115年度花蓮縣原住民族部落大學
+            </span>
+            <h1 class="text-5xl md:text-7xl font-black text-white mb-6 leading-tight drop-shadow-lg">
+                太巴塱的 <br class="md:hidden" />
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-accent">嘴巴與耳朵</span>
+            </h1>
+            <p class="mt-4 max-w-2xl text-xl md:text-2xl text-gray-200 font-medium mb-10 leading-relaxed drop-shadow">
+                這不是一堂無聊的文法課，而是一場<span class="text-yellow-400 font-bold">部落街頭生存實戰</span>。<br>
+                聽懂長輩的話中話，找回在太巴塱自信聊天的超能力！
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 w-full justify-center">
+                <a href="#register" class="bg-accent hover:bg-orange-600 text-white text-lg font-bold py-4 px-10 rounded-full shadow-xl shadow-orange-900/20 transition transform hover:-translate-y-1 w-full sm:w-auto text-center">
+                    加入生存特訓
+                </a>
+                <a href="#about" class="bg-white/10 hover:bg-white/20 backdrop-blur border border-white/30 text-white text-lg font-bold py-4 px-10 rounded-full transition w-full sm:w-auto text-center">
+                    了解實戰內容
+                </a>
+            </div>
+            
+            <div class="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 text-white text-center w-full max-w-4xl border-t border-white/20 pt-8">
+                <div>
+                    <i class="fa-regular fa-calendar-check text-3xl text-yellow-400 mb-2"></i>
+                    <p class="font-bold text-lg">12週</p>
+                    <p class="text-sm text-gray-300">總計 36 小時</p>
+                </div>
+                <div>
+                    <i class="fa-solid fa-location-dot text-3xl text-yellow-400 mb-2"></i>
+                    <p class="font-bold text-lg">太巴塱部落</p>
+                    <p class="text-sm text-gray-300">中正路二段23號</p>
+                </div>
+                <div>
+                    <i class="fa-solid fa-users text-3xl text-yellow-400 mb-2"></i>
+                    <p class="font-bold text-lg">20人</p>
+                    <p class="text-sm text-gray-300">精緻小班演練</p>
+                </div>
+                <div>
+                    <i class="fa-solid fa-clock text-3xl text-yellow-400 mb-2"></i>
+                    <p class="font-bold text-lg">每週五晚間</p>
+                    <p class="text-sm text-gray-300">18:30 - 21:30</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Core Concept / About -->
+    <section id="about" class="py-20 bg-light">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col lg:flex-row items-center gap-12">
+                <div class="lg:w-1/2">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1528605105345-5344ea20e269?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="部落互動示意圖" class="rounded-2xl shadow-2xl object-cover h-96 w-full">
+                        <div class="absolute -bottom-6 -right-6 bg-white p-6 rounded-xl shadow-xl max-w-xs border-l-4 border-accent hidden md:block">
+                            <p class="text-gray-800 font-bold italic">「你要去哪裡？吃飽了嗎？」</p>
+                            <p class="text-sm text-gray-500 mt-1">聽懂這不是盤問，是長輩的關心與起手式。</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:w-1/2 space-y-6">
+                    <h2 class="text-3xl md:text-4xl font-black text-primary">在太巴塱，如何成為一個「像樣的人」？</h2>
+                    <div class="w-20 h-2 bg-accent rounded-full"></div>
+                    <p class="text-lg text-gray-700 leading-relaxed">
+                        關鍵在於是否具備靈光的<strong class="text-accent">「耳朵」</strong>與得體的<strong class="text-accent">「嘴巴」</strong>。
+                    </p>
+                    <p class="text-gray-600 leading-relaxed">
+                        然而，許多青年或中生代族人，耳朵聽不懂長輩的弦外之音（幽默或隱喻指令），嘴巴也接不住長輩拋來的對話球，導致世代溝通出現斷層。
+                    </p>
+                    <p class="text-gray-600 leading-relaxed">
+                        這堂課，我們將解構長輩最常使用的 <strong class="text-primary text-xl">50 個對話情境</strong>，訓練你的耳朵能聽出話中話（如聽懂玩笑與責備），訓練嘴巴能流利應對（如問候、撒嬌、回嘴）。透過高強度的模擬演練，讓你重新找回在部落自在說話的能力！
+                    </p>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 flex items-start">
+                            <div class="bg-secondary/20 p-3 rounded-full text-secondary mr-4">
+                                <i class="fa-solid fa-ear-listen text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-800">耳朵進化</h4>
+                                <p class="text-sm text-gray-500 mt-1">聽懂街頭指令與玩笑，不再會錯意。</p>
+                            </div>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 flex items-start">
+                            <div class="bg-accent/20 p-3 rounded-full text-accent mr-4">
+                                <i class="fa-solid fa-lips text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-800">嘴巴升級</h4>
+                                <p class="text-sm text-gray-500 mt-1">掌握萬用應對句，能幽默回嘴自信開口。</p>
+                            </div>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 flex items-start">
+                            <div class="bg-primary/20 p-3 rounded-full text-primary mr-4">
+                                <i class="fa-solid fa-fire text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-800">實戰膽量</h4>
+                                <p class="text-sm text-gray-500 mt-1">期末街頭闖關，能與長輩對話5分鐘。</p>
+                            </div>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 flex items-start">
+                            <div class="bg-yellow-500/20 p-3 rounded-full text-yellow-600 mr-4">
+                                <i class="fa-solid fa-people-arrows text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-800">文化連結</h4>
+                                <p class="text-sm text-gray-500 mt-1">重建信任關係，能聽、能聊、能搏感情。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Target Audience -->
+    <section id="target" class="py-20 bg-white relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-accent font-bold tracking-wider">TARGET AUDIENCE</span>
+                <h2 class="text-3xl md:text-4xl font-black text-primary mt-2">這堂課，是為誰準備的？</h2>
+                <div class="w-16 h-1 bg-accent mx-auto mt-6 rounded-full"></div>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div class="bg-light rounded-2xl p-8 hover:-translate-y-2 transition duration-300 shadow-lg shadow-gray-200/50 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-secondary/10 rounded-bl-full -mr-10 -mt-10 transition group-hover:bg-secondary/20"></div>
+                    <div class="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-3xl text-primary mb-6 relative z-10">
+                        <i class="fa-solid fa-comment-slash"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3 relative z-10">想說卻不敢說的青年</h3>
+                    <p class="text-gray-600 relative z-10">聽得懂一點點族語，但因為怕發音不標準、文法錯誤，遇到長輩總是不敢開口，只能尷尬傻笑。</p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="bg-light rounded-2xl p-8 hover:-translate-y-2 transition duration-300 shadow-lg shadow-gray-200/50 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-accent/10 rounded-bl-full -mr-10 -mt-10 transition group-hover:bg-accent/20"></div>
+                    <div class="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-3xl text-accent mb-6 relative z-10">
+                        <i class="fa-solid fa-face-flushed"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3 relative z-10">語言不通的中生代</h3>
+                    <p class="text-gray-600 relative z-10">明明生活在部落裡，卻常因為聽不懂長輩的「話中話」或隱喻指令，而感到挫折與尷尬。</p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="bg-light rounded-2xl p-8 hover:-translate-y-2 transition duration-300 shadow-lg shadow-gray-200/50 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-yellow-500/10 rounded-bl-full -mr-10 -mt-10 transition group-hover:bg-yellow-500/20"></div>
+                    <div class="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-3xl text-yellow-600 mb-6 relative z-10">
+                        <i class="fa-solid fa-handshake-angle"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3 relative z-10">想融入部落的移居者</h3>
+                    <p class="text-gray-600 relative z-10">希望能在太巴塱街頭、文健站或雜貨店，自信地與長輩互動，建立深厚的文化連結與信任感。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Teaching Methodology -->
+    <section class="py-16 bg-primary text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-black">告別死板文法，我們這樣玩實戰！</h2>
+                <p class="text-gray-300 mt-4">任務導向 × 情境式對話教學法</p>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+                <div class="p-4 border border-white/10 rounded-xl bg-white/5 backdrop-blur">
+                    <div class="text-4xl text-accent mb-4"><i class="fa-solid fa-bolt"></i></div>
+                    <h4 class="font-bold mb-2">直覺式跟讀</h4>
+                    <p class="text-sm text-gray-300">訓練肌肉記憶，脫口而出不需思考文法。</p>
+                </div>
+                <div class="p-4 border border-white/10 rounded-xl bg-white/5 backdrop-blur">
+                    <div class="text-4xl text-yellow-400 mb-4"><i class="fa-solid fa-masks-theater"></i></div>
+                    <h4 class="font-bold mb-2">沙包演練</h4>
+                    <p class="text-sm text-gray-300">助教扮演「刁鑽長輩」，學員輪流接招不怕錯。</p>
+                </div>
+                <div class="p-4 border border-white/10 rounded-xl bg-white/5 backdrop-blur">
+                    <div class="text-4xl text-secondary mb-4"><i class="fa-solid fa-store"></i></div>
+                    <h4 class="font-bold mb-2">移地教學</h4>
+                    <p class="text-sm text-gray-300">走入雜貨店、文健站，將整個部落當成大教室。</p>
+                </div>
+                <div class="p-4 border border-white/10 rounded-xl bg-white/5 backdrop-blur">
+                    <div class="text-4xl text-blue-400 mb-4"><i class="fa-solid fa-video"></i></div>
+                    <h4 class="font-bold mb-2">戰術分析</h4>
+                    <p class="text-sm text-gray-300">實戰錄影回放，修正你的語氣、姿態與禮貌。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Syllabus (Timeline) -->
+    <section id="syllabus" class="py-20 bg-light">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-accent font-bold tracking-wider">COURSE SYLLABUS</span>
+                <h2 class="text-3xl md:text-4xl font-black text-primary mt-2">街頭生存 12 週實戰大綱</h2>
+                <p class="text-gray-600 mt-4">從「新手村」到「最終考核」，帶你逐步升級。</p>
+            </div>
+
+            <div class="relative wrap overflow-hidden h-full">
+                <!-- Vertical line -->
+                <div class="absolute border-opacity-20 border-gray-700 h-full border-l-2 left-1/2 transform -translate-x-1/2 hidden md:block"></div>
+
+                <!-- Phase 1 -->
+                <div class="mb-12 relative w-full flex justify-center">
+                    <span class="bg-primary text-white font-bold px-6 py-2 rounded-full shadow-lg z-10 text-lg">第一階段：街頭生存基礎 (敢開口、不怯場)</span>
+                </div>
+
+                <!-- Week 1 (Left) -->
+                <div class="mb-8 flex justify-between items-center w-full right-timeline">
+                    <div class="order-1 w-5/12 hidden md:block"></div>
+                    <div class="z-20 flex items-center order-1 bg-accent shadow-xl w-10 h-10 rounded-full">
+                        <h1 class="mx-auto font-bold text-white text-lg">1</h1>
+                    </div>
+                    <div class="order-1 bg-white rounded-xl shadow-md w-full md:w-5/12 px-6 py-4 border-l-4 border-accent">
+                        <div class="flex justify-between items-center mb-1">
+                            <h3 class="font-bold text-gray-800 text-lg">新手村登入：報上名號</h3>
+                            <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">生存技能：自我介紹</span>
+                        </div>
+                        <p class="text-sm leading-snug tracking-wide text-gray-600 mt-2">當長輩問「你是誰家的孩子？」時，如何精準報出自己的名字與父母名，不讓長輩猜半天。</p>
+                    </div>
+                </div>
+
+                <!-- Week 2 (Right) -->
+                <div class="mb-8 flex justify-between flex-row-reverse items-center w-full left-timeline">
+                    <div class="order-1 w-5/12 hidden md:block"></div>
+                    <div class="z-20 flex items-center order-1 bg-accent shadow-xl w-10 h-10 rounded-full">
+                        <h1 class="mx-auto font-bold text-white text-lg">2</h1>
+                    </div>
+                    <div class="order-1 bg-white rounded-xl shadow-md w-full md:w-5/12 px-6 py-4 border-r-4 border-accent md:text-right">
+                        <div class="flex justify-between md:justify-end items-center mb-1 gap-2">
+                            <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded md:order-1">生存技能：飲食應對</span>
+                            <h3 class="font-bold text-gray-800 text-lg md:order-2">飢餓求生：吃飽了嗎？</h3>
+                        </div>
+                        <p class="text-sm leading-snug tracking-wide text-gray-600 mt-2">除了回答「吃飽了」，學習如何撒嬌蹭飯、禮貌拒絕邀約，以及長幼禮儀。</p>
+                    </div>
+                </div>
+
+                <!-- Week 3 (Left) -->
+                <div class="mb-8 flex justify-between items-center w-full right-timeline">
+                    <div class="order-1 w-5/12 hidden md:block"></div>
+                    <div class="z-20 flex items-center order-1 bg-accent shadow-xl w-10 h-10 rounded-full">
+                        <h1 class="mx-auto font-bold text-white text-lg">3</h1>
+                    </div>
+                    <div class="order-1 bg-white rounded-xl shadow-md w-full md:w-5/12 px-6 py-4 border-l-4 border-accent">
+                        <div class="flex justify-between items-center mb-1">
+                            <h3 class="font-bold text-gray-800 text-lg">迷宮導航：你要去哪裡？</h3>
+                            <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">生存技能：行蹤交代</span>
+                        </div>
+                        <p class="text-sm leading-snug tracking-wide text-gray-600 mt-2">面對靈魂拷問，學習模糊回答與具體回答的藝術。</p>
+                    </div>
+                </div>
+
+                <!-- Week 4 (Right) -->
+                <div class="mb-16 flex justify-between flex-row-reverse items-center w-full left-timeline">
+                    <div class="order-1 w-5/12 hidden md:block"></div>
+                    <div class="z-20 flex items-center order-1 bg-accent shadow-xl w-10 h-10 rounded-full">
+                        <h1 class="mx-auto font-bold text-white text-lg">4</h1>
+                    </div>
+                    <div class="order-1 bg-white rounded-xl shadow-md w-full md:w-5/12 px-6 py-4 border-r-4 border-accent md:text-right">
+                        <div class="flex justify-between md:justify-end items-center mb-1 gap-2">
+                            <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded md:order-1">生存技能：面對調侃</span>
+                            <h3 class="font-bold text-gray-800 text-lg md:order-2">心理防禦戰(1)：幽默感</h3>
+                        </div>
+                        <p class="text-sm leading-snug tracking-wide text-gray-600 mt-2">長輩笑你胖、黑、沒結婚？學習太巴塱的幽默，如何不走心且幽默回嘴。</p>
+                    </div>
+                </div>
+
+                <!-- Phase 2 -->
+                <div class="mb-12 mt-8 relative w-full flex justify-center">
+                    <span class="bg-primary text-white font-bold px-6 py-2 rounded-full shadow-lg z-10 text-lg">第二階段：部落生活與社交禮儀 (深入對話)</span>
+                </div>
+
+                <!-- Week 5 to 9 Grid for Mobile, Timeline for Desktop -->
+                <!-- Week 5 -->
+                <div class="mb-8 flex justify-between items-center w-full right-timeline">
+                    <div class="order-1 w-5/12 hidden md:block"></div>
+                    <div class="z-20 flex items-center order-1 bg-secondary shadow-xl w-10 h-10 rounded-full">
+                        <h1 class="mx-auto font-bold text-white text-lg">5</h1>
+                    </div>
+                    <div class="order-1 bg-white rounded-xl shadow-md w-full md:w-5/12 px-6 py-4 border-l-4 border-secondary">
+                        <div class="flex justify-between items-center mb-1">
+                            <h3 class="font-bold text-gray-800 text-lg">心理防禦戰(2)：聽懂指令</h3>
+                            <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">生存技能：聽懂暗示</span>
+                        </div>
+                        <p class="text-sm leading-snug tracking-wide text-gray-600 mt-2">長輩說「好熱喔」可能是在叫你開電扇。聽懂隱晦的請求與指令動詞。</p>
+                    </div>
+                </div>
+
+                <!-- Week 6 -->
+                <div class="mb-8 flex justify-between flex-row-reverse items-center w-full left-timeline">
+                    <div class="order-1 w-5/12 hidden md:block"></div>
+                    <div class="z-20 flex items-center order-1 bg-secondary shadow-xl w-10 h-10 rounded-full">
+                        <h1 class="mx-auto font-bold text-white text-lg">6</h1>
+                    </div>
+                    <div class="order-1 bg-white rounded-xl shadow-md w-full md:w-5/12 px-6 py-4 border-r-4 border-secondary md:text-right">
+                        <div class="flex justify-between md:justify-end items-center mb-1 gap-2">
+                            <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded md:order-1">生存技能：職場對話</span>
+                            <h3 class="font-bold text-gray-800 text-lg md:order-2">經濟生存：工作與農事</h3>
+                        </div>
+                        <p class="text-sm leading-snug tracking-wide text-gray-600 mt-2">聊工作、聊薪水、聊田裡箭筍與紅糯米的收成，學習得體的應對進退。</p>
+                    </div>
+                </div>
+
+                <!-- Week 7 -->
+                <div class="mb-8 flex justify-between items-center w-full right-timeline">
+                    <div class="order-1 w-5/12 hidden md:block"></div>
+                    <div class="z-20 flex items-center order-1 bg-secondary shadow-xl w-10 h-10 rounded-full">
+                        <h1 class="mx-auto font-bold text-white text-lg">7</h1>
+                    </div>
+                    <div class="order-1 bg-white rounded-xl shadow-md w-full md:w-5/12 px-6 py-4 border-l-4 border-secondary">
+                        <div class="flex justify-between items-center mb-1">
+                            <h3 class="font-bold text-gray-800 text-lg">社交戰場(1)：喜慶宴會</h3>
+                            <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">生存技能：敬酒</span>
+                        </div>
+                        <p class="text-sm leading-snug tracking-wide text-gray-600 mt-2">在婚宴場被叫過去怎麼辦？學習敬酒、祝福語及被勸酒時的脫身術。</p>
+                    </div>
+                </div>
+
+                <!-- Week 8 -->
+                <div class="mb-8 flex justify-between flex-row-reverse items-center w-full left-timeline">
+                    <div class="order-1 w-5/12 hidden md:block"></div>
+                    <div class="z-20 flex items-center order-1 bg-secondary shadow-xl w-10 h-10 rounded-full">
+                        <h1 class="mx-auto font-bold text-white text-lg">8</h1>
+                    </div>
+                    <div class="order-1 bg-white rounded-xl shadow-md w-full md:w-5/12 px-6 py-4 border-r-4 border-secondary md:text-right">
+                        <div class="flex justify-between md:justify-end items-center mb-1 gap-2">
+                            <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded md:order-1">生存技能：喪葬會議</span>
+                            <h3 class="font-bold text-gray-800 text-lg md:order-2">社交戰場(2)：嚴肅時刻</h3>
+                        </div>
+                        <p class="text-sm leading-snug tracking-wide text-gray-600 mt-2">部落會議或白事場合，如何表現莊重？學習安靜聆聽與表達哀悼的簡短用語。</p>
+                    </div>
+                </div>
+
+                <!-- Week 9 -->
+                <div class="mb-16 flex justify-between items-center w-full right-timeline">
+                    <div class="order-1 w-5/12 hidden md:block"></div>
+                    <div class="z-20 flex items-center order-1 bg-secondary shadow-xl w-10 h-10 rounded-full">
+                        <h1 class="mx-auto font-bold text-white text-lg">9</h1>
+                    </div>
+                    <div class="order-1 bg-white rounded-xl shadow-md w-full md:w-5/12 px-6 py-4 border-l-4 border-secondary">
+                        <div class="flex justify-between items-center mb-1">
+                            <h3 class="font-bold text-gray-800 text-lg">危機處理：被罵的時候</h3>
+                            <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">生存技能：道歉與消氣</span>
+                        </div>
+                        <p class="text-sm leading-snug tracking-wide text-gray-600 mt-2">做錯事被念了！分辨真生氣還是假責備，學習讓長輩瞬間消氣的「道歉法」。</p>
+                    </div>
+                </div>
+
+                <!-- Phase 3 -->
+                <div class="mb-12 mt-8 relative w-full flex justify-center">
+                    <span class="bg-primary text-white font-bold px-6 py-2 rounded-full shadow-lg z-10 text-lg flex items-center"><i class="fa-solid fa-fire text-yellow-400 mr-2"></i> 第三階段：綜合實戰與膽量訓練</span>
+                </div>
+
+                <!-- Week 10 -->
+                <div class="mb-8 flex justify-between flex-row-reverse items-center w-full left-timeline">
+                    <div class="order-1 w-5/12 hidden md:block"></div>
+                    <div class="z-20 flex items-center order-1 bg-yellow-500 shadow-xl w-10 h-10 rounded-full">
+                        <h1 class="mx-auto font-bold text-white text-lg">10</h1>
+                    </div>
+                    <div class="order-1 bg-white rounded-xl shadow-md w-full md:w-5/12 px-6 py-4 border-r-4 border-yellow-500 md:text-right">
+                        <div class="flex justify-between md:justify-end items-center mb-1 gap-2">
+                            <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded md:order-1">室內實戰</span>
+                            <h3 class="font-bold text-gray-800 text-lg md:order-2">模擬戰役：客廳裡的對決</h3>
+                        </div>
+                        <p class="text-sm leading-snug tracking-wide text-gray-600 mt-2">邀請耆老擔任「魔王」，模擬去長輩家作客，從進門脫鞋到喝飲料聊天的完整流程。</p>
+                    </div>
+                </div>
+
+                <!-- Week 11 -->
+                <div class="mb-8 flex justify-between items-center w-full right-timeline">
+                    <div class="order-1 w-5/12 hidden md:block"></div>
+                    <div class="z-20 flex items-center order-1 bg-yellow-500 shadow-xl w-10 h-10 rounded-full">
+                        <h1 class="mx-auto font-bold text-white text-lg">11</h1>
+                    </div>
+                    <div class="order-1 bg-white rounded-xl shadow-md w-full md:w-5/12 px-6 py-4 border-l-4 border-yellow-500">
+                        <div class="flex justify-between items-center mb-1">
+                            <h3 class="font-bold text-gray-800 text-lg">模擬戰役：街角的遭遇戰</h3>
+                            <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">戶外實戰</span>
+                        </div>
+                        <p class="text-sm leading-snug tracking-wide text-gray-600 mt-2">模擬騎車經過、倒垃圾時的短暫交談，訓練 3 秒內反應的「快問快答」。</p>
+                    </div>
+                </div>
+
+                <!-- Week 12 -->
+                <div class="mb-8 flex justify-between flex-row-reverse items-center w-full left-timeline">
+                    <div class="order-1 w-5/12 hidden md:block"></div>
+                    <div class="z-20 flex items-center order-1 bg-red-600 shadow-xl w-12 h-12 rounded-full ring-4 ring-red-200">
+                        <i class="fa-solid fa-trophy mx-auto text-white text-xl"></i>
+                    </div>
+                    <div class="order-1 bg-gradient-to-r from-red-50 to-white rounded-xl shadow-lg border border-red-100 w-full md:w-5/12 px-6 py-5 md:text-right">
+                        <div class="flex justify-between md:justify-end items-center mb-1 gap-2">
+                            <span class="text-xs text-white bg-red-600 px-2 py-1 rounded md:order-1 font-bold">期末成果</span>
+                            <h3 class="font-black text-red-700 text-xl md:order-2">最終考核：部落街頭闖關</h3>
+                        </div>
+                        <p class="text-sm leading-snug tracking-wide text-gray-700 mt-2 font-medium">學員分組進入太巴塱部落，實際完成指定任務（如跟阿嬤買菜並殺價、問候坐在路邊的阿公），拍攝影片為證！</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Instructors / Team -->
+    <section id="team" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-accent font-bold tracking-wider">INSTRUCTORS</span>
+                <h2 class="text-3xl md:text-4xl font-black text-primary mt-2">黃金陣容，手把手帶領</h2>
+                <div class="w-16 h-1 bg-accent mx-auto mt-6 rounded-full"></div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-12 max-w-4xl mx-auto">
+                <!-- Instructor 1 -->
+                <div class="bg-light rounded-2xl overflow-hidden shadow-lg border border-gray-100 flex flex-col sm:flex-row">
+                    <div class="sm:w-2/5 h-64 sm:h-auto bg-gray-300 relative">
+                        <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="" class="object-cover w-full h-full">
+                        <div class="absolute bottom-0 left-0 bg-primary text-white text-xs font-bold px-3 py-1 rounded-tr-lg">講師</div>
+                    </div>
+                    <div class="sm:w-3/5 p-6 flex flex-col justify-center">
+                        <h3 class="text-2xl font-black text-gray-800">黃梅玲 <span class="text-base font-normal text-gray-500 ml-1">Kating Mulas</span></h3>
+                        <p class="text-accent font-medium mt-1 mb-4">太巴塱國小 專職族語老師</p>
+                        <ul class="text-sm text-gray-600 space-y-2">
+                            <li><i class="fa-solid fa-check text-secondary mr-2"></i>阿美語【優級】最高認證</li>
+                            <li><i class="fa-solid fa-check text-secondary mr-2"></i>教學年資逾 20 年</li>
+                            <li><i class="fa-solid fa-check text-secondary mr-2"></i>東華大學族語學習中心講師</li>
+                            <li><i class="fa-solid fa-check text-secondary mr-2"></i>榮獲110年世界母語日原民語言老師獎</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Instructor 2 -->
+                <div class="bg-light rounded-2xl overflow-hidden shadow-lg border border-gray-100 flex flex-col sm:flex-row">
+                    <div class="sm:w-2/5 h-64 sm:h-auto bg-gray-300 relative">
+                        <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="" class="object-cover w-full h-full">
+                        <div class="absolute bottom-0 left-0 bg-secondary text-white text-xs font-bold px-3 py-1 rounded-tr-lg">專案助教</div>
+                    </div>
+                    <div class="sm:w-3/5 p-6 flex flex-col justify-center">
+                        <h3 class="text-2xl font-black text-gray-800">Foday Ka'ti</h3>
+                        <p class="text-accent font-medium mt-1 mb-4">甫岱設計工作室 負責人</p>
+                        <ul class="text-sm text-gray-600 space-y-2">
+                            <li><i class="fa-solid fa-check text-secondary mr-2"></i>阿美語中高級認證</li>
+                            <li><i class="fa-solid fa-check text-secondary mr-2"></i>太巴塱國小附幼族語教保員</li>
+                            <li><i class="fa-solid fa-check text-secondary mr-2"></i>花蓮縣’onanip文教協會理事長</li>
+                            <li><i class="fa-solid fa-check text-secondary mr-2"></i>專長：沉浸式教學、影像紀錄</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Registration / Form Section -->
+    <section id="register" class="py-20 bg-tribal-pattern relative">
+        <div class="absolute inset-0 bg-primary/95 mix-blend-multiply"></div>
+        <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 z-10">
+            <div class="bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row">
+                <!-- Info Side -->
+                <div class="md:w-5/12 bg-accent text-white p-8 md:p-12 flex flex-col justify-between relative overflow-hidden">
+                    <div class="absolute top-0 right-0 opacity-10 transform translate-x-1/4 -translate-y-1/4">
+                        <i class="fa-solid fa-leaf text-9xl"></i>
+                    </div>
+                    <div class="relative z-10">
+                        <h3 class="text-3xl font-black mb-2">課程資訊</h3>
+                        <p class="text-orange-100 mb-8">準備好進化你的嘴巴與耳朵了嗎？</p>
+                        
+                        <div class="space-y-6">
+                            <div class="flex items-start">
+                                <i class="fa-regular fa-clock mt-1 mr-4 text-xl"></i>
+                                <div>
+                                    <h4 class="font-bold">課程時間</h4>
+                                    <p class="text-sm text-orange-100">4月 - 6月</p>
+                                    <p class="text-sm text-orange-100">每週五 18:30 - 21:30</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-location-dot mt-1 mr-4 text-xl"></i>
+                                <div>
+                                    <h4 class="font-bold">上課地點</h4>
+                                    <p class="text-sm text-orange-100">花蓮縣光復鄉中正路二段23號</p>
+                                    <p class="text-sm text-orange-100">(太巴塱部落)</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fa-solid fa-user-group mt-1 mr-4 text-xl"></i>
+                                <div>
+                                    <h4 class="font-bold">招收名額</h4>
+                                    <p class="text-sm text-orange-100">僅限 20 名</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-12 relative z-10">
+                        <h4 class="font-bold mb-2">聯絡窗口</h4>
+                        <p class="text-sm"><i class="fa-solid fa-phone mr-2"></i> 0916-951741 (Foday)</p>
+                        <p class="text-sm mt-1"><i class="fab fa-line mr-2"></i> ID: zengcin</p>
+                    </div>
+                </div>
+                
+                <!-- Form Side -->
+                <div class="md:w-7/12 p-8 md:p-12 bg-white">
+                    <h3 class="text-2xl font-black text-primary mb-6">學員報名表</h3>
+                    <form id="gasForm" class="space-y-5">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">姓名 *</label>
+                                <input type="text" name="name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent outline-none transition">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">族別 *</label>
+                                <input type="text" name="tribe" placeholder="如：阿美族 / 非原民" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent outline-none transition">
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">手機號碼 *</label>
+                                <input type="tel" name="phone" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent outline-none transition">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">生日 *</label>
+                                <input type="date" name="birthday" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent outline-none transition bg-white">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">身分證字號 *</label>
+                                <input type="text" name="idNumber" pattern="^[A-Za-z][1-2]\d{8}$" placeholder="A123456789" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent outline-none transition">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">電子信箱 *</label>
+                                <input type="email" name="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent outline-none transition">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">聯絡地址 *</label>
+                            <input type="text" name="address" placeholder="請填寫完整寄送地址" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent outline-none transition">
+                        </div>
+
+                        <button type="submit" id="submitBtn" class="w-full bg-primary hover:bg-gray-800 text-white font-bold py-3 px-4 rounded-lg shadow-lg transition duration-300 mt-4">
+                            確認送出報名
+                        </button>
+                    </form>
+                    
+                    <!-- Success Message (Hidden by default) -->
+                    <div id="success-message" class="hidden mt-4 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700 text-center font-medium">
+                        <i class="fa-solid fa-circle-check mr-2"></i> 報名資料已送出！我們將盡快與您聯繫。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SDGs Section -->
+    <section class="py-12 bg-white border-t border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-8">
+                <span class="text-sm font-bold text-gray-400 tracking-widest uppercase">響應聯合國永續發展目標 (SDGs)</span>
+            </div>
+            <div class="flex flex-wrap justify-center gap-6 md:gap-10">
+                <!-- SDG 4 -->
+                <div class="flex items-center space-x-3 bg-gray-50 px-5 py-3 rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition">
+                    <div class="w-12 h-12 bg-[#C5192D] text-white flex items-center justify-center font-bold text-xl rounded-sm shadow-inner">
+                        4
+                    </div>
+                    <div class="text-left">
+                        <p class="text-sm font-bold text-gray-800">優質教育</p>
+                        <p class="text-xs text-gray-500 font-medium mt-0.5">Quality Education</p>
+                    </div>
+                </div>
+                <!-- SDG 10 -->
+                <div class="flex items-center space-x-3 bg-gray-50 px-5 py-3 rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition">
+                    <div class="w-12 h-12 bg-[#DD1367] text-white flex items-center justify-center font-bold text-xl rounded-sm shadow-inner">
+                        10
+                    </div>
+                    <div class="text-left">
+                        <p class="text-sm font-bold text-gray-800">減少不平等</p>
+                        <p class="text-xs text-gray-500 font-medium mt-0.5">Reduced Inequalities</p>
+                    </div>
+                </div>
+                <!-- SDG 11 -->
+                <div class="flex items-center space-x-3 bg-gray-50 px-5 py-3 rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition">
+                    <div class="w-12 h-12 bg-[#FD9D24] text-white flex items-center justify-center font-bold text-xl rounded-sm shadow-inner">
+                        11
+                    </div>
+                    <div class="text-left">
+                        <p class="text-sm font-bold text-gray-800">永續城鄉</p>
+                        <p class="text-xs text-gray-500 font-medium mt-0.5">Sustainable Cities & Communities</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-400 py-12">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col items-center">
+            <div class="mb-6 text-center">
+                <p class="font-bold text-accent tracking-widest mb-2">115年度花蓮縣原住民族部落大學 開設課程</p>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 w-full max-w-5xl border-t border-b border-gray-800 py-8 mb-6">
+                <div class="flex flex-col items-center md:items-start text-center md:text-left">
+                    <h5 class="text-gray-200 font-bold mb-3"><i class="fa-solid fa-sitemap mr-2 text-gray-600 hidden md:inline"></i>指導單位</h5>
+                    <p class="text-sm space-y-1">
+                        <span class="block hover:text-gray-300 transition">原住民族委員會</span>
+                        <span class="block hover:text-gray-300 transition">教育部</span>
+                    </p>
+                </div>
+                <div class="flex flex-col items-center md:items-start text-center md:text-left">
+                    <h5 class="text-gray-200 font-bold mb-3"><i class="fa-solid fa-building-flag mr-2 text-gray-600 hidden md:inline"></i>主辦單位</h5>
+                    <p class="text-sm">
+                        <span class="block hover:text-gray-300 transition">花蓮縣政府</span>
+                    </p>
+                </div>
+                <div class="flex flex-col items-center md:items-start text-center md:text-left">
+                    <h5 class="text-gray-200 font-bold mb-3"><i class="fa-solid fa-school mr-2 text-gray-600 hidden md:inline"></i>承辦單位</h5>
+                    <p class="text-sm">
+                        <span class="block hover:text-gray-300 transition">花蓮縣原住民族部落大學</span>
+                    </p>
+                </div>
+                <div class="flex flex-col items-center md:items-start text-center md:text-left">
+                    <h5 class="text-gray-200 font-bold mb-3"><i class="fa-solid fa-hammer mr-2 text-gray-600 hidden md:inline"></i>執行單位</h5>
+                    <p class="text-sm">
+                        <span class="block hover:text-gray-300 transition">甫岱設計工作室</span>
+                    </p>
+                </div>
+            </div>
+            
+            <p class="text-sm text-gray-600">&copy; 2026 甫岱設計工作室. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Interactive Scripts -->
+    <script>
+        // Mobile Menu Toggle
+        const btn = document.getElementById('mobile-menu-btn');
+        const menu = document.getElementById('mobile-menu');
+
+        btn.addEventListener('click', () => {
+            menu.classList.toggle('hidden');
+        });
+
+        // Close mobile menu when a link is clicked
+        const mobileLinks = menu.querySelectorAll('a');
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                menu.classList.add('hidden');
+            });
+        });
+
+        // Form Submit to GAS
+        const form = document.getElementById('gasForm');
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+            const successMsg = document.getElementById('success-message');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 處理中...';
+            submitBtn.disabled = true;
+
+            // 1. 取得表單資料
+            const formData = new FormData(form);
+            
+            // 2. 這裡請替換為您在 GAS 部署時取得的 Web App URL
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbxkkCrkcLlvNC2CqDStzFeuBG_8jK_S5F08h2-rcrMvkOPd7Sbal6eXgM8_Ccrq2W3Cbg/exec';
+
+            // --- 正式串接 GAS 語法 ---
+            fetch(scriptURL, { method: 'POST', body: formData })
+                .then(response => {
+                    form.reset();
+                    submitBtn.innerHTML = '確認送出報名';
+                    submitBtn.disabled = false;
+                    successMsg.classList.remove('hidden');
+                    setTimeout(() => successMsg.classList.add('hidden'), 5000);
+                })
+                .catch(error => {
+                    console.error('Error!', error.message);
+                    submitBtn.innerHTML = '送出失敗，請重試';
+                    submitBtn.disabled = false;
+                    alert("報名送出失敗，請檢查網路連線或稍後再試。");
+                });
+            // ---------------------------------------------------
+        });
+    </script>
+</body>
+</html>
