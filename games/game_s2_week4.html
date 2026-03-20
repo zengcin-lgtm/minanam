@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第4週遊戲：部落野菜大發現 - 阿美族生活習性</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f0f9ff; /* 海洋藍背景 */
+            background-image: 
+                radial-gradient(#bae6fd 2px, transparent 2px),
+                radial-gradient(#bae6fd 2px, transparent 2px);
+            background-size: 30px 30px;
+            background-position: 0 0, 15px 15px;
+        }
+
+        .game-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(14, 165, 233, 0.15);
+            overflow: hidden;
+            border: 4px solid #fff;
+            position: relative;
+        }
+
+        .option-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            border: 3px solid transparent;
+            opacity: 0.6; /* 預設半透明，表示不可點 */
+            pointer-events: none; /* 預設不可點擊 */
+        }
+        
+        /* 當可以作答時的樣式 */
+        .can-answer .option-card {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .can-answer .option-card:hover {
+            transform: translateY(-5px);
+            border-color: #38bdf8; /* 天空藍邊框 */
+            box-shadow: 0 10px 20px rgba(56, 189, 248, 0.2);
+        }
+        
+        .option-card:active {
+            transform: scale(0.98);
+        }
+
+        /* 選中狀態樣式 */
+        .selected-option {
+            border-color: #0ea5e9 !important;
+            background-color: #f0f9ff !important;
+            transform: scale(1.02);
+            box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.2);
+        }
+
+        /* 角色動畫 */
+        .character-float {
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        /* 進度條動畫 */
+        .progress-fill {
+            transition: width 0.5s ease-out;
+        }
+
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* 播放中動畫 */
+        .playing-audio {
+            animation: pulse-blue 1.5s infinite;
+        }
+        @keyframes pulse-blue {
+            0% { box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(14, 165, 233, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(14, 165, 233, 0); }
+        }
+
+        /* 避免手機點擊閃爍 */
+        * { -webkit-tap-highlight-color: transparent; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div class="game-container w-full min-h-[600px] flex flex-col fade-in">
+        
+        <!-- 頂部資訊列 (下學期海洋藍) -->
+        <div class="bg-sky-500 text-white p-4 flex justify-between items-center relative overflow-hidden">
+            <div class="flex items-center gap-3 z-10">
+                <div class="w-10 h-10 bg-white text-sky-600 rounded-full flex items-center justify-center font-bold text-xl shadow-sm">4</div>
+                <div>
+                    <h1 class="font-bold text-lg md:text-xl">部落野菜大發現</h1>
+                    <p class="text-xs text-sky-100">阿美族生活習性與飲食</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4 z-10">
+                <div class="text-right hidden md:block">
+                    <div class="text-xs text-sky-200">SCORE</div>
+                    <div class="font-bold text-2xl" id="current-score">0</div>
+                </div>
+                <!-- 進度圈 -->
+                <div class="relative w-12 h-12 flex items-center justify-center">
+                    <svg class="w-full h-full transform -rotate-90">
+                        <circle cx="24" cy="24" r="20" stroke="rgba(255,255,255,0.3)" stroke-width="4" fill="none"></circle>
+                        <circle id="progress-circle" cx="24" cy="24" r="20" stroke="white" stroke-width="4" fill="none" stroke-dasharray="126" stroke-dashoffset="126" class="transition-all duration-500"></circle>
+                    </svg>
+                    <span id="q-num" class="absolute text-xs font-bold">1/6</span>
+                </div>
+            </div>
+
+            <!-- 背景裝飾 -->
+            <div class="absolute -right-6 -bottom-6 text-sky-400 opacity-30 text-8xl transform rotate-12">
+                <i class="fa-solid fa-bowl-food"></i>
+            </div>
+        </div>
+
+        <!-- 遊戲主畫面 -->
+        <div class="flex-grow relative bg-gray-50 flex flex-col">
+            
+            <!-- 1. 開始畫面 -->
+            <div id="scene-start" class="absolute inset-0 flex flex-col items-center justify-center p-8 bg-white z-20 text-center">
+                <div class="mb-8 character-float">
+                    <i class="fa-solid fa-basket-shopping text-8xl text-sky-500"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">準備好認識野菜了嗎？</h2>
+                <p class="text-gray-600 mb-8 max-w-md">
+                    這週我們要認識部落常吃的菜：<br>
+                    <span class="text-sky-600 font-bold">da'ci</span> (箭筍)<br>
+                    <span class="text-sky-600 font-bold">lokiw</span> (蕗蕎)<br>
+                    <span class="text-sky-600 font-bold">tatokem</span> (龍葵)<br>
+                    還要仔細聽大家喜歡吃什麼菜喔！
+                </p>
+                <button onclick="game.start()" class="bg-sky-500 hover:bg-sky-600 text-white text-xl font-bold py-4 px-12 rounded-full shadow-lg transform transition hover:scale-105 active:scale-95 flex items-center gap-2">
+                    <i class="fa-solid fa-play"></i> 開始挑戰
+                </button>
+                <div class="mt-4 text-sm text-gray-400">
+                    <i class="fa-solid fa-circle-info mr-1"></i> 記得先登入才能紀錄成績喔！
+                </div>
+            </div>
+
+            <!-- 2. 遊戲進行區 -->
+            <div id="scene-game" class="hidden flex-col h-full p-4 md:p-8">
+                
+                <!-- 題目顯示區 -->
+                <div class="flex-grow flex flex-col items-center justify-center mb-6">
+                    
+                    <!-- 提示文字 -->
+                    <div id="instruction" class="text-gray-500 font-bold mb-6 text-lg text-center animate-bounce">
+                        聽聽看，這是什麼野菜？
+                    </div>
+
+                    <!-- 題目主體 (圖片或播放鈕) -->
+                    <div id="question-area" class="mb-8 w-full flex justify-center">
+                        <!-- JS 動態插入內容 -->
+                    </div>
+
+                    <!-- 選項區 -->
+                    <div id="options-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-4xl">
+                        <!-- JS 動態插入選項 -->
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- 3. 結算畫面 -->
+            <div id="scene-result" class="hidden absolute inset-0 flex flex-col items-center justify-center p-8 bg-white z-20 text-center">
+                <div class="text-6xl text-yellow-400 mb-4 animate-bounce">
+                    <i class="fa-solid fa-medal"></i>
+                </div>
+                <h2 class="text-4xl font-bold text-gray-800 mb-2">挑戰完成！</h2>
+                <div class="text-lg text-gray-500 mb-6">你的採集積分是</div>
+                <div class="text-7xl font-bold text-sky-500 mb-8" id="final-score">0</div>
+                
+                <div class="flex gap-4 w-full max-w-sm">
+                    <button onclick="location.reload()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 rounded-xl transition">
+                        再次挑戰
+                    </button>
+                    <a href="../index.html" class="flex-1 bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 rounded-xl transition flex items-center justify-center">
+                        回首頁
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 音效播放器 -->
+    <audio id="audio-player"></audio>
+    <audio id="sfx-correct" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
+    <audio id="sfx-wrong" src="https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3"></audio>
+
+    <!-- 答題回饋遮罩 -->
+    <div id="feedback-overlay" class="fixed inset-0 bg-black/40 z-50 hidden items-center justify-center backdrop-blur-sm">
+        <div class="bg-white rounded-full p-8 shadow-2xl transform scale-0 transition-transform duration-300" id="feedback-icon-container">
+            <i id="feedback-icon" class="fa-solid text-8xl"></i>
+        </div>
+    </div>
+
+    <!-- 引入會員系統 -->
+    <script src="../js/auth.js"></script>
+
+    <script>
+        // ==========================================
+        // 遊戲資料
+        // ==========================================
+        
+        // 單字野菜資料
+        const vocabData = [
+            { 
+                id: 'daci', 
+                word: "da'ci", 
+                trans: "箭筍", 
+                img: "../images/daci.jpg",  
+                audio: "../audio/daci.wav" 
+            },
+            { 
+                id: 'lokiw', 
+                word: "lokiw", 
+                trans: "蕗蕎", 
+                img: "../images/lokiw.jpg", 
+                audio: "../audio/lokiw.wav" 
+            },
+            { 
+                id: 'tatokem', 
+                word: "tatokem", 
+                trans: "龍葵", 
+                img: "../images/tatokem.jpg", 
+                audio: "../audio/tatokem.wav" 
+            }
+        ];
+
+        // 對話問答資料 (特別區分「孩子回答」與「家人回答」作為提示)
+        const dialogueData = [
+            {
+                id: 'ask_child',
+                q_text: "O maan ko halikaenan iso? wawa?",
+                q_audio: "../audio/s2_w4_q1.wav",
+                a_id: 'ans_child',
+                a_text: "Halikaen kako to _______.",
+                a_hint: "(孩子回答)",
+                a_icon: "fa-child-reaching",
+                a_color: "text-sky-600 bg-sky-100 hover:bg-sky-500",
+                a_audio: "../audio/s2_w4_a1.wav",
+                trans: "我喜歡吃_______。"
+            },
+            {
+                id: 'ask_parent',
+                q_text: "O maan ko halikaenan iso? Ina, mama?",
+                q_audio: "../audio/s2_w4_q2.wav",
+                a_id: 'ans_parent',
+                a_text: "Halikaen kako to _______.",
+                a_hint: "(家人回答)",
+                a_icon: "fa-house-user",
+                a_color: "text-orange-600 bg-orange-100 hover:bg-orange-500",
+                a_audio: "../audio/s2_w4_a2.wav",
+                trans: "我喜歡吃_______。"
+            }
+        ];
+
+        class Week4Game {
+            constructor() {
+                this.score = 0;
+                this.currentQ = 0;
+                this.questions = [];
+                this.totalQ = 6;
+                this.isPlaying = false;
+                this.currentAnswerId = null;
+                
+                this.canAnswer = false; // 是否允許作答
+                this.selectedOptionIndex = -1; // 目前選中的選項索引
+            }
+
+            start() {
+                if (typeof AuthSystem !== 'undefined' && !AuthSystem.currentUser) {
+                    if(!confirm("您尚未登入，成績將不會被紀錄喔！\n確定要以「訪客身分」繼續玩遊戲嗎？")) {
+                        AuthSystem.showLoginModal();
+                        return;
+                    }
+                }
+
+                // 產生題目：6題混合模式
+                this.questions = [];
+                const shuffledVocab = [...vocabData].sort(() => Math.random() - 0.5);
+                
+                // Phase 1: 聽音選圖 (野菜) x 2
+                for(let i=0; i<2; i++) {
+                    this.questions.push({ 
+                        type: 'audio-img', 
+                        target: shuffledVocab[i % shuffledVocab.length],
+                        audio: shuffledVocab[i % shuffledVocab.length].audio
+                    });
+                }
+                
+                // Phase 2: 看圖選音 (野菜) x 2
+                for(let i=0; i<2; i++) {
+                    this.questions.push({ 
+                        type: 'img-audio', 
+                        target: shuffledVocab[(i+1) % shuffledVocab.length],
+                        audio: shuffledVocab[(i+1) % shuffledVocab.length].audio
+                    });
+                }
+
+                // Phase 3: 情境問答 (家人問孩子 / 孩子問家人) x 2
+                this.questions.push({ 
+                    type: 'dialogue', 
+                    target: dialogueData[0] // 家人問孩子
+                });
+                this.questions.push({ 
+                    type: 'dialogue', 
+                    target: dialogueData[1] // 孩子問家人
+                });
+
+                this.score = 0;
+                this.currentQ = 0;
+                this.isPlaying = true;
+
+                document.getElementById('scene-start').classList.add('hidden');
+                document.getElementById('scene-game').classList.remove('hidden');
+                document.getElementById('scene-game').classList.add('flex');
+
+                this.nextQuestion();
+            }
+
+            nextQuestion() {
+                if (this.currentQ >= this.totalQ) {
+                    this.endGame();
+                    return;
+                }
+
+                const q = this.questions[this.currentQ];
+                
+                // 設定正確答案ID
+                if (q.type === 'dialogue') {
+                    this.currentAnswerId = q.target.a_id;
+                } else {
+                    this.currentAnswerId = q.target.id;
+                }
+                
+                // 重置狀態
+                this.canAnswer = false; 
+                this.selectedOptionIndex = -1;
+                document.getElementById('scene-game').classList.remove('can-answer');
+
+                // 更新進度條
+                document.getElementById('q-num').innerText = `${this.currentQ + 1}/${this.totalQ}`;
+                const offset = 126 - (126 * ((this.currentQ + 1) / this.totalQ));
+                document.getElementById('progress-circle').style.strokeDashoffset = offset;
+
+                const instruction = document.getElementById('instruction');
+                const qArea = document.getElementById('question-area');
+                const optGrid = document.getElementById('options-grid');
+                
+                qArea.innerHTML = '';
+                optGrid.innerHTML = '';
+
+                // --- 根據題型準備選項 ---
+                if (q.type === 'audio-img') {
+                    // Phase 1: 聽音選圖
+                    let options = [q.target];
+                    let distractors = vocabData.filter(v => v.id !== q.target.id);
+                    options = [...options, ...distractors];
+                    options.sort(() => Math.random() - 0.5);
+
+                    instruction.innerText = "仔細聽，這是什麼野菜？";
+                    
+                    const playBtnId = 'play-btn-' + this.currentQ;
+                    qArea.innerHTML = `
+                        <button id="${playBtnId}" class="bg-sky-400 hover:bg-sky-500 text-white w-24 h-24 rounded-full text-4xl shadow-lg transition transform hover:scale-110 active:scale-95 flex items-center justify-center animate-pulse">
+                            <i class="fa-solid fa-volume-high"></i>
+                        </button>
+                    `;
+                    
+                    // 點擊播放解鎖作答
+                    document.getElementById(playBtnId).onclick = () => {
+                        this.playAudio(q.audio, () => {
+                            this.canAnswer = true;
+                            document.getElementById('scene-game').classList.add('can-answer');
+                            instruction.innerText = "現在，請找出對應的野菜照片！";
+                        });
+                    };
+
+                    // 自動播第一次
+                    setTimeout(() => {
+                        this.playAudio(q.audio, () => {
+                            this.canAnswer = true;
+                            document.getElementById('scene-game').classList.add('can-answer');
+                            instruction.innerText = "現在，請找出對應的野菜照片！";
+                        });
+                    }, 500);
+
+                    // 因為圖片為主，使用 grid 排版
+                    optGrid.className = "grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-4xl";
+
+                    options.forEach(opt => {
+                        const el = document.createElement('div');
+                        el.className = "option-card bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col items-center h-48 justify-center";
+                        el.onclick = () => this.checkAnswer(opt.id);
+                        el.innerHTML = `
+                            <img src="${opt.img}" class="w-full h-full object-cover rounded-lg" alt="option">
+                        `;
+                        optGrid.appendChild(el);
+                    });
+
+                } else if (q.type === 'img-audio') {
+                    // Phase 2: 看圖選音 (需二次點擊確認)
+                    let options = [q.target];
+                    let distractors = vocabData.filter(v => v.id !== q.target.id);
+                    options = [...options, ...distractors];
+                    options.sort(() => Math.random() - 0.5);
+
+                    this.canAnswer = true; // 看圖題直接解鎖選項
+                    document.getElementById('scene-game').classList.add('can-answer');
+                    instruction.innerText = "看野菜照片，哪一個聲音才是對的？";
+
+                    qArea.innerHTML = `
+                        <img src="${q.target.img}" class="w-48 h-48 object-cover rounded-2xl shadow-lg border-4 border-white transform rotate-2">
+                    `;
+                    
+                    optGrid.className = "grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-4xl";
+
+                    options.forEach((opt, index) => {
+                        const el = document.createElement('button');
+                        el.id = `option-btn-${index}`;
+                        el.className = "option-card bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex items-center gap-4 w-full text-left group";
+                        
+                        el.onclick = () => {
+                            this.playAudio(opt.audio);
+                            if (this.selectedOptionIndex === index) {
+                                this.checkAnswer(opt.id); // 點第二次送出
+                            } else {
+                                this.selectOptionUI(index, options.length); // 點第一次選中
+                            }
+                        };
+                        
+                        el.innerHTML = `
+                            <div class="w-12 h-12 rounded-full bg-sky-100 text-sky-500 flex items-center justify-center text-xl group-hover:bg-sky-500 group-hover:text-white transition-colors">
+                                <i class="fa-solid fa-play"></i>
+                            </div>
+                            <div>
+                                <div class="font-bold text-gray-800 text-lg">選項 ${index + 1}</div>
+                                <div class="text-xs text-gray-400 hint-text">點擊試聽</div>
+                            </div>
+                        `;
+                        optGrid.appendChild(el);
+                    });
+
+                } else if (q.type === 'dialogue') {
+                    // Phase 3: 情境問答
+                    // 準備選項 (正確答案 + 另一個對話的答案當作干擾)
+                    let options = [q.target];
+                    let distractors = dialogueData.filter(v => v.id !== q.target.id);
+                    options = [...options, ...distractors];
+                    options.sort(() => Math.random() - 0.5);
+
+                    this.canAnswer = false;
+                    
+                    // 根據題目動態調整提示字與圖示
+                    const isAskingChild = q.target.id === 'ask_child';
+                    const iconClass = isAskingChild ? "fa-house-user" : "fa-child-reaching";
+                    const iconColor = isAskingChild ? "text-orange-600 bg-orange-100 border-orange-200" : "text-sky-600 bg-sky-100 border-sky-200";
+                    
+                    instruction.innerText = "聽聽看，請問要怎麼回答才對呢？";
+
+                    const playBtnId = 'play-btn-' + this.currentQ;
+                    qArea.innerHTML = `
+                        <div class="flex flex-col items-center">
+                            <div class="w-16 h-16 rounded-full flex items-center justify-center text-3xl mb-4 border-2 shadow-sm ${iconColor}">
+                                <i class="fa-solid ${iconClass}"></i>
+                            </div>
+                            <button id="${playBtnId}" class="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-full shadow-md font-bold flex items-center gap-2 mb-2 transition">
+                                <i class="fa-solid fa-volume-high"></i> 播放問題
+                            </button>
+                        </div>
+                    `;
+
+                    document.getElementById(playBtnId).onclick = () => {
+                        this.playAudio(q.target.q_audio, () => {
+                            this.canAnswer = true;
+                            document.getElementById('scene-game').classList.add('can-answer');
+                            instruction.innerText = "請選擇正確的回答！";
+                        });
+                    };
+
+                    setTimeout(() => {
+                        this.playAudio(q.target.q_audio, () => {
+                            this.canAnswer = true;
+                            document.getElementById('scene-game').classList.add('can-answer');
+                            instruction.innerText = "請選擇正確的回答！";
+                        });
+                    }, 500);
+
+                    // 因為對話文字比較長，使用單列往下排
+                    optGrid.className = "flex flex-col gap-4 w-full max-w-2xl";
+
+                    options.forEach((opt, index) => {
+                        const el = document.createElement('button');
+                        el.id = `option-btn-${index}`;
+                        el.className = "option-card bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center gap-4 w-full text-left group";
+                        
+                        el.onclick = () => {
+                            this.playAudio(opt.a_audio);
+                            if (this.selectedOptionIndex === index) {
+                                this.checkAnswer(opt.a_id);
+                            } else {
+                                this.selectOptionUI(index, options.length);
+                            }
+                        };
+                        
+                        // 雖然對話文字一樣，但加入了角色的圖示與提示字以供區別
+                        el.innerHTML = `
+                            <div class="w-12 h-12 rounded-full flex-shrink-0 flex items-center justify-center text-xl transition-colors ${opt.a_color} group-hover:text-white">
+                                <i class="fa-solid ${opt.a_icon}"></i>
+                            </div>
+                            <div class="flex-grow">
+                                <div class="font-bold text-gray-800 text-lg sm:text-xl">${opt.a_text} <span class="text-sm font-normal text-gray-500">${opt.a_hint}</span></div>
+                                <div class="text-xs text-gray-400 hint-text">點擊試聽</div>
+                            </div>
+                        `;
+                        optGrid.appendChild(el);
+                    });
+                }
+            }
+
+            // UI 狀態：處理選項點擊確認
+            selectOptionUI(index, total) {
+                this.selectedOptionIndex = index;
+                for(let i=0; i<total; i++) {
+                    const el = document.getElementById(`option-btn-${i}`);
+                    const hintText = el.querySelector('.hint-text');
+                    
+                    if(i === index) {
+                        el.classList.add('selected-option');
+                        if(hintText) hintText.innerText = "再次點擊以確認送出";
+                        if(hintText) hintText.classList.add('text-sky-600', 'font-bold');
+                    } else {
+                        el.classList.remove('selected-option');
+                        if(hintText) hintText.innerText = "點擊試聽";
+                        if(hintText) hintText.classList.remove('text-sky-600', 'font-bold');
+                    }
+                }
+            }
+
+            playAudio(src, callback) {
+                const p = document.getElementById('audio-player');
+                p.src = src;
+                
+                const btns = document.querySelectorAll('button i.fa-volume-high');
+                btns.forEach(b => b.parentElement.classList.add('playing-audio'));
+
+                p.onended = () => {
+                    btns.forEach(b => b.parentElement.classList.remove('playing-audio'));
+                    if (callback) callback();
+                };
+
+                p.play().catch(e => {
+                    console.log("Audio play error", e);
+                    if (callback) callback();
+                });
+            }
+
+            checkAnswer(selectedId) {
+                if (!this.isPlaying || !this.canAnswer) return;
+
+                const isCorrect = (selectedId === this.currentAnswerId);
+                
+                const overlay = document.getElementById('feedback-overlay');
+                const container = document.getElementById('feedback-icon-container');
+                const icon = document.getElementById('feedback-icon');
+
+                overlay.classList.remove('hidden');
+                overlay.classList.add('flex');
+                
+                if (isCorrect) {
+                    icon.className = "fa-solid fa-check text-green-500";
+                    this.score += Math.floor(100 / this.totalQ);
+                    // 修正總分進位誤差
+                    if(this.currentQ === this.totalQ - 1 && this.score >= 95) this.score = 100;
+                    document.getElementById('current-score').innerText = this.score;
+                    document.getElementById('sfx-correct').play().catch(()=>{});
+                } else {
+                    icon.className = "fa-solid fa-xmark text-red-500";
+                    document.getElementById('sfx-wrong').play().catch(()=>{});
+                }
+
+                // 動畫彈出
+                setTimeout(() => {
+                    container.classList.remove('scale-0');
+                    container.classList.add('scale-100');
+                }, 10);
+
+                // 動畫縮回並進入下一題
+                setTimeout(() => {
+                    container.classList.remove('scale-100');
+                    container.classList.add('scale-0');
+                    setTimeout(() => {
+                        overlay.classList.add('hidden');
+                        overlay.classList.remove('flex');
+                        this.currentQ++;
+                        this.nextQuestion();
+                    }, 200);
+                }, 1200);
+            }
+
+            endGame() {
+                this.isPlaying = false;
+                
+                document.getElementById('scene-game').classList.add('hidden');
+                document.getElementById('scene-game').classList.remove('flex');
+                document.getElementById('scene-result').classList.remove('hidden');
+                
+                // 跑分動畫
+                const finalScoreEl = document.getElementById('final-score');
+                let tempScore = 0;
+                const timer = setInterval(() => {
+                    if(tempScore >= this.score) {
+                        tempScore = this.score;
+                        clearInterval(timer);
+                    } else {
+                        tempScore++;
+                    }
+                    finalScoreEl.innerText = tempScore;
+                }, 20);
+
+                // ★★★ 上傳成績到 s2_game04 欄位 ★★★
+                if (typeof AuthSystem !== 'undefined' && AuthSystem.currentUser) {
+                    AuthSystem.submitScore("s2_game04", this.score);
+                }
+            }
+        }
+
+        const game = new Week4Game();
+
+        // 頁面載入後自動檢查登入狀態
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                if (typeof AuthSystem !== 'undefined' && !AuthSystem.currentUser) {
+                    AuthSystem.showLoginModal();
+                }
+            }, 500);
+        });
+
+    </script>
+</body>
+</html>
