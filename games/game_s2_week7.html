@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第7週遊戲：部落尋寶趣 - 為什麼叫太巴塱？</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f0f9ff;
+            background-image: 
+                radial-gradient(#bae6fd 2px, transparent 2px),
+                radial-gradient(#bae6fd 2px, transparent 2px);
+            background-size: 30px 30px;
+            background-position: 0 0, 15px 15px;
+        }
+
+        .game-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(14, 165, 233, 0.15);
+            overflow: hidden;
+            border: 4px solid #fff;
+            position: relative;
+        }
+
+        /* ★★★ 新增：記憶翻牌特效 ★★★ */
+        .perspective-1000 { perspective: 1000px; }
+        
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+        
+        .is-flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+        
+        .is-matched .flip-card-inner {
+            transform: rotateY(180deg) scale(0.95);
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.5); /* 答對發綠光 */
+        }
+
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .flip-card-front {
+            background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 4px solid white;
+            cursor: pointer;
+        }
+        .flip-card-front:hover {
+            background: linear-gradient(135deg, #7dd3fc 0%, #0ea5e9 100%);
+        }
+
+        .flip-card-back {
+            background-color: white;
+            transform: rotateY(180deg);
+            border: 4px solid #7dd3fc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* 尋寶按鈕樣式 */
+        .treasure-btn {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 4px solid transparent;
+        }
+        .treasure-btn:hover {
+            transform: translateY(-5px);
+            border-color: #38bdf8;
+            box-shadow: 0 10px 20px rgba(56, 189, 248, 0.2);
+        }
+        .treasure-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* 動畫 */
+        .character-float { animation: float 3s ease-in-out infinite; }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* 播放中動畫 */
+        .playing-audio { animation: pulse-blue 1.5s infinite; }
+        @keyframes pulse-blue {
+            0% { box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(14, 165, 233, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(14, 165, 233, 0); }
+        }
+
+        * { -webkit-tap-highlight-color: transparent; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div class="game-container w-full min-h-[600px] flex flex-col fade-in">
+        
+        <!-- 頂部資訊列 -->
+        <div class="bg-sky-500 text-white p-4 flex justify-between items-center relative overflow-hidden">
+            <div class="flex items-center gap-3 z-10">
+                <div class="w-10 h-10 bg-white text-sky-600 rounded-full flex items-center justify-center font-bold text-xl shadow-sm">7</div>
+                <div>
+                    <h1 class="font-bold text-lg md:text-xl">部落尋寶趣</h1>
+                    <p class="text-xs text-sky-100">太巴塱部落風景大探索</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4 z-10">
+                <div class="text-right">
+                    <div class="text-xs text-sky-200">SCORE</div>
+                    <div class="font-bold text-2xl" id="current-score">0</div>
+                </div>
+            </div>
+
+            <!-- 背景裝飾 -->
+            <div class="absolute -right-6 -bottom-6 text-sky-400 opacity-30 text-8xl transform rotate-12">
+                <i class="fa-solid fa-map-location-dot"></i>
+            </div>
+        </div>
+
+        <!-- 遊戲主畫面 -->
+        <div class="flex-grow relative bg-gray-50 flex flex-col">
+            
+            <!-- 1. 開始畫面 -->
+            <div id="scene-start" class="absolute inset-0 flex flex-col items-center justify-center p-8 bg-white z-20 text-center">
+                <div class="mb-8 character-float">
+                    <i class="fa-solid fa-binoculars text-8xl text-sky-500"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">小探險家，準備好了嗎？</h2>
+                <p class="text-gray-600 mb-8 max-w-md">
+                    這次我們有全新的玩法：<br><br>
+                    第一關：<span class="text-sky-600 font-bold">記憶翻牌</span> (找出聲音與圖片)<br>
+                    第二關：<span class="text-sky-600 font-bold">聽音尋寶</span> (聽長老提示找地點)<br><br>
+                    出發尋找森林、河流與田地吧！
+                </p>
+                <button onclick="game.start()" class="bg-sky-500 hover:bg-sky-600 text-white text-xl font-bold py-4 px-12 rounded-full shadow-lg transform transition hover:scale-105 active:scale-95 flex items-center gap-2">
+                    <i class="fa-solid fa-play"></i> 開始探險
+                </button>
+                <div class="mt-4 text-sm text-gray-400">
+                    <i class="fa-solid fa-circle-info mr-1"></i> 記得先登入才能紀錄成績喔！
+                </div>
+            </div>
+
+            <!-- 2. 遊戲進行區 (動態切換關卡內容) -->
+            <div id="scene-game" class="hidden flex-col h-full p-4 md:p-8 relative">
+                
+                <!-- 關卡標題與提示 -->
+                <div class="text-center mb-6">
+                    <span id="stage-badge" class="bg-orange-100 text-orange-600 font-bold px-3 py-1 rounded-full text-sm mb-2 inline-block">第一關</span>
+                    <div id="instruction" class="text-gray-600 font-bold text-xl mt-2">
+                        翻開卡片，找出配對的聲音與圖片！
+                    </div>
+                </div>
+
+                <!-- 遊戲互動區 (由 JS 填入) -->
+                <div id="game-area" class="flex-grow flex flex-col items-center justify-center w-full max-w-3xl mx-auto">
+                    <!-- 內容動態產生 -->
+                </div>
+
+            </div>
+
+            <!-- 3. 結算畫面 -->
+            <div id="scene-result" class="hidden absolute inset-0 flex flex-col items-center justify-center p-8 bg-white z-20 text-center">
+                <div class="text-6xl text-yellow-400 mb-4 animate-bounce">
+                    <i class="fa-solid fa-crown"></i>
+                </div>
+                <h2 class="text-4xl font-bold text-gray-800 mb-2">尋寶大成功！</h2>
+                <div class="text-lg text-gray-500 mb-6">你的探險積分是</div>
+                <div class="text-7xl font-bold text-sky-500 mb-8" id="final-score">0</div>
+                
+                <div class="flex gap-4 w-full max-w-sm">
+                    <button onclick="location.reload()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 rounded-xl transition">
+                        再次探險
+                    </button>
+                    <a href="../index.html" class="flex-1 bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 rounded-xl transition flex items-center justify-center">
+                        回首頁
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 音效播放器 -->
+    <audio id="audio-player"></audio>
+    <audio id="sfx-correct" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
+    <audio id="sfx-wrong" src="https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3"></audio>
+    <audio id="sfx-flip" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
+
+    <!-- 答題回饋遮罩 -->
+    <div id="feedback-overlay" class="fixed inset-0 bg-black/40 z-50 hidden items-center justify-center backdrop-blur-sm">
+        <div class="bg-white rounded-3xl p-8 shadow-2xl transform scale-0 transition-transform duration-300 flex flex-col items-center text-center max-w-sm mx-4" id="feedback-container">
+            <i id="feedback-icon" class="fa-solid text-7xl mb-4"></i>
+            <div id="feedback-text" class="text-2xl font-bold text-gray-800 mb-2">正確！</div>
+            <div id="feedback-subtext" class="text-gray-500">I tiraw ko kilakilangan.</div>
+            <!-- 播放解答音檔的按鈕 -->
+            <button id="feedback-audio-btn" class="mt-4 bg-sky-100 text-sky-600 w-12 h-12 rounded-full flex items-center justify-center text-xl hover:bg-sky-500 hover:text-white transition hidden">
+                <i class="fa-solid fa-volume-high"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 引入會員系統 -->
+    <script src="../js/auth.js"></script>
+
+    <script>
+        // ==========================================
+        // 遊戲資料
+        // ==========================================
+        
+        // 詞彙資料
+        const vocabData = [
+            { 
+                id: 'forest', 
+                word: "kilakilangan", 
+                img: "../images/kilakilangan.jpg",  
+                audio_word: "../audio/kilakilangan.wav",
+                q_audio: "../audio/s2_w7_q1.wav", // I cowa ko kilakilangan?
+                a_audio: "../audio/s2_w7_a1.wav", // I tiraw ko kilakilangan.
+                a_text: "I tiraw ko kilakilangan."
+            },
+            { 
+                id: 'river', 
+                word: "alo'", 
+                img: "../images/alo.jpg", 
+                audio_word: "../audio/alo.wav",
+                q_audio: "../audio/s2_w7_q2.wav", // I cowa ko alo'?
+                a_audio: "../audio/s2_w7_a2.wav", // I tiraw ko alo'.
+                a_text: "I tiraw ko alo'."
+            },
+            { 
+                id: 'field', 
+                word: "pala", 
+                img: "../images/pala.jpg", 
+                audio_word: "../audio/pala.wav",
+                q_audio: "../audio/s2_w7_q3.wav", // I cowa ko pala?
+                a_audio: "../audio/s2_w7_a3.wav", // I tiraw ko pala.
+                a_text: "I tiraw ko pala."
+            }
+        ];
+
+        class Week7Game {
+            constructor() {
+                this.score = 0;
+                this.isPlaying = false;
+                
+                // 第一關：記憶翻牌狀態
+                this.memoryCards = [];
+                this.flippedIndices = [];
+                this.matchedPairs = 0;
+                this.isFlipping = false; // 防止連續點擊
+
+                // 第二關：尋寶狀態
+                this.stage2Questions = [];
+                this.currentQ = 0;
+            }
+
+            start() {
+                if (typeof AuthSystem !== 'undefined' && !AuthSystem.currentUser) {
+                    if(!confirm("您尚未登入，成績將不會被紀錄喔！\n確定要以「訪客身分」繼續玩遊戲嗎？")) {
+                        AuthSystem.showLoginModal();
+                        return;
+                    }
+                }
+
+                this.score = 0;
+                this.updateScore();
+                this.isPlaying = true;
+
+                document.getElementById('scene-start').classList.add('hidden');
+                document.getElementById('scene-game').classList.remove('hidden');
+                document.getElementById('scene-game').classList.add('flex');
+
+                this.initStage1();
+            }
+
+            updateScore() {
+                document.getElementById('current-score').innerText = this.score;
+            }
+
+            // ==========================================
+            // 第一關：記憶翻牌配對
+            // ==========================================
+            initStage1() {
+                document.getElementById('stage-badge').innerText = "第一關：記憶翻牌";
+                document.getElementById('stage-badge').className = "bg-orange-100 text-orange-600 font-bold px-3 py-1 rounded-full text-sm mb-2 inline-block";
+                document.getElementById('instruction').innerText = "點擊卡片，找出配對的聲音與圖片！";
+
+                const gameArea = document.getElementById('game-area');
+                gameArea.innerHTML = '';
+
+                // 準備 6 張卡片 (3 張圖, 3 個聲音)
+                this.memoryCards = [];
+                vocabData.forEach(item => {
+                    this.memoryCards.push({ matchId: item.id, type: 'image', content: item.img });
+                    this.memoryCards.push({ matchId: item.id, type: 'audio', content: item.audio_word, word: item.word });
+                });
+
+                // 打亂陣列
+                this.memoryCards.sort(() => Math.random() - 0.5);
+                this.flippedIndices = [];
+                this.matchedPairs = 0;
+                this.isFlipping = false;
+
+                // 產生 HTML
+                const gridHtml = document.createElement('div');
+                gridHtml.className = "grid grid-cols-3 gap-3 md:gap-6 perspective-1000 w-full";
+                
+                this.memoryCards.forEach((card, index) => {
+                    let backContent = '';
+                    if (card.type === 'image') {
+                        backContent = `<img src="${card.content}" class="w-full h-full object-cover">`;
+                    } else {
+                        backContent = `
+                            <div class="flex flex-col items-center justify-center text-sky-500">
+                                <i class="fa-solid fa-volume-high text-4xl mb-2"></i>
+                                <span class="font-bold text-sm text-gray-600">${card.word}</span>
+                            </div>`;
+                    }
+
+                    gridHtml.innerHTML += `
+                        <div class="relative w-full h-28 md:h-40 cursor-pointer" onclick="game.flipCard(${index})" id="card-${index}">
+                            <div class="flip-card-inner">
+                                <div class="flip-card-front">
+                                    <i class="fa-solid fa-leaf text-3xl md:text-5xl text-white opacity-40"></i>
+                                </div>
+                                <div class="flip-card-back">
+                                    ${backContent}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                gameArea.appendChild(gridHtml);
+            }
+
+            flipCard(index) {
+                if (this.isFlipping || this.flippedIndices.includes(index)) return;
+                
+                const cardEl = document.getElementById(`card-${index}`);
+                if (cardEl.classList.contains('is-matched')) return;
+
+                // 翻開
+                cardEl.classList.add('is-flipped');
+                document.getElementById('sfx-flip').play().catch(()=>{});
+                this.flippedIndices.push(index);
+
+                // 如果是聲音卡，播放聲音
+                const cardData = this.memoryCards[index];
+                if (cardData.type === 'audio') {
+                    this.playAudio(cardData.content);
+                }
+
+                // 檢查是否翻了兩張
+                if (this.flippedIndices.length === 2) {
+                    this.isFlipping = true;
+                    this.checkMatch();
+                }
+            }
+
+            checkMatch() {
+                const idx1 = this.flippedIndices[0];
+                const idx2 = this.flippedIndices[1];
+                const card1 = this.memoryCards[idx1];
+                const card2 = this.memoryCards[idx2];
+
+                if (card1.matchId === card2.matchId) {
+                    // 配對成功
+                    setTimeout(() => {
+                        document.getElementById(`card-${idx1}`).classList.add('is-matched');
+                        document.getElementById(`card-${idx2}`).classList.add('is-matched');
+                        document.getElementById('sfx-correct').play().catch(()=>{});
+                        
+                        this.score += 15; // 每配對一組得 15 分
+                        this.updateScore();
+                        
+                        this.matchedPairs++;
+                        this.resetFlipState();
+
+                        // 第一關過關
+                        if (this.matchedPairs === 3) {
+                            this.score = 50; // 第一關總分 50
+                            this.updateScore();
+                            setTimeout(() => this.showStageTransition(), 1000);
+                        }
+                    }, 500);
+                } else {
+                    // 配對失敗，翻回去
+                    setTimeout(() => {
+                        document.getElementById(`card-${idx1}`).classList.remove('is-flipped');
+                        document.getElementById(`card-${idx2}`).classList.remove('is-flipped');
+                        document.getElementById('sfx-wrong').play().catch(()=>{});
+                        this.resetFlipState();
+                    }, 1200); // 給玩家 1.2 秒記住圖案
+                }
+            }
+
+            resetFlipState() {
+                this.flippedIndices = [];
+                this.isFlipping = false;
+            }
+
+            showStageTransition() {
+                const gameArea = document.getElementById('game-area');
+                gameArea.innerHTML = `
+                    <div class="text-center animate-bounce">
+                        <i class="fa-solid fa-check-circle text-6xl text-green-500 mb-4"></i>
+                        <h3 class="text-2xl font-bold text-gray-800">記憶大考驗完成！</h3>
+                        <p class="text-gray-500 mt-2">準備進入下一關尋寶...</p>
+                    </div>
+                `;
+                setTimeout(() => this.initStage2(), 2500);
+            }
+
+            // ==========================================
+            // 第二關：聽音尋寶 (Map Exploration)
+            // ==========================================
+            initStage2() {
+                document.getElementById('stage-badge').innerText = "第二關：聽音尋寶";
+                document.getElementById('stage-badge').className = "bg-sky-100 text-sky-600 font-bold px-3 py-1 rounded-full text-sm mb-2 inline-block";
+                
+                // 準備題目 (3 題)
+                this.stage2Questions = [...vocabData].sort(() => Math.random() - 0.5);
+                this.currentQ = 0;
+                
+                this.renderStage2Question();
+            }
+
+            renderStage2Question() {
+                if (this.currentQ >= this.stage2Questions.length) {
+                    this.endGame();
+                    return;
+                }
+
+                const gameArea = document.getElementById('game-area');
+                const q = this.stage2Questions[this.currentQ];
+                
+                document.getElementById('instruction').innerText = "聽長老問在哪裡，指出正確的地點！";
+
+                gameArea.innerHTML = `
+                    <!-- 題目區 -->
+                    <div class="flex flex-col items-center mb-8">
+                        <div class="w-16 h-16 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 text-3xl mb-4 border-2 border-orange-200 shadow-sm">
+                            <i class="fa-solid fa-person-cane"></i>
+                        </div>
+                        <button id="play-q-btn" class="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-full shadow-md font-bold flex items-center gap-2 transition animate-pulse">
+                            <i class="fa-solid fa-volume-high"></i> 聽長老的問題
+                        </button>
+                    </div>
+
+                    <!-- 地圖選項區 (3個地點) -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full px-4">
+                        ${vocabData.map(item => `
+                            <div class="treasure-btn bg-white rounded-2xl overflow-hidden shadow-md flex flex-col" onclick="game.checkTreasure('${item.id}')">
+                                <img src="${item.img}" class="w-full h-32 object-cover">
+                                <div class="p-3 text-center bg-gray-50 border-t border-gray-100 font-bold text-gray-600">
+                                    <i class="fa-solid fa-location-dot mr-1 text-sky-400"></i> 在這裡？
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+
+                document.getElementById('play-q-btn').onclick = () => this.playAudio(q.q_audio);
+                
+                // 自動播題目
+                setTimeout(() => this.playAudio(q.q_audio), 500);
+            }
+
+            checkTreasure(selectedId) {
+                const q = this.stage2Questions[this.currentQ];
+                const isCorrect = (selectedId === q.id);
+
+                const overlay = document.getElementById('feedback-overlay');
+                const container = document.getElementById('feedback-container');
+                const icon = document.getElementById('feedback-icon');
+                const title = document.getElementById('feedback-text');
+                const subtext = document.getElementById('feedback-subtext');
+                const audioBtn = document.getElementById('feedback-audio-btn');
+
+                overlay.classList.remove('hidden');
+                overlay.classList.add('flex');
+                
+                if (isCorrect) {
+                    icon.className = "fa-solid fa-child-reaching text-green-500";
+                    title.innerText = "找到囉！";
+                    title.className = "text-3xl font-bold text-green-600 mb-2";
+                    subtext.innerText = q.a_text;
+                    
+                    // 顯示播放解答語音按鈕
+                    audioBtn.classList.remove('hidden');
+                    audioBtn.onclick = () => this.playAudio(q.a_audio);
+
+                    // 播對的音效，接著自動播解答語音
+                    document.getElementById('sfx-correct').play().catch(()=>{});
+                    setTimeout(() => this.playAudio(q.a_audio), 600);
+
+                    // 計分 (3題共 50 分，加上第一關剛好 100)
+                    this.score += 16;
+                    if(this.currentQ === 2) this.score = 100; // 確保最後滿分 100
+                    this.updateScore();
+
+                    // 動畫彈出
+                    setTimeout(() => { container.classList.remove('scale-0'); container.classList.add('scale-100'); }, 10);
+
+                    // 給玩家一點時間看解答，然後下一題
+                    setTimeout(() => {
+                        container.classList.remove('scale-100');
+                        container.classList.add('scale-0');
+                        setTimeout(() => {
+                            overlay.classList.add('hidden');
+                            overlay.classList.remove('flex');
+                            audioBtn.classList.add('hidden'); // 藏起按鈕
+                            this.currentQ++;
+                            this.renderStage2Question();
+                        }, 300);
+                    }, 3500); // 延長顯示時間讓語音播完
+
+                } else {
+                    icon.className = "fa-solid fa-xmark text-red-500";
+                    title.innerText = "哎呀，不是這裡！";
+                    title.className = "text-2xl font-bold text-red-500 mb-2";
+                    subtext.innerText = "再聽一次長老的提示吧";
+                    audioBtn.classList.add('hidden');
+                    
+                    document.getElementById('sfx-wrong').play().catch(()=>{});
+
+                    setTimeout(() => { container.classList.remove('scale-0'); container.classList.add('scale-100'); }, 10);
+
+                    setTimeout(() => {
+                        container.classList.remove('scale-100');
+                        container.classList.add('scale-0');
+                        setTimeout(() => {
+                            overlay.classList.add('hidden');
+                            overlay.classList.remove('flex');
+                        }, 200);
+                    }, 1500);
+                }
+            }
+
+            // ==========================================
+            // 共用邏輯
+            // ==========================================
+            playAudio(src, callback) {
+                const p = document.getElementById('audio-player');
+                p.src = src;
+                
+                const btns = document.querySelectorAll('button i.fa-volume-high');
+                btns.forEach(b => {
+                    if (b.parentElement.tagName === 'BUTTON') {
+                        b.parentElement.classList.add('playing-audio');
+                    }
+                });
+
+                p.onended = () => {
+                    btns.forEach(b => {
+                        if (b.parentElement.tagName === 'BUTTON') {
+                            b.parentElement.classList.remove('playing-audio');
+                        }
+                    });
+                    if (callback) callback();
+                };
+
+                p.play().catch(e => {
+                    console.log("Audio play error", e);
+                    if (callback) callback();
+                });
+            }
+
+            endGame() {
+                this.isPlaying = false;
+                
+                document.getElementById('scene-game').classList.add('hidden');
+                document.getElementById('scene-game').classList.remove('flex');
+                document.getElementById('scene-result').classList.remove('hidden');
+                
+                // 跑分動畫
+                const finalScoreEl = document.getElementById('final-score');
+                let tempScore = 0;
+                const timer = setInterval(() => {
+                    if(tempScore >= this.score) {
+                        tempScore = this.score;
+                        clearInterval(timer);
+                    } else {
+                        tempScore++;
+                    }
+                    finalScoreEl.innerText = tempScore;
+                }, 20);
+
+                // ★★★ 上傳成績到 s2_game07 欄位 ★★★
+                if (typeof AuthSystem !== 'undefined' && AuthSystem.currentUser) {
+                    AuthSystem.submitScore("s2_game07", this.score);
+                }
+            }
+        }
+
+        const game = new Week7Game();
+
+        // 頁面載入後自動檢查登入狀態
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                if (typeof AuthSystem !== 'undefined' && !AuthSystem.currentUser) {
+                    AuthSystem.showLoginModal();
+                }
+            }, 500);
+        });
+
+    </script>
+</body>
+</html>
