@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>數數白螃蟹</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 沙灘背景漸層 */
+        .sand-bg {
+            background: linear-gradient(135deg, #fde08b 0%, #f6d365 100%);
+        }
+        
+        /* 螃蟹基礎樣式 */
+        .crab-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .crab {
+            font-size: 2.5rem;
+            user-select: none;
+            display: inline-block;
+            transition: transform 0.3s ease;
+        }
+        
+        @media (min-width: 768px) {
+            .crab { font-size: 3.5rem; }
+        }
+
+        /* 利用濾鏡改變 Emoji 顏色 */
+        /* brightness(0) 變全黑，invert(1) 變全白，加上陰影讓白螃蟹在沙灘上更明顯 */
+        .crab-white { 
+            filter: brightness(0) invert(1) drop-shadow(0px 4px 6px rgba(0,0,0,0.4)); 
+        }
+        .crab-red { 
+            filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.2)); 
+        }
+        .crab-blue { 
+            filter: hue-rotate(180deg) drop-shadow(0px 4px 6px rgba(0,0,0,0.2)); 
+        }
+        .crab-green { 
+            filter: hue-rotate(90deg) drop-shadow(0px 4px 6px rgba(0,0,0,0.2)); 
+        }
+        .crab-black { 
+            filter: brightness(0) drop-shadow(0px 4px 6px rgba(255,255,255,0.4)); 
+        }
+
+        /* 螃蟹呼吸/爬行小動畫 */
+        @keyframes crawl {
+            0%, 100% { transform: translateY(0) rotate(-5deg); }
+            50% { transform: translateY(-8px) rotate(5deg); }
+        }
+        .anim-wobble {
+            animation: crawl 2s infinite ease-in-out;
+        }
+        
+        /* 隱藏滾動條 */
+        body { overflow: hidden; }
+    </style>
+</head>
+<body class="bg-blue-50 flex flex-col h-screen text-gray-800 font-sans">
+
+    <!-- 頂部資訊欄 -->
+    <header class="bg-white shadow-md p-4 flex justify-between items-center z-10">
+        <h1 class="text-xl md:text-2xl font-bold text-blue-600 flex items-center gap-2">
+            🦀 Pina ko afalong (fohecalay a kalang)
+        </h1>
+        <div class="text-lg md:text-xl font-bold text-gray-700 bg-gray-100 px-4 py-1 rounded-full border-2 border-gray-200">
+            分數: <span id="score-display" class="text-blue-600">0</span>
+        </div>
+    </header>
+
+    <!-- 遊戲主畫面 (沙灘) -->
+    <main class="flex-1 relative sand-bg w-full max-w-4xl mx-auto border-x-4 border-white shadow-inner" id="board">
+        
+        <!-- 開始與結束的彈出視窗 -->
+        <div id="overlay" class="absolute inset-0 bg-black/60 flex flex-col items-center justify-center z-30 backdrop-blur-sm transition-opacity duration-300">
+            <div class="bg-white p-8 rounded-3xl shadow-2xl text-center max-w-sm w-11/12 border-4 border-blue-200 transform transition-transform scale-100" id="modal-content">
+                <div class="text-5xl mb-4">🏖️</div>
+                <h2 id="overlay-title" class="text-2xl md:text-3xl font-bold mb-3 text-gray-800">準備好數螃蟹了嗎？</h2>
+                <p id="overlay-desc" class="text-gray-600 mb-8 text-lg">
+                    找出畫面上有幾隻<br>
+                    「<span class="font-bold text-gray-800 bg-gray-200 px-2 py-1 rounded shadow-sm inline-block mt-2">🤍 白色</span>」的螃蟹！
+                </p>
+                <button id="start-btn" class="bg-blue-500 hover:bg-blue-400 active:bg-blue-600 text-white font-bold py-4 px-8 rounded-2xl text-xl transition-all transform hover:-translate-y-1 active:translate-y-1 w-full shadow-[0_6px_0_#2563eb] active:shadow-[0_0px_0_#2563eb]">
+                    開始遊戲
+                </button>
+            </div>
+        </div>
+
+        <!-- 螃蟹生成的網格容器 -->
+        <!-- 使用 5x5 的網格來防止螃蟹重疊 -->
+        <div id="crabs-container" class="absolute inset-2 md:inset-6 grid grid-cols-5 grid-rows-5 gap-1 md:gap-2"></div>
+    </main>
+
+    <!-- 底部控制列 -->
+    <footer class="bg-white p-4 md:p-6 shadow-[0_-4px_10px_-1px_rgba(0,0,0,0.1)] z-20">
+        <div class="max-w-4xl mx-auto">
+            <p class="text-center font-bold text-xl md:text-2xl mb-4 text-gray-800">
+                Pina ko <span class="bg-gray-100 text-gray-800 border border-gray-300 px-2 rounded">fohecalay a kalang</span> ？
+            </p>
+            <div id="options-container" class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
+                <!-- 選項按鈕會透過 JS 動態產生 -->
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 取得 DOM 元素
+        const board = document.getElementById('crabs-container');
+        const scoreDisplay = document.getElementById('score-display');
+        const optionsContainer = document.getElementById('options-container');
+        const overlay = document.getElementById('overlay');
+        const overlayTitle = document.getElementById('overlay-title');
+        const overlayDesc = document.getElementById('overlay-desc');
+        const startBtn = document.getElementById('start-btn');
+
+        // 遊戲狀態變數
+        let score = 0;
+        let targetCount = 0; // 當前白螃蟹的數量
+        let isPlaying = false;
+
+        // 干擾螃蟹的樣式種類 (紅色、藍色、綠色、黑色)
+        const distractorClasses = ['crab-red', 'crab-blue', 'crab-green', 'crab-black'];
+
+        // 綁定開始按鈕事件
+        startBtn.addEventListener('click', startGame);
+
+        function startGame() {
+            score = 0;
+            updateScore();
+            overlay.classList.add('opacity-0', 'pointer-events-none');
+            setTimeout(() => overlay.classList.add('hidden'), 300);
+            isPlaying = true;
+            nextRound();
+        }
+
+        function updateScore() {
+            scoreDisplay.textContent = score;
+        }
+
+        function nextRound() {
+            board.innerHTML = '';
+            optionsContainer.innerHTML = '';
+            
+            // 難度曲線設定
+            // 基礎白螃蟹數量為 1~4 隻，隨著分數提高，最多可出現 9 隻
+            let maxWhite = Math.min(4 + Math.floor(score / 3), 9);
+            let minWhite = Math.max(1, Math.floor(score / 5));
+            targetCount = Math.floor(Math.random() * (maxWhite - minWhite + 1)) + minWhite;
+            
+            // 干擾螃蟹會隨著分數增加而變多，增加視覺混亂度
+            let maxDistractors = Math.min(2 + score * 2, 16);
+            let distractorCount = Math.floor(Math.random() * maxDistractors) + 1;
+            
+            // 總格子數為 25 (5x5 網格)
+            // 確保總螃蟹數不超過 25，保留一點空隙
+            if (targetCount + distractorCount > 24) {
+                distractorCount = 24 - targetCount;
+            }
+
+            // 產生 0 到 24 的陣列並打亂，用來分配螃蟹位置
+            let cells = Array.from({length: 25}, (_, i) => i);
+            cells = shuffleArray(cells);
+
+            // 放置「正確答案」白螃蟹
+            for (let i = 0; i < targetCount; i++) {
+                createCrabElement('crab-white', cells.pop());
+            }
+
+            // 放置「干擾」其他顏色螃蟹
+            for (let i = 0; i < distractorCount; i++) {
+                let randomType = distractorClasses[Math.floor(Math.random() * distractorClasses.length)];
+                createCrabElement(randomType, cells.pop());
+            }
+
+            // 產生選項按鈕
+            generateOptions(targetCount);
+        }
+
+        function createCrabElement(typeClass, cellIndex) {
+            const crabWrapper = document.createElement('div');
+            crabWrapper.className = 'crab-wrapper';
+            
+            const crab = document.createElement('div');
+            crab.textContent = '🦀';
+            crab.classList.add('crab', typeClass, 'anim-wobble');
+
+            // 加入隨機動畫延遲，讓螃蟹不要同步移動，看起來比較自然
+            crab.style.animationDelay = `-${Math.random() * 2}s`;
+            
+            // 隨機旋轉角度和微小偏移，增加不規則感
+            let rot = Math.random() * 60 - 30; // -30 到 30 度
+            let scale = 0.85 + Math.random() * 0.3; // 縮放 0.85 到 1.15
+            let transX = Math.random() * 10 - 5;
+            let transY = Math.random() * 10 - 5;
+            
+            crab.style.transform = `rotate(${rot}deg) scale(${scale}) translate(${transX}px, ${transY}px)`;
+
+            // 將螃蟹放入對應的網格位置
+            crabWrapper.style.gridArea = `${Math.floor(cellIndex / 5) + 1} / ${(cellIndex % 5) + 1}`;
+            crabWrapper.appendChild(crab);
+            board.appendChild(crabWrapper);
+        }
+
+        function generateOptions(correctAnswer) {
+            let options = new Set();
+            options.add(correctAnswer);
+            
+            // 產生三個干擾選項 (數字在正確答案的附近)
+            while(options.size < 4) {
+                let offset = Math.floor(Math.random() * 7) - 3; // -3 到 +3
+                let wrongAns = correctAnswer + offset;
+                // 確保選項不為負數、大於0，且不重複
+                if (wrongAns > 0 && wrongAns !== correctAnswer) {
+                    options.add(wrongAns);
+                } else {
+                    // 若無效則隨機抽一個合理的數字
+                    options.add(Math.floor(Math.random() * 12) + 1);
+                }
+            }
+
+            // 將選項轉為陣列並打亂順序
+            let optionsArray = shuffleArray(Array.from(options));
+
+            // 建立按鈕 DOM
+            optionsArray.forEach(num => {
+                const btn = document.createElement('button');
+                btn.textContent = num;
+                btn.className = 'bg-white hover:bg-blue-50 text-blue-600 border-4 border-blue-500 text-3xl md:text-4xl font-bold py-3 md:py-5 rounded-2xl shadow-[0_6px_0_#3b82f6] active:shadow-[0_0px_0_#3b82f6] active:translate-y-1.5 transition-all';
+                btn.onclick = () => handleAnswer(num, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(selectedNum, btnElement) {
+            if (!isPlaying) return;
+
+            // 鎖定所有按鈕，防止重複點擊
+            Array.from(optionsContainer.children).forEach(b => {
+                b.disabled = true;
+                b.classList.add('cursor-not-allowed');
+            });
+
+            if (selectedNum === targetCount) {
+                // 答對了
+                btnElement.classList.replace('border-blue-500', 'border-green-500');
+                btnElement.classList.replace('text-blue-600', 'text-green-600');
+                btnElement.classList.replace('shadow-[0_6px_0_#3b82f6]', 'shadow-[0_6px_0_#22c55e]');
+                btnElement.classList.add('bg-green-50');
+                
+                score++;
+                updateScore();
+                
+                // 延遲一下進入下一關，讓玩家有成就感
+                setTimeout(() => {
+                    nextRound();
+                }, 600);
+            } else {
+                // 答錯了
+                btnElement.classList.replace('border-blue-500', 'border-red-500');
+                btnElement.classList.replace('text-blue-600', 'text-red-600');
+                btnElement.classList.replace('shadow-[0_6px_0_#3b82f6]', 'shadow-[0_6px_0_#ef4444]');
+                btnElement.classList.add('bg-red-50');
+                
+                // 標示出正確答案
+                Array.from(optionsContainer.children).forEach(b => {
+                    if (parseInt(b.textContent) === targetCount) {
+                        b.classList.replace('border-blue-500', 'border-green-500');
+                        b.classList.replace('text-blue-600', 'text-green-600');
+                        b.classList.replace('shadow-[0_6px_0_#3b82f6]', 'shadow-[0_6px_0_#22c55e]');
+                        b.classList.add('bg-green-100', 'animate-pulse');
+                    }
+                });
+
+                // 延遲一下顯示遊戲結束畫面
+                setTimeout(() => {
+                    gameOver();
+                }, 1200);
+            }
+        }
+
+        function gameOver() {
+            isPlaying = false;
+            overlay.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
+            
+            overlayTitle.textContent = '遊戲結束！';
+            overlayTitle.className = 'text-3xl md:text-4xl font-bold mb-4 text-red-600';
+            
+            overlayDesc.innerHTML = `
+                太可惜了，正確答案是 <span class="font-bold text-green-600 text-2xl">${targetCount}</span><br>
+                你的最終分數是：<br>
+                <span class="text-5xl md:text-6xl font-black text-blue-600 mt-2 block">${score}</span>
+            `;
+            startBtn.textContent = '再玩一次';
+            startBtn.classList.replace('bg-blue-500', 'bg-red-500');
+            startBtn.classList.replace('hover:bg-blue-400', 'hover:bg-red-400');
+            startBtn.classList.replace('active:bg-blue-600', 'active:bg-red-600');
+            startBtn.classList.replace('shadow-[0_6px_0_#2563eb]', 'shadow-[0_6px_0_#dc2626]');
+        }
+
+        // 實用的陣列洗牌函式 (Fisher-Yates 演算法)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+    </script>
+</body>
+</html>
