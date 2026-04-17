@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第8週遊戲：校園生態大探索 - 學校裡的白螃蟹</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f0f9ff;
+            background-image: 
+                radial-gradient(#bae6fd 2px, transparent 2px),
+                radial-gradient(#bae6fd 2px, transparent 2px);
+            background-size: 30px 30px;
+            background-position: 0 0, 15px 15px;
+        }
+
+        .game-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(239, 68, 68, 0.15);
+            overflow: hidden;
+            border: 4px solid #fff;
+            position: relative;
+        }
+
+        /* 選項與數字按鈕特效 */
+        .option-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            border: 4px solid transparent;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        
+        .can-answer .option-card {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .can-answer .option-card:hover {
+            transform: translateY(-5px);
+            border-color: #f87171;
+            box-shadow: 0 10px 20px rgba(248, 113, 113, 0.2);
+        }
+        
+        .option-card:active {
+            transform: scale(0.95);
+        }
+
+        /* 數字鍵專用樣式 */
+        .num-btn {
+            background: linear-gradient(135deg, #ffffff 0%, #fef2f2 100%);
+            border: 4px solid #fecaca;
+            color: #ef4444;
+            text-shadow: 1px 1px 0px rgba(255,255,255,0.8);
+        }
+        .can-answer .num-btn:hover {
+            background: #ef4444;
+            color: white;
+            border-color: #dc2626;
+            text-shadow: none;
+        }
+
+        /* 螃蟹動畫 (左右擺動) */
+        .crab-wiggle {
+            animation: wiggle 1.5s ease-in-out infinite;
+        }
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(-8deg); }
+            50% { transform: rotate(8deg); }
+        }
+
+        /* 躲貓貓草叢動畫 */
+        .bush-shake {
+            animation: shake 0.4s ease-in-out;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px) rotate(-5deg); }
+            75% { transform: translateX(5px) rotate(5deg); }
+        }
+
+        /* 進場與浮動 */
+        .character-float { animation: float 3s ease-in-out infinite; }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .playing-audio { animation: pulse-red 1.5s infinite; }
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        * { -webkit-tap-highlight-color: transparent; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div class="game-container w-full min-h-[600px] flex flex-col fade-in">
+        
+        <!-- 頂部資訊列 -->
+        <div class="bg-red-500 text-white p-4 flex justify-between items-center relative overflow-hidden">
+            <div class="flex items-center gap-3 z-10">
+                <div class="w-10 h-10 bg-white text-red-600 rounded-full flex items-center justify-center font-bold text-xl shadow-sm">8</div>
+                <div>
+                    <h1 class="font-bold text-lg md:text-xl">學校裡的白螃蟹</h1>
+                    <p class="text-xs text-red-100">Pina ko kalang? 數數看有幾隻？</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4 z-10">
+                <div class="text-right hidden md:block">
+                    <div class="text-xs text-red-200">SCORE</div>
+                    <div class="font-bold text-2xl" id="current-score">0</div>
+                </div>
+                <!-- 進度圈 -->
+                <div class="relative w-12 h-12 flex items-center justify-center">
+                    <svg class="w-full h-full transform -rotate-90">
+                        <circle cx="24" cy="24" r="20" stroke="rgba(255,255,255,0.3)" stroke-width="4" fill="none"></circle>
+                        <circle id="progress-circle" cx="24" cy="24" r="20" stroke="white" stroke-width="4" fill="none" stroke-dasharray="126" stroke-dashoffset="126" class="transition-all duration-500"></circle>
+                    </svg>
+                    <span id="q-num" class="absolute text-xs font-bold">1/6</span>
+                </div>
+            </div>
+
+            <!-- 背景裝飾 -->
+            <div class="absolute -right-6 -bottom-6 text-red-400 opacity-30 text-8xl transform rotate-12">
+                <i class="fa-solid fa-camera-retro"></i>
+            </div>
+        </div>
+
+        <!-- 遊戲主畫面 -->
+        <div class="flex-grow relative bg-gray-50 flex flex-col">
+            
+            <!-- 1. 開始畫面 -->
+            <div id="scene-start" class="absolute inset-0 flex flex-col items-center justify-center p-8 bg-white z-20 text-center">
+                <div class="mb-8 character-float">
+                    <i class="fa-solid fa-bug text-8xl text-red-500"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">尋找校園裡的白螃蟹！</h2>
+                <p class="text-gray-600 mb-8 max-w-md">
+                    聽一聽，找一找，學校裡有很多<span class="text-red-500 font-bold">白螃蟹 (kalang)</span>！<br><br>
+                    準備好你的偵探眼，我們要找出螃蟹躲在哪裡，還要<span class="text-red-500 font-bold">點選正確的數字</span>數數看有幾隻喔！
+                </p>
+                <button onclick="game.start()" class="bg-red-500 hover:bg-red-600 text-white text-xl font-bold py-4 px-12 rounded-full shadow-lg transform transition hover:scale-105 active:scale-95 flex items-center gap-2">
+                    <i class="fa-solid fa-play"></i> 出發去尋找
+                </button>
+                <div class="mt-4 text-sm text-gray-400">
+                    <i class="fa-solid fa-circle-info mr-1"></i> 記得先登入才能紀錄成績喔！
+                </div>
+            </div>
+
+            <!-- 2. 遊戲進行區 -->
+            <div id="scene-game" class="hidden flex-col h-full p-4 md:p-8">
+                
+                <!-- 題目顯示區 -->
+                <div class="flex-grow flex flex-col items-center justify-center mb-6 w-full">
+                    
+                    <!-- 提示文字 -->
+                    <div id="instruction" class="text-gray-500 font-bold mb-6 text-xl text-center animate-bounce">
+                        聽聽看，這是什麼？
+                    </div>
+
+                    <!-- 題目主體 (圖片或播放鈕) -->
+                    <div id="question-area" class="mb-8 w-full flex justify-center">
+                        <!-- JS 動態插入內容 -->
+                    </div>
+
+                    <!-- 選項區 -->
+                    <div id="options-grid" class="flex justify-center flex-wrap gap-4 w-full max-w-3xl">
+                        <!-- JS 動態插入選項 -->
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- 3. 結算畫面 -->
+            <div id="scene-result" class="hidden absolute inset-0 flex flex-col items-center justify-center p-8 bg-white z-20 text-center">
+                <div class="text-6xl text-yellow-400 mb-4 animate-bounce">
+                    <i class="fa-solid fa-medal"></i>
+                </div>
+                <h2 class="text-4xl font-bold text-gray-800 mb-2">生態大師！</h2>
+                <div class="text-lg text-gray-500 mb-6">你找到所有螃蟹了，獲得積分</div>
+                <div class="text-7xl font-bold text-red-500 mb-8" id="final-score">0</div>
+                
+                <div class="flex gap-4 w-full max-w-sm">
+                    <button onclick="location.reload()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 rounded-xl transition">
+                        再玩一次
+                    </button>
+                    <a href="../index.html" class="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-xl transition flex items-center justify-center">
+                        回首頁
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 音效播放器 -->
+    <audio id="audio-player"></audio>
+    <audio id="sfx-correct" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
+    <audio id="sfx-wrong" src="https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3"></audio>
+
+    <!-- 答題回饋遮罩 -->
+    <div id="feedback-overlay" class="fixed inset-0 bg-black/40 z-50 hidden items-center justify-center backdrop-blur-sm">
+        <div class="bg-white rounded-3xl p-8 shadow-2xl transform scale-0 transition-transform duration-300 flex flex-col items-center text-center max-w-sm mx-4" id="feedback-container">
+            <i id="feedback-icon" class="fa-solid text-7xl mb-4"></i>
+            <div id="feedback-text" class="text-2xl font-bold text-gray-800 mb-2">答對了！</div>
+            <div id="feedback-subtext" class="text-gray-500" style="display: none;"></div>
+        </div>
+    </div>
+
+    <!-- 引入會員系統 -->
+    <script src="../js/auth.js"></script>
+
+    <script>
+        // ==========================================
+        // 遊戲資料庫
+        // ==========================================
+        const gameAssets = {
+            vocab: [
+                { id: 'kalang', img: '../images/kalang.jpg', audio: '../audio/kalang.wav' },
+                { id: 'fohecalay', img: '../images/fohecalay.jpg', audio: '../audio/fohecalay.wav' },
+                { id: 'pina', img: '../images/pina.jpg', audio: '../audio/pina.wav' }
+            ],
+            sentences: {
+                q1: '../audio/s2_w8_q1.wav', // I cowa ko kalang? (螃蟹在哪裡？)
+                a1: '../audio/s2_w8_a1.wav', // I tiraw ko kalang. (螃蟹在那裡。)
+                q2: '../audio/s2_w8_q2.wav', // Pina ko kalang? (有幾隻螃蟹？)
+                a2: '../audio/s2_w8_a2.wav'  // Sepat ko kalang. (有四隻螃蟹。)
+            }
+        };
+
+        class Week8Game {
+            constructor() {
+                this.score = 0;
+                this.currentQ = 0;
+                this.questions = [];
+                this.totalQ = 6;
+                this.isPlaying = false;
+                this.canAnswer = false;
+            }
+
+            start() {
+                if (typeof AuthSystem !== 'undefined' && !AuthSystem.currentUser) {
+                    if(!confirm("您尚未登入，成績將不會被紀錄喔！\n確定要以「訪客身分」繼續玩遊戲嗎？")) {
+                        AuthSystem.showLoginModal();
+                        return;
+                    }
+                }
+
+                // 產生題目清單 (共 6 題)
+                this.questions = [
+                    // 第一階段：單字暖身 (聽音選圖) x2
+                    { type: 'vocab', targetId: 'kalang', audio: gameAssets.vocab[0].audio },
+                    { type: 'vocab', targetId: 'fohecalay', audio: gameAssets.vocab[1].audio },
+                    
+                    // 第二階段：躲貓貓 (I cowa ko kalang?)
+                    { type: 'hide', audio_q: gameAssets.sentences.q1, audio_a: gameAssets.sentences.a1 },
+                    
+                    // 第三階段：數螃蟹 (Pina ko kalang?) x3 題
+                    // 前兩題隨機數量，最後一題固定是 4 隻並播放回答語音
+                    { type: 'count', count: 2, options: [1, 2, 3], audio_q: gameAssets.sentences.q2 },
+                    { type: 'count', count: 5, options: [4, 5, 6], audio_q: gameAssets.sentences.q2 },
+                    { type: 'count', count: 4, options: [2, 3, 4], audio_q: gameAssets.sentences.q2, audio_a: gameAssets.sentences.a2 }
+                ];
+
+                this.score = 0;
+                this.currentQ = 0;
+                this.isPlaying = true;
+
+                document.getElementById('scene-start').classList.add('hidden');
+                document.getElementById('scene-game').classList.remove('hidden');
+                document.getElementById('scene-game').classList.add('flex');
+
+                this.nextQuestion();
+            }
+
+            nextQuestion() {
+                if (this.currentQ >= this.totalQ) {
+                    this.endGame();
+                    return;
+                }
+
+                const q = this.questions[this.currentQ];
+                this.canAnswer = false; 
+                document.getElementById('scene-game').classList.remove('can-answer');
+
+                // 更新進度條
+                document.getElementById('q-num').innerText = `${this.currentQ + 1}/${this.totalQ}`;
+                const offset = 126 - (126 * ((this.currentQ + 1) / this.totalQ));
+                document.getElementById('progress-circle').style.strokeDashoffset = offset;
+
+                const instruction = document.getElementById('instruction');
+                const qArea = document.getElementById('question-area');
+                const optGrid = document.getElementById('options-grid');
+                
+                qArea.innerHTML = '';
+                optGrid.innerHTML = '';
+
+                // ==========================================
+                // 題型 1：單字暖身 (vocab)
+                // ==========================================
+                if (q.type === 'vocab') {
+                    instruction.innerText = "聽聽看，這是什麼單字？";
+                    
+                    const playBtnId = 'play-btn-' + this.currentQ;
+                    qArea.innerHTML = `
+                        <button id="${playBtnId}" class="bg-red-400 hover:bg-red-500 text-white w-24 h-24 rounded-full text-4xl shadow-lg transition transform hover:scale-110 active:scale-95 flex items-center justify-center animate-pulse">
+                            <i class="fa-solid fa-volume-high"></i>
+                        </button>
+                    `;
+                    
+                    document.getElementById(playBtnId).onclick = () => {
+                        this.playAudio(q.audio, () => {
+                            this.canAnswer = true;
+                            document.getElementById('scene-game').classList.add('can-answer');
+                            instruction.innerText = "現在，請選擇正確的圖片！";
+                        });
+                    };
+
+                    setTimeout(() => {
+                        this.playAudio(q.audio, () => {
+                            this.canAnswer = true;
+                            document.getElementById('scene-game').classList.add('can-answer');
+                            instruction.innerText = "現在，請選擇正確的圖片！";
+                        });
+                    }, 500);
+
+                    // 產生 3 個隨機選項
+                    let options = [...gameAssets.vocab].sort(() => Math.random() - 0.5);
+                    optGrid.className = "grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-4xl";
+                    
+                    options.forEach(opt => {
+                        const el = document.createElement('div');
+                        el.className = "option-card bg-white p-4 rounded-xl shadow-sm flex flex-col items-center h-48 justify-center";
+                        el.onclick = () => this.checkAnswer(opt.id === q.targetId, null, null);
+                        el.innerHTML = `<img src="${opt.img}" class="w-full h-full object-contain rounded-lg" alt="option">`;
+                        optGrid.appendChild(el);
+                    });
+                } 
+                // ==========================================
+                // 題型 2：躲貓貓 (hide)
+                // ==========================================
+                else if (q.type === 'hide') {
+                    instruction.innerText = "聽老師問，找出螃蟹躲在哪個草叢？";
+                    
+                    qArea.innerHTML = `
+                        <div class="flex flex-col items-center">
+                            <button id="play-hide-btn" class="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-full shadow-md font-bold flex items-center gap-2 mb-2 transition">
+                                <i class="fa-solid fa-volume-high"></i> 聽老師的問題
+                            </button>
+                        </div>
+                    `;
+
+                    document.getElementById('play-hide-btn').onclick = () => this.playAudio(q.audio_q);
+                    setTimeout(() => {
+                        this.playAudio(q.audio_q, () => {
+                            this.canAnswer = true;
+                            document.getElementById('scene-game').classList.add('can-answer');
+                        });
+                    }, 500);
+
+                    // 產生 3 個草叢
+                    optGrid.className = "flex justify-center gap-6 md:gap-12 w-full mt-8";
+                    const correctBushIdx = Math.floor(Math.random() * 3);
+                    
+                    for(let i=0; i<3; i++) {
+                        const isCorrect = (i === correctBushIdx);
+                        const el = document.createElement('div');
+                        el.className = "relative cursor-pointer group";
+                        el.onclick = () => {
+                            if(!this.canAnswer) return;
+                            if (isCorrect) {
+                                // 答對：草叢變透明，顯示螃蟹
+                                el.innerHTML = `
+                                    <div class="absolute inset-0 flex items-center justify-center transform -translate-y-4">
+                                        <img src="../images/kalang.jpg" class="w-24 h-24 object-contain crab-wiggle drop-shadow-lg z-10">
+                                    </div>
+                                    <i class="fa-solid fa-leaf text-green-500 text-6xl md:text-8xl opacity-30 relative z-20"></i>
+                                `;
+                                this.checkAnswer(true, "I tiraw ko kalang.", q.audio_a);
+                            } else {
+                                // 答錯：草叢震動
+                                el.classList.remove('bush-shake');
+                                void el.offsetWidth; // 觸發重繪
+                                el.classList.add('bush-shake');
+                                document.getElementById('sfx-wrong').play().catch(()=>{});
+                            }
+                        };
+                        
+                        el.innerHTML = `<i class="fa-solid fa-leaf text-green-500 text-6xl md:text-8xl group-hover:text-green-400 transition-transform transform group-hover:scale-110 drop-shadow-md"></i>`;
+                        optGrid.appendChild(el);
+                    }
+                }
+                // ==========================================
+                // 題型 3：數螃蟹 (count) - 點擊阿拉伯數字
+                // ==========================================
+                else if (q.type === 'count') {
+                    instruction.innerText = "聽問題，數數看畫面上有幾隻白螃蟹？";
+                    
+                    qArea.innerHTML = `
+                        <div class="flex flex-col items-center w-full">
+                            <button id="play-count-btn" class="bg-red-500 hover:bg-red-600 text-white px-8 py-3 rounded-full shadow-md font-bold flex items-center gap-2 mb-6 transition">
+                                <i class="fa-solid fa-volume-high"></i> 聽聽問題
+                            </button>
+                            
+                            <!-- 螃蟹水池 / 沙地 -->
+                            <div class="bg-blue-50 border-4 border-blue-200 rounded-3xl p-6 w-full max-w-2xl min-h-[200px] flex flex-wrap items-center justify-center gap-4 md:gap-8 shadow-inner">
+                                ${Array(q.count).fill(0).map(() => `
+                                    <img src="../images/kalang.jpg" class="w-16 h-16 md:w-24 md:h-24 object-contain crab-wiggle drop-shadow-md">
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+
+                    document.getElementById('play-count-btn').onclick = () => this.playAudio(q.audio_q);
+                    setTimeout(() => {
+                        this.playAudio(q.audio_q, () => {
+                            this.canAnswer = true;
+                            document.getElementById('scene-game').classList.add('can-answer');
+                            instruction.innerHTML = "請點擊正確的<span class="text-red-500 text-2xl mx-1">數字</span>！";
+                        });
+                    }, 500);
+
+                    // 產生數字按鈕
+                    let options = [...q.options].sort(() => Math.random() - 0.5);
+                    optGrid.className = "flex justify-center gap-6 md:gap-10 w-full mt-6";
+                    
+                    options.forEach(num => {
+                        const btn = document.createElement('button');
+                        btn.className = "option-card num-btn text-5xl md:text-6xl font-bold rounded-2xl w-24 h-24 md:w-32 md:h-32 flex items-center justify-center shadow-lg";
+                        btn.innerText = num;
+                        
+                        btn.onclick = () => {
+                            if(!this.canAnswer) return;
+                            const isCorrect = (num === q.count);
+                            // 如果是最後一題 (固定4隻)，答對會播放 Sepat ko kalang
+                            if (isCorrect && q.audio_a) {
+                                this.checkAnswer(true, "Sepat ko kalang.", q.audio_a);
+                            } else {
+                                this.checkAnswer(isCorrect, null, null);
+                            }
+                        };
+                        optGrid.appendChild(btn);
+                    });
+                }
+            }
+
+            playAudio(src, callback) {
+                const p = document.getElementById('audio-player');
+                p.src = src;
+                
+                const btns = document.querySelectorAll('button i.fa-volume-high');
+                btns.forEach(b => {
+                    if (b.parentElement.tagName === 'BUTTON') {
+                        b.parentElement.classList.add('playing-audio');
+                    }
+                });
+
+                p.onended = () => {
+                    btns.forEach(b => {
+                        if (b.parentElement.tagName === 'BUTTON') {
+                            b.parentElement.classList.remove('playing-audio');
+                        }
+                    });
+                    if (callback) callback();
+                };
+
+                p.play().catch(e => {
+                    console.log("Audio play error", e);
+                    if (callback) callback();
+                });
+            }
+
+            checkAnswer(isCorrect, subTextMsg, successAudioSrc) {
+                if (!this.isPlaying || !this.canAnswer) return;
+                
+                // 如果是躲貓貓或數數題答錯，且沒有提供音檔，就不彈出視窗直接返回 (讓玩家繼續嘗試)
+                if (!isCorrect && !successAudioSrc) {
+                    document.getElementById('sfx-wrong').play().catch(()=>{});
+                    // 如果是選擇題 (vocab or count)，讓錯誤的卡片震動
+                    return; 
+                }
+
+                const overlay = document.getElementById('feedback-overlay');
+                const container = document.getElementById('feedback-container');
+                const icon = document.getElementById('feedback-icon');
+                const subtext = document.getElementById('feedback-subtext');
+
+                overlay.classList.remove('hidden');
+                overlay.classList.add('flex');
+                
+                if (isCorrect) {
+                    icon.className = "fa-solid fa-check text-green-500";
+                    document.getElementById('feedback-text').innerText = "答對了！";
+                    
+                    if (subTextMsg) {
+                        subtext.style.display = "block";
+                        subtext.innerText = subTextMsg;
+                    } else {
+                        subtext.style.display = "none";
+                    }
+
+                    // 計分
+                    this.score += Math.floor(100 / this.totalQ);
+                    if(this.currentQ === this.totalQ - 1 && this.score >= 95) this.score = 100;
+                    document.getElementById('current-score').innerText = this.score;
+                    
+                    document.getElementById('sfx-correct').play().catch(()=>{});
+
+                    // 如果有補充的解答音檔 (例如 I tiraw... 或 Sepat ko...)，播放它
+                    if (successAudioSrc) {
+                        setTimeout(() => this.playAudio(successAudioSrc), 500);
+                    }
+                } 
+
+                // 動畫彈出
+                setTimeout(() => {
+                    container.classList.remove('scale-0');
+                    container.classList.add('scale-100');
+                }, 10);
+
+                // 給予較長的時間讓語音播完再切換下一題
+                const delayTime = successAudioSrc ? 3000 : 1500;
+
+                setTimeout(() => {
+                    container.classList.remove('scale-100');
+                    container.classList.add('scale-0');
+                    setTimeout(() => {
+                        overlay.classList.add('hidden');
+                        overlay.classList.remove('flex');
+                        this.currentQ++;
+                        this.nextQuestion();
+                    }, 300);
+                }, delayTime);
+            }
+
+            endGame() {
+                this.isPlaying = false;
+                
+                document.getElementById('scene-game').classList.add('hidden');
+                document.getElementById('scene-game').classList.remove('flex');
+                document.getElementById('scene-result').classList.remove('hidden');
+                
+                const finalScoreEl = document.getElementById('final-score');
+                let tempScore = 0;
+                const timer = setInterval(() => {
+                    if(tempScore >= this.score) {
+                        tempScore = this.score;
+                        clearInterval(timer);
+                    } else {
+                        tempScore++;
+                    }
+                    finalScoreEl.innerText = tempScore;
+                }, 20);
+
+                // ★★★ 上傳成績到 s2_game08 欄位 ★★★
+                if (typeof AuthSystem !== 'undefined' && AuthSystem.currentUser) {
+                    AuthSystem.submitScore("s2_game08", this.score);
+                }
+            }
+        }
+
+        const game = new Week8Game();
+
+        // 頁面載入後自動檢查登入狀態
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                if (typeof AuthSystem !== 'undefined' && !AuthSystem.currentUser) {
+                    AuthSystem.showLoginModal();
+                }
+            }, 500);
+        });
+
+    </script>
+</body>
+</html>
