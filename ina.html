@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>母親節教唱簡報 - 阿美族語</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Noto+Sans+TC:wght@400;700;900&display=swap');
+
+        body {
+            font-family: 'Nunito', 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, #ffe4e1 0%, #fff0f5 100%);
+            overflow: hidden;
+            touch-action: pan-y;
+        }
+
+        /* 漂浮動畫 */
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+
+        .floating {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .floating-delay-1 {
+            animation: float 5s ease-in-out infinite 1s;
+        }
+        
+        .floating-delay-2 {
+            animation: float 6s ease-in-out infinite 2s;
+        }
+
+        /* 投影片切換動畫 */
+        .slide-fade {
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+
+        .slide-hidden {
+            opacity: 0;
+            transform: scale(0.95);
+            pointer-events: none;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .slide-active {
+            opacity: 1;
+            transform: scale(1);
+            position: relative;
+            z-index: 10;
+        }
+
+        /* 按鈕點擊效果 */
+        .btn-press:active {
+            transform: scale(0.9);
+        }
+
+        /* 背景裝飾 */
+        .bg-decor {
+            position: absolute;
+            font-size: 4rem;
+            opacity: 0.3;
+            z-index: 0;
+        }
+    </style>
+</head>
+<body class="h-screen w-full flex items-center justify-center relative select-none">
+
+    <!-- 背景裝飾 -->
+    <div class="bg-decor top-10 left-10 floating">🌸</div>
+    <div class="bg-decor bottom-20 left-20 floating-delay-1">💖</div>
+    <div class="bg-decor top-20 right-20 floating-delay-2">🎶</div>
+    <div class="bg-decor bottom-10 right-10 floating">🌼</div>
+
+    <!-- 主簡報區塊 -->
+    <div class="w-11/12 max-w-5xl h-[85vh] bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl border-4 border-pink-200 flex flex-col relative z-10 overflow-hidden">
+        
+        <!-- 頂部進度條 -->
+        <div class="w-full h-3 bg-gray-100">
+            <div id="progress-bar" class="h-full bg-pink-400 transition-all duration-500" style="width: 14%;"></div>
+        </div>
+
+        <!-- 內容顯示區 -->
+        <div id="slides-container" class="flex-1 w-full h-full relative flex items-center justify-center p-6 md:p-12 text-center">
+            <!-- 投影片內容會由 JavaScript 動態生成 -->
+        </div>
+
+        <!-- 底部控制區 -->
+        <div class="h-24 bg-pink-50 border-t border-pink-100 flex items-center justify-between px-6 md:px-12">
+            <!-- 上一頁 -->
+            <button onclick="prevSlide()" class="btn-press flex items-center justify-center w-16 h-16 bg-white rounded-full shadow-md text-pink-500 text-3xl font-bold hover:bg-pink-100 transition-colors focus:outline-none">
+                ❮
+            </button>
+            
+            <!-- 頁碼點點 -->
+            <div id="dots-container" class="flex space-x-3">
+                <!-- 點點由 JS 生成 -->
+            </div>
+
+            <!-- 下一頁 -->
+            <button onclick="nextSlide()" class="btn-press flex items-center justify-center w-16 h-16 bg-pink-400 rounded-full shadow-md text-white text-3xl font-bold hover:bg-pink-500 transition-colors focus:outline-none cursor-pointer">
+                ❯
+            </button>
+        </div>
+    </div>
+
+    <!-- 歡呼音效 (可選，目前以視覺為主) -->
+    <script>
+        const slidesData = [
+            {
+                type: 'title',
+                title: "🌸 母親節快樂 🌸",
+                subtitle: "一起來學唱阿美族語的<br>「謝謝媽媽」歌曲！",
+                emoji: "👩‍👧‍👦 💕 🎶",
+                note: "準備好跟著老師一起唱了嗎？"
+            },
+            {
+                type: 'lyric',
+                amis: "Maroray maroray maroray<br>kiso ina midipot takowan",
+                repeat: "（唱 2 遍喔！）",
+                zh: "媽媽，您照顧我真是<br>辛苦了、辛苦了、辛苦了",
+                emoji: "💦 👩‍🍼 ❤️",
+                keyword: "💡 小提示：Ina (伊娜) = 媽媽"
+            },
+            {
+                type: 'lyric',
+                amis: "Tadamafana'ay kiso haw ina<br>a midipot i takowanan",
+                repeat: "",
+                zh: "媽媽，您真的很懂得<br>如何照顧我呢。",
+                emoji: "🌟 🍼 🧸",
+                keyword: "💡 小提示：Midipot = 照顧"
+            },
+            {
+                type: 'lyric',
+                amis: "Tada o kahemekan kiso",
+                repeat: "",
+                zh: "您真是令人深深讚賞與敬佩。<br>（媽媽好棒！）",
+                emoji: "👍 ✨ 👑",
+                keyword: ""
+            },
+            {
+                type: 'lyric',
+                amis: "Ano tomangic ko nidipotan iso haw ina<br>tadamafana' kiso a midadimaw<br>a miparadiw a masakero",
+                repeat: "",
+                zh: "如果我哭哭時，<br>媽媽真的很會安撫我、<br>唱歌跳舞逗我開心！",
+                emoji: "😭 ➡️ 🎶 💃 😊",
+                keyword: "💡 小提示：Miparadiw = 唱歌"
+            },
+            {
+                type: 'lyric',
+                amis: "Maroray maroray maroray<br>kiso ina midipot takowan",
+                repeat: "",
+                zh: "媽媽，您照顧我真是<br>辛苦了、辛苦了、辛苦了",
+                emoji: "🫂 💖 👩‍👧",
+                keyword: "💡 小提示：Maroray = 辛苦了"
+            },
+            {
+                type: 'end',
+                title: "媽媽，我愛您！",
+                subtitle: "回家記得抱抱媽媽，<br>唱給媽媽聽喔～",
+                emoji: "🎁 💌 💐",
+                note: "大家都很棒！給自己拍拍手 👏👏👏"
+            }
+        ];
+
+        let currentIndex = 0;
+        const container = document.getElementById('slides-container');
+        const dotsContainer = document.getElementById('dots-container');
+        const progressBar = document.getElementById('progress-bar');
+
+        function renderSlides() {
+            container.innerHTML = '';
+            dotsContainer.innerHTML = '';
+
+            slidesData.forEach((slide, index) => {
+                // 建立投影片內容
+                const slideEl = document.createElement('div');
+                slideEl.className = `slide-fade w-full flex flex-col items-center justify-center ${index === currentIndex ? 'slide-active' : 'slide-hidden'}`;
+                slideEl.id = `slide-${index}`;
+
+                if (slide.type === 'title' || slide.type === 'end') {
+                    slideEl.innerHTML = `
+                        <div class="text-7xl md:text-8xl mb-8 floating">${slide.emoji}</div>
+                        <h1 class="text-5xl md:text-6xl font-black text-pink-500 mb-6 drop-shadow-sm">${slide.title}</h1>
+                        <p class="text-3xl md:text-4xl text-gray-700 font-bold leading-relaxed mb-8">${slide.subtitle}</p>
+                        <div class="inline-block bg-yellow-100 text-yellow-800 text-2xl px-6 py-3 rounded-full font-bold shadow-sm border-2 border-yellow-300">
+                            ${slide.note}
+                        </div>
+                    `;
+                } else if (slide.type === 'lyric') {
+                    slideEl.innerHTML = `
+                        <div class="text-6xl md:text-7xl mb-6 floating">${slide.emoji}</div>
+                        <div class="w-full max-w-4xl bg-blue-50 border-4 border-blue-200 rounded-3xl p-6 md:p-10 mb-6 shadow-inner relative">
+                            <h2 class="text-4xl md:text-5xl font-extrabold text-blue-600 leading-tight mb-2 font-['Nunito']">${slide.amis}</h2>
+                            ${slide.repeat ? `<p class="text-2xl text-blue-400 font-bold mt-2">${slide.repeat}</p>` : ''}
+                        </div>
+                        <div class="w-full max-w-4xl bg-orange-50 border-4 border-orange-200 rounded-3xl p-6 md:p-8 mb-6 shadow-inner">
+                            <h3 class="text-3xl md:text-4xl font-bold text-orange-600 leading-relaxed">${slide.zh}</h3>
+                        </div>
+                        ${slide.keyword ? `
+                            <div class="bg-green-100 text-green-700 text-2xl md:text-3xl px-8 py-3 rounded-full font-bold shadow-sm border-2 border-green-300 transform -rotate-1">
+                                ${slide.keyword}
+                            </div>
+                        ` : '<div class="h-12"></div>'}
+                    `;
+                }
+                container.appendChild(slideEl);
+
+                // 建立底部點點
+                const dot = document.createElement('div');
+                dot.className = `w-4 h-4 rounded-full transition-colors duration-300 ${index === currentIndex ? 'bg-pink-500 scale-125' : 'bg-pink-200'}`;
+                dotsContainer.appendChild(dot);
+            });
+
+            // 更新進度條
+            const progress = ((currentIndex + 1) / slidesData.length) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        function updateView() {
+            slidesData.forEach((_, index) => {
+                const slideEl = document.getElementById(`slide-${index}`);
+                const dotEl = dotsContainer.children[index];
+                
+                if (index === currentIndex) {
+                    slideEl.classList.remove('slide-hidden');
+                    slideEl.classList.add('slide-active');
+                    dotEl.classList.remove('bg-pink-200');
+                    dotEl.classList.add('bg-pink-500', 'scale-125');
+                } else {
+                    slideEl.classList.add('slide-hidden');
+                    slideEl.classList.remove('slide-active');
+                    dotEl.classList.add('bg-pink-200');
+                    dotEl.classList.remove('bg-pink-500', 'scale-125');
+                }
+            });
+
+            // 更新進度條
+            const progress = ((currentIndex + 1) / slidesData.length) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        function nextSlide() {
+            if (currentIndex < slidesData.length - 1) {
+                currentIndex++;
+                updateView();
+            } else {
+                // 循環播放
+                currentIndex = 0;
+                updateView();
+            }
+        }
+
+        function prevSlide() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateView();
+            }
+        }
+
+        // 鍵盤左右鍵控制
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+
+        // 觸控滑動控制 (Swipe)
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        container.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        container.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, { passive: true });
+
+        function handleSwipe() {
+            const minSwipeDistance = 50;
+            if (touchEndX < touchStartX - minSwipeDistance) {
+                nextSlide(); // 向左滑，下一頁
+            }
+            if (touchEndX > touchStartX + minSwipeDistance) {
+                prevSlide(); // 向右滑，上一頁
+            }
+        }
+
+        // 初始化
+        renderSlides();
+    </script>
+</body>
+</html>
