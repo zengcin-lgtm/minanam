@@ -134,6 +134,7 @@
             { amis: "Maroray", zh: "辛苦了", correct: "💦", wrong: ["🎀", "🐘", "🚗", "🧸"] }
         ];
 
+        let currentPlayData = []; // 存放每次打亂後的題目陣列
         let currentQuestionIndex = 0;
         let score = 0;
 
@@ -150,6 +151,16 @@
         const uiStarContainer = document.getElementById('star-container');
         const uiFeedbackCorrect = document.getElementById('feedback-correct');
 
+        // 洗牌函數 (打亂陣列順序)
+        function shuffleArray(array) {
+            let newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
         // 初始化
         uiTotalLevels.textContent = gameData.length;
 
@@ -157,6 +168,10 @@
             screenStart.classList.add('hidden-screen');
             screenGame.classList.remove('hidden-screen');
             screenGame.classList.add('flex');
+            
+            // 每次開始遊戲時，將題目順序隨機打亂
+            currentPlayData = shuffleArray(gameData);
+            
             currentQuestionIndex = 0;
             score = 0;
             updateStars();
@@ -164,19 +179,19 @@
         }
 
         function loadQuestion() {
-            const q = gameData[currentQuestionIndex];
+            const q = currentPlayData[currentQuestionIndex];
             uiCurrentLevel.textContent = currentQuestionIndex + 1;
             uiAmis.textContent = q.amis;
             uiZh.textContent = q.zh;
 
             // 準備選項 (1個對的 + 2個隨機錯的)
             let options = [q.correct];
-            let shuffledWrong = q.wrong.sort(() => 0.5 - Math.random());
+            let shuffledWrong = shuffleArray(q.wrong);
             options.push(shuffledWrong[0]);
             options.push(shuffledWrong[1]);
 
-            // 打亂選項順序
-            options = options.sort(() => 0.5 - Math.random());
+            // 將這三個選項的順序隨機打亂
+            options = shuffleArray(options);
 
             // 渲染選項卡片
             uiOptions.innerHTML = '';
@@ -205,7 +220,7 @@
                 setTimeout(() => {
                     uiFeedbackCorrect.classList.add('hidden-screen');
                     currentQuestionIndex++;
-                    if (currentQuestionIndex < gameData.length) {
+                    if (currentQuestionIndex < currentPlayData.length) {
                         loadQuestion();
                     } else {
                         endGame();
@@ -230,7 +245,7 @@
                 uiStarContainer.innerHTML += '<span class="text-yellow-400 drop-shadow-sm pop">⭐</span>';
             }
             // 剩下的顯示空心星星
-            for (let i = score; i < gameData.length; i++) {
+            for (let i = score; i < currentPlayData.length; i++) {
                 uiStarContainer.innerHTML += '<span class="text-gray-200">⭐</span>';
             }
         }
