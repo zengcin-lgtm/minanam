@@ -263,6 +263,7 @@
                 this.totalQ = 6;
                 this.isPlaying = false;
                 this.canAnswer = false;
+                this.hasMistake = false;
             }
 
             start() {
@@ -308,6 +309,7 @@
 
                 const q = this.questions[this.currentQ];
                 this.canAnswer = false; 
+                this.hasMistake = false;
                 document.getElementById('scene-game').classList.remove('can-answer');
 
                 // 更新進度條
@@ -435,7 +437,7 @@
                         this.playAudioSequence([gameAssets.sentences.q_color, targetColor.audio], () => {
                             this.canAnswer = true;
                             document.getElementById('scene-game').classList.add('can-answer');
-                            instruction.innerHTML = "請點擊正確顏色的<span class="text-indigo-600 text-xl font-bold mx-1">螃蟹</span>！";
+                            instruction.innerHTML = '請點擊正確顏色的<span class="text-indigo-600 text-xl font-bold mx-1">螃蟹</span>！';
                         });
                     };
 
@@ -497,7 +499,8 @@
             checkAnswer(isCorrect, subTextMsg, successAudioSrc) {
                 if (!this.isPlaying || !this.canAnswer) return;
                 
-                if (!isCorrect && !successAudioSrc) {
+                if (!isCorrect) {
+                    this.hasMistake = true;
                     document.getElementById('sfx-wrong').play().catch(()=>{});
                     return; 
                 }
@@ -521,9 +524,11 @@
                         subtext.style.display = "none";
                     }
 
-                    this.score += Math.floor(100 / this.totalQ);
-                    if(this.currentQ === this.totalQ - 1 && this.score >= 95) this.score = 100;
-                    document.getElementById('current-score').innerText = this.score;
+                    if (!this.hasMistake) {
+                        this.score += Math.floor(100 / this.totalQ);
+                        if(this.currentQ === this.totalQ - 1 && this.score >= 95) this.score = 100;
+                        document.getElementById('current-score').innerText = this.score;
+                    }
                     
                     document.getElementById('sfx-correct').play().catch(()=>{});
 
