@@ -274,21 +274,28 @@
                     }
                 }
 
-                // 產生題目清單 (共 6 題)
+                // ★★★ 強大隨機系統：確保題目內容、選項、題型出現順序完全隨機 ★★★
+                
+                // 1. 隨機決定「找螃蟹(找顏色)」的 3 種顏色 (確保包含 0 號白色以觸發魔王語音)
+                let colorCrabTargets = [0, ...[1, 2, 3, 4].sort(() => Math.random() - 0.5).slice(0, 2)];
+                colorCrabTargets.sort(() => Math.random() - 0.5); // 將白色的位置也打亂
+
+                // 2. 隨機決定「顏色暖身」的 2 種顏色 (使用剩下的顏色避免重複)
+                let colorCircleTargets = [0, 1, 2, 3, 4].filter(c => !colorCrabTargets.includes(c));
+                colorCircleTargets.sort(() => Math.random() - 0.5);
+
+                // 3. 建立 6 道關卡清單
                 this.questions = [
-                    // 第一階段：顏色暖身 (聽音選顏色圈圈) x2
-                    { type: 'color_circle', targetIdx: 0 }, // fohecalay (白)
-                    { type: 'color_circle', targetIdx: 2 }, // kahengangay (紅)
-                    
-                    // 第二階段：尋找螃蟹 (I cowa ko kalang?)
+                    { type: 'color_circle', targetIdx: colorCircleTargets[0] },
+                    { type: 'color_circle', targetIdx: colorCircleTargets[1] },
                     { type: 'find_crab' },
-                    
-                    // 第三階段：彩色螃蟹大集合 (O maan ko tilid no kalang?) x3 題
-                    // 會出現5隻螃蟹，選出正確顏色的那隻
-                    { type: 'color_crab', targetIdx: 3 }, // 綠色
-                    { type: 'color_crab', targetIdx: 4 }, // 藍色
-                    { type: 'color_crab', targetIdx: 0, isBoss: true } // 白色 (魔王題，播放完整回答語音)
+                    { type: 'color_crab', targetIdx: colorCrabTargets[0], isBoss: colorCrabTargets[0] === 0 },
+                    { type: 'color_crab', targetIdx: colorCrabTargets[1], isBoss: colorCrabTargets[1] === 0 },
+                    { type: 'color_crab', targetIdx: colorCrabTargets[2], isBoss: colorCrabTargets[2] === 0 }
                 ];
+
+                // 4. 將這 6 道關卡的出現順序完全打亂
+                this.questions.sort(() => Math.random() - 0.5);
 
                 this.score = 0;
                 this.currentQ = 0;
@@ -309,7 +316,7 @@
 
                 const q = this.questions[this.currentQ];
                 this.canAnswer = false; 
-                this.hasMistake = false;
+                this.hasMistake = false; // 每題開始前，重置犯錯紀錄
                 document.getElementById('scene-game').classList.remove('can-answer');
 
                 // 更新進度條
@@ -348,7 +355,7 @@
 
                     setTimeout(() => document.getElementById(playBtnId).onclick(), 500);
 
-                    // 產生 3 個隨機選項
+                    // 產生選項 (正確答案 + 2個干擾項，並隨機打亂位置)
                     let options = [targetColor];
                     let distractors = gameAssets.colors.filter(c => c.id !== targetColor.id).sort(() => Math.random() - 0.5).slice(0, 2);
                     options = [...options, ...distractors].sort(() => Math.random() - 0.5);
@@ -385,7 +392,7 @@
 
                     setTimeout(() => document.getElementById('play-hide-btn').onclick(), 500);
 
-                    // 產生 Saksakay 場景與 3 個草叢
+                    // 產生 3 個草叢位置 (隨機決定正確位置)
                     optGrid.className = "flex justify-center gap-6 md:gap-12 w-full mt-8 bg-green-50 p-8 rounded-3xl border-4 border-green-200";
                     const correctBushIdx = Math.floor(Math.random() * 3);
                     
@@ -396,7 +403,6 @@
                         el.onclick = () => {
                             if(!this.canAnswer) return;
                             if (isCorrect) {
-                                // 答對：草叢變透明，顯示紅色螃蟹，並播放解答語音
                                 el.innerHTML = `
                                     <div class="absolute inset-0 flex items-center justify-center transform -translate-y-4">
                                         <div class="w-20 h-20">${getCrabSvg('text-red-500')}</div>
@@ -405,11 +411,10 @@
                                 `;
                                 this.checkAnswer(true, "I tini ko kalang.", gameAssets.sentences.a_find);
                             } else {
-                                // 答錯：草叢震動
                                 el.classList.remove('bush-shake');
                                 void el.offsetWidth;
                                 el.classList.add('bush-shake');
-                                document.getElementById('sfx-wrong').play().catch(()=>{});
+                                this.checkAnswer(false, null, null); // 觸發答錯邏輯
                             }
                         };
                         
@@ -433,7 +438,6 @@
                     `;
 
                     document.getElementById('play-color-btn').onclick = () => {
-                        // 連續播放兩段語音：先問句，再顏色單字
                         this.playAudioSequence([gameAssets.sentences.q_color, targetColor.audio], () => {
                             this.canAnswer = true;
                             document.getElementById('scene-game').classList.add('can-answer');
@@ -443,7 +447,7 @@
 
                     setTimeout(() => document.getElementById('play-color-btn').onclick(), 500);
 
-                    // 產生 5 隻不同顏色的螃蟹 (打亂順序)
+                    // 產生 5 隻不同顏色的螃蟹並打亂位置順序
                     let options = [...gameAssets.colors].sort(() => Math.random() - 0.5);
                     optGrid.className = "flex justify-center flex-wrap gap-4 md:gap-8 w-full mt-2 bg-blue-50 border-4 border-blue-200 rounded-3xl p-6 shadow-inner";
                     
@@ -456,7 +460,7 @@
                             if(!this.canAnswer) return;
                             const isCorrect = (opt.id === targetColor.id);
                             
-                            // 魔王題 (最後一題白色) 播放完整解答
+                            // 魔王題 (白色) 播放完整解答
                             if (isCorrect && q.isBoss) {
                                 this.checkAnswer(true, "O fohecalay ko tilid no kalang.", gameAssets.sentences.a_white);
                             } else {
@@ -500,7 +504,7 @@
                 if (!this.isPlaying || !this.canAnswer) return;
                 
                 if (!isCorrect) {
-                    this.hasMistake = true;
+                    this.hasMistake = true; // 紀錄犯錯，該題將無法得分
                     document.getElementById('sfx-wrong').play().catch(()=>{});
                     return; 
                 }
@@ -524,6 +528,7 @@
                         subtext.style.display = "none";
                     }
 
+                    // ★★★ 如果這題沒有點錯過，才給予分數 ★★★
                     if (!this.hasMistake) {
                         this.score += Math.floor(100 / this.totalQ);
                         if(this.currentQ === this.totalQ - 1 && this.score >= 95) this.score = 100;
