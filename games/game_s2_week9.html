@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第9週遊戲：彩色螃蟹大發現 - 拜訪發祥地 Saksakay</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #eef2ff;
+            background-image: 
+                radial-gradient(#c7d2fe 2px, transparent 2px),
+                radial-gradient(#c7d2fe 2px, transparent 2px);
+            background-size: 30px 30px;
+            background-position: 0 0, 15px 15px;
+        }
+
+        .game-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(99, 102, 241, 0.15);
+            overflow: hidden;
+            border: 4px solid #fff;
+            position: relative;
+        }
+
+        .option-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        
+        .can-answer .option-card {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .can-answer .option-card:hover {
+            transform: translateY(-5px) scale(1.05);
+            filter: drop-shadow(0 10px 15px rgba(99, 102, 241, 0.3));
+        }
+        
+        .option-card:active {
+            transform: scale(0.95);
+        }
+
+        /* 螃蟹動畫 (左右擺動) */
+        .crab-wiggle {
+            animation: wiggle 1.5s ease-in-out infinite;
+        }
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(-8deg); }
+            50% { transform: rotate(8deg); }
+        }
+
+        /* 進場動畫 */
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .character-float { animation: float 3s ease-in-out infinite; }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .playing-audio { animation: pulse-indigo 1.5s infinite; }
+        @keyframes pulse-indigo {
+            0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(99, 102, 241, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+        }
+
+        /* 躲貓貓草叢震動 */
+        .bush-shake { animation: shake 0.4s ease-in-out; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px) rotate(-5deg); }
+            75% { transform: translateX(5px) rotate(5deg); }
+        }
+
+        * { -webkit-tap-highlight-color: transparent; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div class="game-container w-full min-h-[600px] flex flex-col fade-in">
+        
+        <!-- 頂部資訊列 -->
+        <div class="bg-indigo-500 text-white p-4 flex justify-between items-center relative overflow-hidden">
+            <div class="flex items-center gap-3 z-10">
+                <div class="w-10 h-10 bg-white text-indigo-600 rounded-full flex items-center justify-center font-bold text-xl shadow-sm">9</div>
+                <div>
+                    <h1 class="font-bold text-lg md:text-xl">彩色螃蟹大發現</h1>
+                    <p class="text-xs text-indigo-100">Saksakay 尋寶趣</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4 z-10">
+                <div class="text-right hidden md:block">
+                    <div class="text-xs text-indigo-200">SCORE</div>
+                    <div class="font-bold text-2xl" id="current-score">0</div>
+                </div>
+                <!-- 進度圈 -->
+                <div class="relative w-12 h-12 flex items-center justify-center">
+                    <svg class="w-full h-full transform -rotate-90">
+                        <circle cx="24" cy="24" r="20" stroke="rgba(255,255,255,0.3)" stroke-width="4" fill="none"></circle>
+                        <circle id="progress-circle" cx="24" cy="24" r="20" stroke="white" stroke-width="4" fill="none" stroke-dasharray="126" stroke-dashoffset="126" class="transition-all duration-500"></circle>
+                    </svg>
+                    <span id="q-num" class="absolute text-xs font-bold">1/6</span>
+                </div>
+            </div>
+
+            <!-- 背景裝飾 -->
+            <div class="absolute -right-6 -bottom-6 text-indigo-400 opacity-30 text-8xl transform rotate-12">
+                <i class="fa-solid fa-palette"></i>
+            </div>
+        </div>
+
+        <!-- 遊戲主畫面 -->
+        <div class="flex-grow relative bg-gray-50 flex flex-col">
+            
+            <!-- 1. 開始畫面 -->
+            <div id="scene-start" class="absolute inset-0 flex flex-col items-center justify-center p-8 bg-white z-20 text-center">
+                <div class="mb-8 character-float">
+                    <i class="fa-solid fa-mountain-sun text-8xl text-indigo-500"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">一起去 Saksakay 尋找螃蟹！</h2>
+                <p class="text-gray-600 mb-8 max-w-md">
+                    發祥地 Saksakay 有好多各種顏色的螃蟹！<br><br>
+                    仔細聽語音問<span class="text-indigo-600 font-bold">「O maan ko tilid no kalang?」</span><br>
+                    然後點選出<span class="text-indigo-600 font-bold">正確顏色</span>的螃蟹！
+                </p>
+                <button onclick="game.start()" class="bg-indigo-500 hover:bg-indigo-600 text-white text-xl font-bold py-4 px-12 rounded-full shadow-lg transform transition hover:scale-105 active:scale-95 flex items-center gap-2">
+                    <i class="fa-solid fa-play"></i> 出發探險
+                </button>
+                <div class="mt-4 text-sm text-gray-400">
+                    <i class="fa-solid fa-circle-info mr-1"></i> 記得先登入才能紀錄成績喔！
+                </div>
+            </div>
+
+            <!-- 2. 遊戲進行區 -->
+            <div id="scene-game" class="hidden flex-col h-full p-4 md:p-8">
+                
+                <!-- 題目顯示區 -->
+                <div class="flex-grow flex flex-col items-center justify-center mb-6 w-full">
+                    
+                    <div id="instruction" class="text-gray-500 font-bold mb-6 text-xl text-center animate-bounce">
+                        聽聽看，這是什麼顏色？
+                    </div>
+
+                    <!-- 題目主體 (播放鈕) -->
+                    <div id="question-area" class="mb-8 w-full flex justify-center">
+                        <!-- JS 動態插入內容 -->
+                    </div>
+
+                    <!-- 選項區 -->
+                    <div id="options-grid" class="flex justify-center flex-wrap gap-4 w-full max-w-4xl">
+                        <!-- JS 動態插入選項 -->
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- 3. 結算畫面 -->
+            <div id="scene-result" class="hidden absolute inset-0 flex flex-col items-center justify-center p-8 bg-white z-20 text-center">
+                <div class="text-6xl text-yellow-400 mb-4 animate-bounce">
+                    <i class="fa-solid fa-medal"></i>
+                </div>
+                <h2 class="text-4xl font-bold text-gray-800 mb-2">尋寶大師！</h2>
+                <div class="text-lg text-gray-500 mb-6">你收集到好多彩色螃蟹，獲得積分</div>
+                <div class="text-7xl font-bold text-indigo-500 mb-8" id="final-score">0</div>
+                
+                <div class="flex gap-4 w-full max-w-sm">
+                    <button onclick="location.reload()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 rounded-xl transition">
+                        再玩一次
+                    </button>
+                    <a href="../index.html" class="flex-1 bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 rounded-xl transition flex items-center justify-center">
+                        回首頁
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 音效播放器 -->
+    <audio id="audio-player"></audio>
+    <audio id="sfx-correct" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
+    <audio id="sfx-wrong" src="https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3"></audio>
+
+    <!-- 答題回饋遮罩 -->
+    <div id="feedback-overlay" class="fixed inset-0 bg-black/40 z-50 hidden items-center justify-center backdrop-blur-sm">
+        <div class="bg-white rounded-3xl p-8 shadow-2xl transform scale-0 transition-transform duration-300 flex flex-col items-center text-center max-w-sm mx-4" id="feedback-container">
+            <i id="feedback-icon" class="fa-solid text-7xl mb-4"></i>
+            <div id="feedback-text" class="text-2xl font-bold text-gray-800 mb-2">答對了！</div>
+            <div id="feedback-subtext" class="text-gray-500" style="display: none;"></div>
+        </div>
+    </div>
+
+    <!-- 引入會員系統 -->
+    <script src="../js/auth.js"></script>
+
+    <script>
+        // ==========================================
+        // 遊戲資料庫
+        // ==========================================
+        const gameAssets = {
+            colors: [
+                { id: 'fohecalay', word: "fohecalay", colorClass: "text-white", bgClass: "bg-white border-4 border-gray-200", audio: "../audio/fohecalay.wav" },
+                { id: 'kohetingay', word: "kohetingay", colorClass: "text-gray-800", bgClass: "bg-gray-800 border-4 border-gray-900", audio: "../audio/kohetingay.wav" },
+                { id: 'kahengangay', word: "kahengangay", colorClass: "text-red-500", bgClass: "bg-red-500 border-4 border-red-600", audio: "../audio/kahengangay.wav" },
+                { id: 'kandaway', word: "kandaway", colorClass: "text-green-500", bgClass: "bg-green-500 border-4 border-green-600", audio: "../audio/kandaway.wav" },
+                { id: 'landaway', word: "landaway", colorClass: "text-blue-500", bgClass: "bg-blue-500 border-4 border-blue-600", audio: "../audio/landaway.wav" }
+            ],
+            sentences: {
+                q_find: '../audio/s2_w9_q1.wav', // I cowa ko kalang? (螃蟹在哪裡？)
+                a_find: '../audio/s2_w9_a1.wav', // I tini ko kalang. (螃蟹在這裡。)
+                q_color: '../audio/s2_w9_q2.wav', // O maan ko tilid no kalang? (螃蟹是什麼顏色的？)
+                a_white: '../audio/s2_w9_a2.wav'  // O fohecalay ko tilid no kalang.
+            }
+        };
+
+        // ★★★ 自動生成螃蟹 SVG 圖片 (支援各種顏色) ★★★
+        function getCrabSvg(colorClass) {
+            // 如果是白色，加上強烈的陰影讓它在白底也看得清楚
+            const shadow = colorClass.includes('white') ? 'filter: drop-shadow(0px 3px 5px rgba(0,0,0,0.3));' : 'filter: drop-shadow(0px 3px 3px rgba(0,0,0,0.15));';
+            return `
+                <svg viewBox="0 0 100 100" class="w-full h-full ${colorClass} crab-wiggle" style="${shadow}" fill="currentColor">
+                    <!-- 腳 -->
+                    <path d="M 30 65 L 10 70 M 35 75 L 20 85 M 45 80 L 40 95 M 70 65 L 90 70 M 65 75 L 80 85 M 55 80 L 60 95" stroke="currentColor" stroke-width="6" stroke-linecap="round" fill="none"/>
+                    <!-- 雙臂 -->
+                    <path d="M 30 45 Q 10 30 20 15 M 70 45 Q 90 30 80 15" stroke="currentColor" stroke-width="8" stroke-linecap="round" fill="none"/>
+                    <!-- 雙螯 -->
+                    <path d="M 20 15 C 10 5, 30 -5, 20 15 M 80 15 C 90 5, 70 -5, 80 15" fill="currentColor" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/>
+                    <circle cx="15" cy="15" r="8" fill="currentColor" />
+                    <circle cx="85" cy="15" r="8" fill="currentColor" />
+                    <!-- 身體 -->
+                    <ellipse cx="50" cy="55" rx="35" ry="25" fill="currentColor" />
+                    <!-- 眼睛 -->
+                    <circle cx="40" cy="45" r="6" fill="white" />
+                    <circle cx="60" cy="45" r="6" fill="white" />
+                    <circle cx="40" cy="45" r="2.5" fill="black" />
+                    <circle cx="60" cy="45" r="2.5" fill="black" />
+                </svg>
+            `;
+        }
+
+        class Week9Game {
+            constructor() {
+                this.score = 0;
+                this.currentQ = 0;
+                this.questions = [];
+                this.totalQ = 6;
+                this.isPlaying = false;
+                this.canAnswer = false;
+            }
+
+            start() {
+                if (typeof AuthSystem !== 'undefined' && !AuthSystem.currentUser) {
+                    if(!confirm("您尚未登入，成績將不會被紀錄喔！\n確定要以「訪客身分」繼續玩遊戲嗎？")) {
+                        AuthSystem.showLoginModal();
+                        return;
+                    }
+                }
+
+                // 產生題目清單 (共 6 題)
+                this.questions = [
+                    // 第一階段：顏色暖身 (聽音選顏色圈圈) x2
+                    { type: 'color_circle', targetIdx: 0 }, // fohecalay (白)
+                    { type: 'color_circle', targetIdx: 2 }, // kahengangay (紅)
+                    
+                    // 第二階段：尋找螃蟹 (I cowa ko kalang?)
+                    { type: 'find_crab' },
+                    
+                    // 第三階段：彩色螃蟹大集合 (O maan ko tilid no kalang?) x3 題
+                    // 會出現5隻螃蟹，選出正確顏色的那隻
+                    { type: 'color_crab', targetIdx: 3 }, // 綠色
+                    { type: 'color_crab', targetIdx: 4 }, // 藍色
+                    { type: 'color_crab', targetIdx: 0, isBoss: true } // 白色 (魔王題，播放完整回答語音)
+                ];
+
+                this.score = 0;
+                this.currentQ = 0;
+                this.isPlaying = true;
+
+                document.getElementById('scene-start').classList.add('hidden');
+                document.getElementById('scene-game').classList.remove('hidden');
+                document.getElementById('scene-game').classList.add('flex');
+
+                this.nextQuestion();
+            }
+
+            nextQuestion() {
+                if (this.currentQ >= this.totalQ) {
+                    this.endGame();
+                    return;
+                }
+
+                const q = this.questions[this.currentQ];
+                this.canAnswer = false; 
+                document.getElementById('scene-game').classList.remove('can-answer');
+
+                // 更新進度條
+                document.getElementById('q-num').innerText = `${this.currentQ + 1}/${this.totalQ}`;
+                const offset = 126 - (126 * ((this.currentQ + 1) / this.totalQ));
+                document.getElementById('progress-circle').style.strokeDashoffset = offset;
+
+                const instruction = document.getElementById('instruction');
+                const qArea = document.getElementById('question-area');
+                const optGrid = document.getElementById('options-grid');
+                
+                qArea.innerHTML = '';
+                optGrid.innerHTML = '';
+
+                // ==========================================
+                // 題型 1：顏色暖身 (聽音選顏色圈圈)
+                // ==========================================
+                if (q.type === 'color_circle') {
+                    const targetColor = gameAssets.colors[q.targetIdx];
+                    instruction.innerText = "聽聽看，這是什麼顏色？";
+                    
+                    const playBtnId = 'play-btn-' + this.currentQ;
+                    qArea.innerHTML = `
+                        <button id="${playBtnId}" class="bg-indigo-400 hover:bg-indigo-500 text-white w-24 h-24 rounded-full text-4xl shadow-lg transition transform hover:scale-110 active:scale-95 flex items-center justify-center animate-pulse">
+                            <i class="fa-solid fa-volume-high"></i>
+                        </button>
+                    `;
+                    
+                    document.getElementById(playBtnId).onclick = () => {
+                        this.playAudioSequence([targetColor.audio], () => {
+                            this.canAnswer = true;
+                            document.getElementById('scene-game').classList.add('can-answer');
+                            instruction.innerText = "現在，請選擇正確的顏色！";
+                        });
+                    };
+
+                    setTimeout(() => document.getElementById(playBtnId).onclick(), 500);
+
+                    // 產生 3 個隨機選項
+                    let options = [targetColor];
+                    let distractors = gameAssets.colors.filter(c => c.id !== targetColor.id).sort(() => Math.random() - 0.5).slice(0, 2);
+                    options = [...options, ...distractors].sort(() => Math.random() - 0.5);
+                    
+                    optGrid.className = "flex justify-center gap-6 w-full max-w-3xl";
+                    
+                    options.forEach(opt => {
+                        const el = document.createElement('div');
+                        el.className = `option-card w-24 h-24 md:w-32 md:h-32 rounded-full shadow-md flex items-center justify-center ${opt.bgClass}`;
+                        el.onclick = () => this.checkAnswer(opt.id === targetColor.id, null, null);
+                        optGrid.appendChild(el);
+                    });
+                } 
+                // ==========================================
+                // 題型 2：尋找螃蟹 (I cowa ko kalang?)
+                // ==========================================
+                else if (q.type === 'find_crab') {
+                    instruction.innerText = "聽問題，在 Saksakay 找出螃蟹！";
+                    
+                    qArea.innerHTML = `
+                        <div class="flex flex-col items-center">
+                            <button id="play-hide-btn" class="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-full shadow-md font-bold flex items-center gap-2 mb-2 transition">
+                                <i class="fa-solid fa-volume-high"></i> 聽長老的問題
+                            </button>
+                        </div>
+                    `;
+
+                    document.getElementById('play-hide-btn').onclick = () => {
+                        this.playAudioSequence([gameAssets.sentences.q_find], () => {
+                            this.canAnswer = true;
+                            document.getElementById('scene-game').classList.add('can-answer');
+                        });
+                    };
+
+                    setTimeout(() => document.getElementById('play-hide-btn').onclick(), 500);
+
+                    // 產生 Saksakay 場景與 3 個草叢
+                    optGrid.className = "flex justify-center gap-6 md:gap-12 w-full mt-8 bg-green-50 p-8 rounded-3xl border-4 border-green-200";
+                    const correctBushIdx = Math.floor(Math.random() * 3);
+                    
+                    for(let i=0; i<3; i++) {
+                        const isCorrect = (i === correctBushIdx);
+                        const el = document.createElement('div');
+                        el.className = "relative cursor-pointer group";
+                        el.onclick = () => {
+                            if(!this.canAnswer) return;
+                            if (isCorrect) {
+                                // 答對：草叢變透明，顯示紅色螃蟹，並播放解答語音
+                                el.innerHTML = `
+                                    <div class="absolute inset-0 flex items-center justify-center transform -translate-y-4">
+                                        <div class="w-20 h-20">${getCrabSvg('text-red-500')}</div>
+                                    </div>
+                                    <i class="fa-solid fa-tree text-green-600 text-6xl md:text-8xl opacity-30 relative z-20"></i>
+                                `;
+                                this.checkAnswer(true, "I tini ko kalang.", gameAssets.sentences.a_find);
+                            } else {
+                                // 答錯：草叢震動
+                                el.classList.remove('bush-shake');
+                                void el.offsetWidth;
+                                el.classList.add('bush-shake');
+                                document.getElementById('sfx-wrong').play().catch(()=>{});
+                            }
+                        };
+                        
+                        el.innerHTML = `<i class="fa-solid fa-tree text-green-600 text-6xl md:text-8xl group-hover:text-green-500 transition-transform transform group-hover:scale-110 drop-shadow-md"></i>`;
+                        optGrid.appendChild(el);
+                    }
+                }
+                // ==========================================
+                // 題型 3：彩色螃蟹 (O maan ko tilid no kalang?)
+                // ==========================================
+                else if (q.type === 'color_crab') {
+                    const targetColor = gameAssets.colors[q.targetIdx];
+                    instruction.innerText = "螃蟹是什麼顏色的？";
+                    
+                    qArea.innerHTML = `
+                        <div class="flex flex-col items-center w-full">
+                            <button id="play-color-btn" class="bg-indigo-500 hover:bg-indigo-600 text-white px-8 py-3 rounded-full shadow-md font-bold flex items-center gap-2 mb-6 transition">
+                                <i class="fa-solid fa-volume-high"></i> 聽聽看要找哪一隻
+                            </button>
+                        </div>
+                    `;
+
+                    document.getElementById('play-color-btn').onclick = () => {
+                        // 連續播放兩段語音：先問句，再顏色單字
+                        this.playAudioSequence([gameAssets.sentences.q_color, targetColor.audio], () => {
+                            this.canAnswer = true;
+                            document.getElementById('scene-game').classList.add('can-answer');
+                            instruction.innerHTML = "請點擊正確顏色的<span class="text-indigo-600 text-xl font-bold mx-1">螃蟹</span>！";
+                        });
+                    };
+
+                    setTimeout(() => document.getElementById('play-color-btn').onclick(), 500);
+
+                    // 產生 5 隻不同顏色的螃蟹 (打亂順序)
+                    let options = [...gameAssets.colors].sort(() => Math.random() - 0.5);
+                    optGrid.className = "flex justify-center flex-wrap gap-4 md:gap-8 w-full mt-2 bg-blue-50 border-4 border-blue-200 rounded-3xl p-6 shadow-inner";
+                    
+                    options.forEach(opt => {
+                        const btn = document.createElement('div');
+                        btn.className = "option-card w-20 h-20 md:w-28 md:h-28";
+                        btn.innerHTML = getCrabSvg(opt.colorClass);
+                        
+                        btn.onclick = () => {
+                            if(!this.canAnswer) return;
+                            const isCorrect = (opt.id === targetColor.id);
+                            
+                            // 魔王題 (最後一題白色) 播放完整解答
+                            if (isCorrect && q.isBoss) {
+                                this.checkAnswer(true, "O fohecalay ko tilid no kalang.", gameAssets.sentences.a_white);
+                            } else {
+                                this.checkAnswer(isCorrect, null, null);
+                            }
+                        };
+                        optGrid.appendChild(btn);
+                    });
+                }
+            }
+
+            // 支援連續播放多首音檔的輔助函式
+            playAudioSequence(srcList, callback) {
+                if (!srcList || srcList.length === 0) {
+                    if (callback) callback();
+                    return;
+                }
+                const p = document.getElementById('audio-player');
+                p.src = srcList[0];
+                
+                const btns = document.querySelectorAll('button i.fa-volume-high');
+                btns.forEach(b => b.parentElement.classList.add('playing-audio'));
+
+                p.onended = () => {
+                    if (srcList.length > 1) {
+                        this.playAudioSequence(srcList.slice(1), callback);
+                    } else {
+                        btns.forEach(b => b.parentElement.classList.remove('playing-audio'));
+                        if (callback) callback();
+                    }
+                };
+
+                p.play().catch(e => {
+                    console.log("Audio play error", e);
+                    btns.forEach(b => b.parentElement.classList.remove('playing-audio'));
+                    if (callback) callback();
+                });
+            }
+
+            checkAnswer(isCorrect, subTextMsg, successAudioSrc) {
+                if (!this.isPlaying || !this.canAnswer) return;
+                
+                if (!isCorrect && !successAudioSrc) {
+                    document.getElementById('sfx-wrong').play().catch(()=>{});
+                    return; 
+                }
+
+                const overlay = document.getElementById('feedback-overlay');
+                const container = document.getElementById('feedback-container');
+                const icon = document.getElementById('feedback-icon');
+                const subtext = document.getElementById('feedback-subtext');
+
+                overlay.classList.remove('hidden');
+                overlay.classList.add('flex');
+                
+                if (isCorrect) {
+                    icon.className = "fa-solid fa-check text-green-500";
+                    document.getElementById('feedback-text').innerText = "答對了！";
+                    
+                    if (subTextMsg) {
+                        subtext.style.display = "block";
+                        subtext.innerText = subTextMsg;
+                    } else {
+                        subtext.style.display = "none";
+                    }
+
+                    this.score += Math.floor(100 / this.totalQ);
+                    if(this.currentQ === this.totalQ - 1 && this.score >= 95) this.score = 100;
+                    document.getElementById('current-score').innerText = this.score;
+                    
+                    document.getElementById('sfx-correct').play().catch(()=>{});
+
+                    if (successAudioSrc) {
+                        setTimeout(() => this.playAudioSequence([successAudioSrc]), 500);
+                    }
+                } 
+
+                setTimeout(() => {
+                    container.classList.remove('scale-0');
+                    container.classList.add('scale-100');
+                }, 10);
+
+                const delayTime = successAudioSrc ? 3500 : 1500;
+
+                setTimeout(() => {
+                    container.classList.remove('scale-100');
+                    container.classList.add('scale-0');
+                    setTimeout(() => {
+                        overlay.classList.add('hidden');
+                        overlay.classList.remove('flex');
+                        this.currentQ++;
+                        this.nextQuestion();
+                    }, 300);
+                }, delayTime);
+            }
+
+            endGame() {
+                this.isPlaying = false;
+                
+                document.getElementById('scene-game').classList.add('hidden');
+                document.getElementById('scene-game').classList.remove('flex');
+                document.getElementById('scene-result').classList.remove('hidden');
+                
+                const finalScoreEl = document.getElementById('final-score');
+                let tempScore = 0;
+                const timer = setInterval(() => {
+                    if(tempScore >= this.score) {
+                        tempScore = this.score;
+                        clearInterval(timer);
+                    } else {
+                        tempScore++;
+                    }
+                    finalScoreEl.innerText = tempScore;
+                }, 20);
+
+                if (typeof AuthSystem !== 'undefined' && AuthSystem.currentUser) {
+                    AuthSystem.submitScore("s2_game09", this.score);
+                }
+            }
+        }
+
+        const game = new Week9Game();
+
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                if (typeof AuthSystem !== 'undefined' && !AuthSystem.currentUser) {
+                    AuthSystem.showLoginModal();
+                }
+            }, 500);
+        });
+
+    </script>
+</body>
+</html>
