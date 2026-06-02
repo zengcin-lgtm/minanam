@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loma' 我們的家屋 - 材料大挑戰！</title>
+    <!-- 引入 Tailwind CSS 與 Google 幼兒風字體 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Fredoka', 'Noto Sans TC', sans-serif;
+            background-color: #f0fdf4;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        /* 搖晃動畫 (失敗時) */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0) rotate(0deg); }
+            25% { transform: translateX(-8px) rotate(-3deg); }
+            75% { transform: translateX(8px) rotate(3deg); }
+        }
+        .animate-shake {
+            animation: shake 0.5s ease-in-out infinite;
+        }
+        /* 飄落/滑落動畫 (膠水、膠帶失效) */
+        @keyframes slideDown {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(120px); opacity: 0; }
+        }
+        .animate-slide-down {
+            animation: slideDown 1.2s forwards;
+        }
+        /* 旋轉綑綁動畫 (黃藤成功時) */
+        @keyframes bindEffect {
+            0% { transform: scale(0.3) rotate(0deg); opacity: 0; }
+            50% { transform: scale(1.1) rotate(180deg); opacity: 1; }
+            100% { transform: scale(1) rotate(360deg); opacity: 1; }
+        }
+        .animate-bind {
+            animation: bindEffect 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        /* 螃蟹班吉祥物跳舞 */
+        @keyframes crabDance {
+            0%, 100% { transform: translateY(0) scaleY(1); }
+            50% { transform: translateY(-20px) scaleY(0.9) rotate(5deg); }
+        }
+        .animate-crab-dance {
+            animation: crabDance 0.6s infinite alternate;
+        }
+        /* 閃爍邊框 */
+        @keyframes pulseBorder {
+            0%, 100% { border-color: rgba(251, 191, 36, 0.5); }
+            50% { border-color: rgba(245, 158, 11, 1); }
+        }
+        .active-border {
+            animation: pulseBorder 1.5s infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 overflow-hidden">
+
+    <!-- 遊戲主容器 (固定比例，防溢出) -->
+    <div class="relative w-full max-w-5xl aspect-[16/10] md:aspect-[16/9] bg-[#fffaf0] rounded-[40px] shadow-2xl border-[12px] border-amber-200 overflow-hidden flex flex-col">
+        
+        <!-- 背景裝飾 (部落大自然風格：草叢、天空、太陽) -->
+        <div class="absolute inset-0 bg-gradient-to-b from-sky-100 via-orange-50 to-emerald-50 z-0"></div>
+        
+        <!-- 大自然向量裝飾 (左下草叢、右下花朵) -->
+        <div class="absolute bottom-0 left-0 w-32 h-24 bg-emerald-300 opacity-40 rounded-tr-full z-0"></div>
+        <div class="absolute bottom-0 right-0 w-40 h-16 bg-green-400 opacity-30 rounded-tl-full z-0"></div>
+        <div class="absolute top-4 left-6 flex items-center gap-2 z-10">
+            <span class="bg-amber-400 text-white px-4 py-1.5 rounded-full text-lg font-bold shadow-md tracking-wider">
+                第15週：我們的家屋 (O Loma' Niyam)
+            </span>
+            <span class="bg-emerald-500 text-white px-4 py-1.5 rounded-full text-lg font-bold shadow-md">
+                螃蟹班 Kalang
+            </span>
+        </div>
+
+        <!-- 1. 開始畫面 (Start Screen) -->
+        <div id="start-screen" class="absolute inset-0 z-30 flex flex-col items-center justify-center p-6 text-center">
+            <div class="absolute inset-0 bg-gradient-to-br from-amber-50 via-amber-100/80 to-emerald-50 backdrop-blur-sm -z-10"></div>
+            
+            <div class="bg-white/90 p-8 rounded-[35px] shadow-xl border-4 border-amber-300 max-w-2xl transform transition hover:scale-105">
+                <div class="text-6xl mb-4">🦀</div>
+                <h1 class="text-4xl md:text-5xl font-black text-amber-800 mb-4 tracking-wide">
+                    材料大挑戰！
+                </h1>
+                <h2 class="text-2xl font-bold text-emerald-700 mb-6 font-mono">
+                    Mifalod 綁竹子大試錯
+                </h2>
+                <p class="text-xl text-slate-700 leading-relaxed mb-8">
+                    我們要把散散的箭竹foloʼ連在一起，<br>
+                    變成一整面結實的牆壁cafeng。<br>
+                    桌上有好多工具，小朋友，你想試試看哪一種呢？
+                </p>
+                <button onclick="startGame()" class="bg-amber-500 hover:bg-amber-600 active:scale-95 text-white text-2xl font-bold px-12 py-5 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 border-b-8 border-amber-700">
+                    <i class="fa-solid fa-play mr-2"></i> 開始挑戰！
+                </button>
+            </div>
+        </div>
+
+        <!-- 2. 遊戲主畫面 (Game Play Screen) -->
+        <div class="flex-grow grid grid-cols-12 p-6 gap-6 z-10 relative">
+            
+            <!-- 左半部：實驗操作台 (竹子與螃蟹) -->
+            <div class="col-span-8 bg-white/60 border-4 border-emerald-200/80 rounded-[30px] p-6 flex flex-col justify-between relative shadow-inner overflow-hidden">
+                
+                <!-- 語音提示橫幅 -->
+                <div id="instruction-banner" class="bg-amber-100 border-2 border-amber-300 text-amber-900 rounded-2xl py-3 px-5 text-center shadow-sm">
+                    <h3 class="text-xl md:text-2xl font-black flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-wand-magic-sparkles text-amber-600"></i>
+                        <span>點選右邊的工具來試試看吧！</span>
+                    </h3>
+                </div>
+
+                <!-- 核心物理動畫呈現區 -->
+                <div class="flex-grow flex items-center justify-center relative my-4 h-64">
+                    
+                    <!-- 竹子交叉 A (固定) -->
+                    <div id="bamboo-1" class="absolute w-12 h-60 bg-gradient-to-r from-emerald-600 to-emerald-400 rounded-full shadow-md transform -rotate-12 origin-center transition-all duration-500 z-10 flex flex-col justify-between py-8 items-center border border-emerald-700">
+                        <span class="w-14 h-1.5 bg-emerald-800/40 rounded-full shadow-sm"></span>
+                        <span class="w-14 h-1.5 bg-emerald-800/40 rounded-full shadow-sm"></span>
+                        <span class="w-14 h-1.5 bg-emerald-800/40 rounded-full shadow-sm"></span>
+                    </div>
+
+                    <!-- 竹子交叉 B (動作主要變動元件) -->
+                    <div id="bamboo-2" class="absolute w-12 h-60 bg-gradient-to-r from-emerald-500 to-emerald-300 rounded-full shadow-md transform rotate-12 origin-center transition-all duration-500 z-10 flex flex-col justify-between py-8 items-center border border-emerald-600">
+                        <span class="w-14 h-1.5 bg-emerald-700/40 rounded-full shadow-sm"></span>
+                        <span class="w-14 h-1.5 bg-emerald-700/40 rounded-full shadow-sm"></span>
+                        <span class="w-14 h-1.5 bg-emerald-700/40 rounded-full shadow-sm"></span>
+                    </div>
+
+                    <!-- 膠水滑落/膠帶脫落動畫元件 -->
+                    <div id="fail-effect-element" class="absolute w-24 h-24 z-20 pointer-events-none opacity-0 flex items-center justify-center">
+                        <!-- 動態更換為膠水滴或繃開的膠帶 -->
+                    </div>
+
+                    <!-- 黃藤綑綁成功動畫元件 -->
+                    <div id="success-bind-element" class="absolute w-32 h-32 z-20 pointer-events-none opacity-0 flex items-center justify-center">
+                        <!-- 繞圈黃藤 SVG -->
+                        <svg class="w-full h-full text-amber-600 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12a7.5 7.5 0 0015 0m-15 0a7.5 7.5 0 1115 0m-15 0H3m16.5 0H21m-1.5 0H12m-8.457 3.077l1.41-.513m14.095-5.13l1.41-.513M5.106 17.785l1.15-.827m11.379-8.16l1.15-.827M8.14 21.27l.707-.957m6.305-8.543l.707-.957M12 21.75V19.5m0-15V2.25m-3.077 5.106l-.513-1.41m5.13 14.095l-.513-1.41m-8.16-11.379l-.827-1.15m8.16 11.379l-.827-1.15M3.543 8.14l-.957-.707m8.543 6.305l-.957-.707" />
+                        </svg>
+                    </div>
+
+                    <!-- 成功灑花效果 -->
+                    <div id="confetti-container" class="absolute inset-0 pointer-events-none z-30"></div>
+                </div>
+
+                <!-- 底部：螃蟹班吉祥物與族語反饋卡 -->
+                <div class="flex items-center gap-4 bg-white/80 p-4 rounded-2xl border-2 border-emerald-100 shadow-sm z-20">
+                    <!-- 螃蟹插圖 (SVG 便於更換表情) -->
+                    <div id="crab-mascot" class="w-24 h-20 flex-shrink-0 transition-transform duration-300">
+                        <svg viewBox="0 0 120 100" class="w-full h-full">
+                            <!-- 螃蟹身 -->
+                            <ellipse cx="60" cy="65" rx="35" ry="25" fill="#f87171" stroke="#dc2626" stroke-width="3" />
+                            <!-- 眼睛 -->
+                            <circle cx="45" cy="35" r="10" fill="white" stroke="#dc2626" stroke-width="2" />
+                            <circle id="left-eye-pupil" cx="45" cy="35" r="4" fill="black" />
+                            <circle cx="75" cy="35" r="10" fill="white" stroke="#dc2626" stroke-width="2" />
+                            <circle id="right-eye-pupil" cx="75" cy="35" r="4" fill="black" />
+                            <!-- 嘴巴 (預設微笑) -->
+                            <path id="crab-mouth" d="M 50 65 Q 60 75 70 65" stroke="#dc2626" stroke-width="3" fill="none" stroke-linecap="round"/>
+                            <!-- 蟹螯 (左) -->
+                            <path d="M 25 50 Q 10 30 20 20 Q 35 25 30 45" fill="#f87171" stroke="#dc2626" stroke-width="3"/>
+                            <!-- 蟹螯 (右) -->
+                            <path d="M 95 50 Q 110 30 100 20 Q 85 25 90 45" fill="#f87171" stroke="#dc2626" stroke-width="3"/>
+                            <!-- 蟹腳 -->
+                            <path d="M 35 85 Q 20 95 15 90" stroke="#dc2626" stroke-width="3" fill="none"/>
+                            <path d="M 45 88 Q 35 100 30 95" stroke="#dc2626" stroke-width="3" fill="none"/>
+                            <path d="M 85 85 Q 100 95 105 90" stroke="#dc2626" stroke-width="3" fill="none"/>
+                            <path d="M 75 88 Q 85 100 90 95" stroke="#dc2626" stroke-width="3" fill="none"/>
+                        </svg>
+                    </div>
+                    <!-- 族語大字、中文小字翻譯 -->
+                    <div class="flex-grow flex flex-col justify-center">
+                        <div id="lang-bubble-native" class="text-3xl font-black text-rose-600 tracking-wide transition-all duration-300">
+                            Sa’icelen a matayal!
+                        </div>
+                        <div id="lang-bubble-translation" class="text-lg font-bold text-slate-500 mt-1">
+                            (努力工作！加油！)
+                        </div>
+                    </div>
+                    <!-- 語音朗讀鈕 -->
+                    <button onclick="readAloud()" class="bg-rose-100 text-rose-600 hover:bg-rose-200 active:scale-95 w-12 h-12 rounded-full flex items-center justify-center text-xl transition-all shadow-sm">
+                        <i class="fa-solid fa-volume-high"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 右半部：四個工具選項 (膠水、膠帶、毛線、黃藤) -->
+            <div class="col-span-4 flex flex-col gap-3 justify-center">
+                <h3 class="text-xl font-bold text-slate-700 text-center mb-1">
+                    <i class="fa-solid fa-toolbox mr-1"></i> 選擇一項黏綁工具：
+                </h3>
+                
+                <!-- 膠水 (現代失敗) -->
+                <button onclick="selectTool('glue')" id="tool-glue" class="bg-white hover:bg-orange-50 active:scale-95 border-4 border-slate-200 rounded-[24px] p-3 flex items-center gap-4 shadow-md transition-all duration-200 text-left">
+                    <div class="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center text-3xl">
+                        🧴
+                    </div>
+                    <div>
+                        <h4 class="text-xl font-black text-slate-800">膠水</h4>
+                        <p class="text-sm text-slate-500 font-bold mt-0.5">Modern Glue</p>
+                    </div>
+                </button>
+
+                <!-- 透明膠帶 (現代失敗) -->
+                <button onclick="selectTool('tape')" id="tool-tape" class="bg-white hover:bg-sky-50 active:scale-95 border-4 border-slate-200 rounded-[24px] p-3 flex items-center gap-4 shadow-md transition-all duration-200 text-left">
+                    <div class="w-16 h-16 bg-sky-100 rounded-2xl flex items-center justify-center text-3xl">
+                        🩹
+                    </div>
+                    <div>
+                        <h4 class="text-xl font-black text-slate-800">透明膠帶</h4>
+                        <p class="text-sm text-slate-500 font-bold mt-0.5">Scotch Tape</p>
+                    </div>
+                </button>
+
+                <!-- 毛線 (現代失敗) -->
+                <button onclick="selectTool('yarn')" id="tool-yarn" class="bg-white hover:bg-purple-50 active:scale-95 border-4 border-slate-200 rounded-[24px] p-3 flex items-center gap-4 shadow-md transition-all duration-200 text-left">
+                    <div class="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center text-3xl">
+                        🧶
+                    </div>
+                    <div>
+                        <h4 class="text-xl font-black text-slate-800">各類毛線</h4>
+                        <p class="text-sm text-slate-500 font-bold mt-0.5">Yarn / String</p>
+                    </div>
+                </button>
+
+                <!-- 'oway 黃藤 (傳統成功) -->
+                <button onclick="selectTool('rattan')" id="tool-rattan" class="bg-amber-50 hover:bg-amber-100/80 active:scale-95 border-4 border-amber-300 rounded-[24px] p-3 flex items-center gap-4 shadow-md transition-all duration-200 text-left active-border">
+                    <div class="w-16 h-16 bg-amber-200 rounded-2xl flex items-center justify-center text-4xl">
+                        🥯
+                    </div>
+                    <div>
+                        <h4 class="text-xl font-black text-amber-950 flex items-center gap-1.5">
+                            <span>'oway 黃藤</span>
+                            <span class="bg-amber-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-mono">推薦</span>
+                        </h4>
+                        <p class="text-sm text-amber-700 font-black mt-0.5">'oway (Rattan)</p>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <!-- 3. 求救大呼喊 / 結束畫面 (Faki Help Screen) -->
+        <div id="help-screen" class="absolute inset-0 z-20 flex flex-col items-center justify-center p-6 text-center hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-[#fffaf0] via-emerald-50 to-[#fffaf0] -z-10"></div>
+            
+            <div class="bg-white p-8 rounded-[40px] shadow-2xl border-8 border-emerald-300 max-w-2xl transform transition duration-500">
+                <div class="text-6xl mb-4 animate-bounce">👴🏾👨🏾‍🌾👩🏾‍🌾</div>
+                <h2 class="text-4xl font-black text-emerald-800 mb-4 tracking-wide">
+                    黃藤好牢固！綁好啦！
+                </h2>
+                <p class="text-xl text-slate-700 leading-relaxed mb-6">
+                    我們用 <span class="text-amber-600 font-bold">'oway（黃藤）</span> 完成了綁緊任務！<br>
+                    但要把整座竹牆拼好，大工程真的很難...<br>
+                    這時候，我們需要發揮阿美族 <span class="text-emerald-600 font-extrabold">malapaliw（互助）</span> 的精神！
+                </p>
+                <div class="bg-rose-50 border-2 border-rose-200 rounded-3xl p-6 mb-8">
+                    <h3 class="text-lg font-bold text-rose-700 mb-2">💡 讓我們一起練習對部落阿公（Faki）大聲求救：</h3>
+                    <div class="text-4xl font-black text-rose-600 tracking-wide my-2">
+                        "Padamaen kami!"
+                    </div>
+                    <div class="text-xl text-slate-600 font-bold mt-1">
+                        (請幫助我們！)
+                    </div>
+                    <!-- 大聲公呼叫按鈕 -->
+                    <button onclick="shoutForHelp()" class="mt-4 bg-rose-500 hover:bg-rose-600 active:scale-95 text-white font-bold px-8 py-3.5 rounded-full shadow-lg transition-all flex items-center justify-center gap-2 mx-auto">
+                        <i class="fa-solid fa-bullhorn text-lg"></i>
+                        <span>大聲呼喊呼叫 Faki！</span>
+                    </button>
+                </div>
+                
+                <!-- 重新挑戰 -->
+                <button onclick="resetGame()" class="text-slate-500 hover:text-slate-800 font-bold text-lg transition-colors underline decoration-2">
+                    <i class="fa-solid fa-arrows-rotate mr-1"></i> 再玩一次，嘗試別的材料
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 內建音效與遊戲邏輯控制碼 -->
+    <script>
+        // Web Audio API 音效播放模組 (無須下載外部mp3，隨開隨用)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            
+            const now = audioCtx.currentTime;
+            
+            if (type === 'click') {
+                // 輕快點擊聲
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(440, now);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.08);
+            } 
+            else if (type === 'fail') {
+                // 挫折下滑音效
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(260, now);
+                osc.frequency.exponentialRampToValueAtTime(120, now + 0.5);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.5);
+            } 
+            else if (type === 'success') {
+                // 歡樂大三和弦音
+                const freqs = [261.63, 329.63, 392.00, 523.25]; // C4, E4, G4, C5
+                freqs.forEach((freq, index) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now + index * 0.1);
+                    gain.gain.setValueAtTime(0.15, now + index * 0.1);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + index * 0.1 + 0.3);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now + index * 0.1);
+                    osc.stop(now + index * 0.1 + 0.3);
+                });
+            }
+            else if (type === 'shout') {
+                // 震撼熱鬧音
+                const osc1 = audioCtx.createOscillator();
+                const osc2 = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc1.type = 'sine';
+                osc2.type = 'triangle';
+                osc1.frequency.setValueAtTime(330, now);
+                osc1.frequency.exponentialRampToValueAtTime(660, now + 0.4);
+                osc2.frequency.setValueAtTime(335, now);
+                osc2.frequency.exponentialRampToValueAtTime(670, now + 0.4);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                osc1.connect(gain);
+                osc2.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc1.start(now);
+                osc2.start(now);
+                osc1.stop(now + 0.4);
+                osc2.stop(now + 0.4);
+            }
+        }
+
+        // 語音文字朗讀系統 (自適應裝置發音)
+        const speechData = {
+            native: "Sa’icelen a matayal!",
+            translation: "(努力工作！加油！)"
+        };
+
+        function readAloud() {
+            playSound('click');
+            const nativeText = document.getElementById('lang-bubble-native').textContent.trim();
+            // 優先尋找語音系統中的對應發音
+            const utterance = new SpeechSynthesisUtterance(nativeText);
+            // 嘗試設定成適合原住民族語或接近拼音語系發音(如印尼文或西班牙文，通常對阿美族羅馬字擬真度最高)
+            utterance.lang = 'es-ES'; 
+            utterance.rate = 0.85;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // 啟動遊戲
+        function startGame() {
+            playSound('success');
+            document.getElementById('start-screen').classList.add('hidden');
+        }
+
+        // 當點選右側的各類黏綁工具
+        let isProcessing = false;
+        function selectTool(toolType) {
+            if (isProcessing) return; // 防呆連點
+            isProcessing = true;
+            playSound('click');
+
+            const mascot = document.getElementById('crab-mascot');
+            const leftEye = document.getElementById('left-eye-pupil');
+            const rightEye = document.getElementById('right-eye-pupil');
+            const mouth = document.getElementById('crab-mouth');
+            const b1 = document.getElementById('bamboo-1');
+            const b2 = document.getElementById('bamboo-2');
+            const failEff = document.getElementById('fail-effect-element');
+            const succEff = document.getElementById('success-bind-element');
+            const banner = document.getElementById('instruction-banner');
+
+            // 復原初始物理狀態
+            b1.className = b1.className.replace(' animate-shake', '');
+            b2.className = b2.className.replace(' animate-shake', '');
+            b2.style.transform = 'rotate(12deg) translateY(0px)';
+            failEff.className = "absolute w-24 h-24 z-20 pointer-events-none opacity-0 flex items-center justify-center";
+            failEff.innerHTML = "";
+            succEff.classList.add('opacity-0');
+
+            if (toolType === 'glue') {
+                // 1. 膠水挑戰：黏不上去，滑落！
+                banner.innerHTML = `<h3 class="text-xl md:text-2xl font-black text-rose-700">膠水乾掉了！竹子還是散開了...</h3>`;
+                
+                // 動畫渲染
+                setTimeout(() => {
+                    failEff.innerHTML = `<div class="text-5xl animate-slide-down">🧴💧</div>`;
+                    failEff.classList.remove('opacity-0');
+                    failEff.classList.add('opacity-100');
+                    playSound('fail');
+                    
+                    // 竹子垮掉
+                    b2.style.transform = 'rotate(35deg) translateY(60px)';
+                    
+                    // 吉祥物哭臉
+                    mascot.style.transform = 'scale(0.9)';
+                    leftEye.setAttribute('cy', '38');
+                    rightEye.setAttribute('cy', '38');
+                    mouth.setAttribute('d', 'M 50 72 Q 60 62 70 72'); // 難過哭臉
+                    
+                    document.getElementById('lang-bubble-native').textContent = "Caay ka tatodong.";
+                    document.getElementById('lang-bubble-translation').textContent = "(不適合/不行。)";
+                    
+                    setTimeout(() => { isProcessing = false; }, 1200);
+                }, 300);
+            } 
+            else if (toolType === 'tape') {
+                // 2. 透明膠帶挑戰：膠帶被竹子的彈性繃開！
+                banner.innerHTML = `<h3 class="text-xl md:text-2xl font-black text-rose-700">膠帶啪一聲，被撐開掉了！</h3>`;
+                
+                setTimeout(() => {
+                    failEff.innerHTML = `<div class="text-5xl animate-shake">🩹💥</div>`;
+                    failEff.classList.remove('opacity-0');
+                    failEff.classList.add('opacity-100');
+                    playSound('fail');
+                    
+                    b2.style.transform = 'rotate(-25deg) translateY(20px)';
+                    
+                    mascot.style.transform = 'scale(0.95)';
+                    mouth.setAttribute('d', 'M 50 72 Q 60 62 70 72');
+                    
+                    document.getElementById('lang-bubble-native').textContent = "Caay ka tatodong.";
+                    document.getElementById('lang-bubble-translation').textContent = "(不適合/不行。)";
+                    
+                    setTimeout(() => { isProcessing = false; }, 1200);
+                }, 300);
+            }
+            else if (toolType === 'yarn') {
+                // 3. 毛線挑戰：太脆弱直接斷掉！
+                banner.innerHTML = `<h3 class="text-xl md:text-2xl font-black text-rose-700">毛線好細，一拉就斷掉了！</h3>`;
+                
+                setTimeout(() => {
+                    failEff.innerHTML = `<div class="text-5xl animate-shake">🧶❌</div>`;
+                    failEff.classList.remove('opacity-0');
+                    failEff.classList.add('opacity-100');
+                    playSound('fail');
+                    
+                    b1.classList.add('animate-shake');
+                    b2.classList.add('animate-shake');
+                    
+                    mascot.style.transform = 'scale(0.95)';
+                    mouth.setAttribute('d', 'M 50 72 Q 60 62 70 72');
+                    
+                    document.getElementById('lang-bubble-native').textContent = "Caay ka tatodong.";
+                    document.getElementById('lang-bubble-translation').textContent = "(不適合/不行。)";
+                    
+                    setTimeout(() => { isProcessing = false; }, 1200);
+                }, 300);
+            }
+            else if (toolType === 'rattan') {
+                // 4. 黃藤挑戰：大成功！觸發完美綑綁動畫！
+                banner.innerHTML = `<h3 class="text-xl md:text-2xl font-black text-emerald-700">黃藤（'oway）好堅固有彈性！綁好啦！</h3>`;
+                
+                setTimeout(() => {
+                    succEff.classList.remove('opacity-0');
+                    succEff.classList.add('opacity-100', 'animate-bind');
+                    playSound('success');
+                    
+                    // 竹子拉緊並微微發光
+                    b1.style.transform = 'rotate(-5deg)';
+                    b2.style.transform = 'rotate(5deg)';
+                    
+                    // 吉祥物高興跳舞
+                    mascot.classList.add('animate-crab-dance');
+                    mouth.setAttribute('d', 'M 45 60 Q 60 85 75 60'); // 大笑嘴
+                    
+                    document.getElementById('lang-bubble-native').textContent = "Sa’icelen a matayal! Mifalod!";
+                    document.getElementById('lang-bubble-translation').textContent = "(努力工作！用力綑綁固定！)";
+                    
+                    // 釋放大量彩色紙屑
+                    createConfetti();
+                    
+                    // 2.5 秒後跳轉至求救呼喊（Malapaliw）畫面
+                    setTimeout(() => {
+                        document.getElementById('help-screen').classList.remove('hidden');
+                        isProcessing = false;
+                    }, 2800);
+                }, 300);
+            }
+        }
+
+        // DOM 輕量灑花碎紙效果
+        function createConfetti() {
+            const container = document.getElementById('confetti-container');
+            container.innerHTML = '';
+            const colors = ['#f59e0b', '#10b981', '#3b82f6', '#ec4899', '#f43f5e', '#eab308'];
+            for (let i = 0; i < 40; i++) {
+                const conf = document.createElement('div');
+                conf.className = 'absolute w-3 h-3 rounded-full pointer-events-none';
+                conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                conf.style.left = Math.random() * 100 + '%';
+                conf.style.top = Math.random() * 50 + '%';
+                conf.style.transform = `scale(${Math.random() * 1.5 + 0.5}) rotate(${Math.random() * 360}deg)`;
+                conf.style.transition = 'all 1.5s cubic-bezier(0.1, 0.8, 0.3, 1)';
+                container.appendChild(conf);
+                
+                // 動態炸開
+                setTimeout(() => {
+                    conf.style.transform += ` translate(${(Math.random() - 0.5) * 300}px, ${Math.random() * 200 + 100}px)`;
+                    conf.style.opacity = '0';
+                }, 50);
+            }
+        }
+
+        // 大聲呼喊求救 (點擊麥克風)
+        function shoutForHelp() {
+            playSound('shout');
+            
+            // 語音發音
+            const utterance = new SpeechSynthesisUtterance("Padamaen kami");
+            utterance.lang = 'es-ES';
+            utterance.rate = 0.8;
+            window.speechSynthesis.speak(utterance);
+
+            // 跳出歡樂全螢幕小提示
+            const overlay = document.createElement('div');
+            overlay.className = 'fixed inset-0 bg-emerald-950/90 flex flex-col items-center justify-center text-center z-50 p-6 animate-fade-in';
+            overlay.innerHTML = `
+                <div class="text-8xl animate-bounce mb-6">🤝👴🏾🌾</div>
+                <h2 class="text-5xl font-black text-yellow-300 tracking-wide mb-4">
+                    "Padamaen kami!"
+                </h2>
+                <p class="text-2xl text-white max-w-xl leading-relaxed">
+                    Faki（部落長輩）聽到了螃蟹班的大聲求救！<br>
+                    他笑呵呵地背著大包的黃藤，帶著蓋房子工具走過來了！<br>
+                    <span class="text-emerald-400 font-bold">過幾天，Faki 就會來課堂教我們最厲害的阿美族綁法囉！</span>
+                </p>
+                <button id="close-overlay-btn" class="mt-10 bg-amber-500 hover:bg-amber-600 text-white font-bold px-10 py-4 rounded-full shadow-lg text-xl">
+                    太棒了！我們會了！
+                </button>
+            `;
+            document.body.appendChild(overlay);
+
+            document.getElementById('close-overlay-btn').onclick = () => {
+                playSound('click');
+                document.body.removeChild(overlay);
+                resetGame();
+            };
+        }
+
+        // 重新回到初始挑戰狀態
+        function resetGame() {
+            playSound('click');
+            document.getElementById('help-screen').classList.add('hidden');
+            
+            // 復原左側物理物件與大班吉祥物狀態
+            const mascot = document.getElementById('crab-mascot');
+            const leftEye = document.getElementById('left-eye-pupil');
+            const rightEye = document.getElementById('right-eye-pupil');
+            const mouth = document.getElementById('crab-mouth');
+            const b1 = document.getElementById('bamboo-1');
+            const b2 = document.getElementById('bamboo-2');
+            const failEff = document.getElementById('fail-effect-element');
+            const succEff = document.getElementById('success-bind-element');
+            const banner = document.getElementById('instruction-banner');
+
+            mascot.className = "w-24 h-20 flex-shrink-0 transition-transform duration-300";
+            mascot.style.transform = 'scale(1)';
+            leftEye.setAttribute('cy', '35');
+            rightEye.setAttribute('cy', '35');
+            mouth.setAttribute('d', 'M 50 65 Q 60 75 70 65'); // 回復微笑
+            
+            b1.className = "absolute w-12 h-60 bg-gradient-to-r from-emerald-600 to-emerald-400 rounded-full shadow-md transform -rotate-12 origin-center transition-all duration-500 z-10 flex flex-col justify-between py-8 items-center border border-emerald-700";
+            b2.className = "absolute w-12 h-60 bg-gradient-to-r from-emerald-500 to-emerald-300 rounded-full shadow-md transform rotate-12 origin-center transition-all duration-500 z-10 flex flex-col justify-between py-8 items-center border border-emerald-600";
+            
+            b1.style.transform = 'rotate(-12deg)';
+            b2.style.transform = 'rotate(12deg) translateY(0px)';
+            
+            failEff.className = "absolute w-24 h-24 z-20 pointer-events-none opacity-0 flex items-center justify-center";
+            failEff.innerHTML = "";
+            succEff.className = "absolute w-32 h-32 z-20 pointer-events-none opacity-0 flex items-center justify-center";
+            
+            banner.innerHTML = `
+                <h3 class="text-xl md:text-2xl font-black flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles text-amber-600"></i>
+                    <span>點選右邊的工具來試試看吧！</span>
+                </h3>
+            `;
+            
+            document.getElementById('lang-bubble-native').textContent = "Sa’icelen a matayal!";
+            document.getElementById('lang-bubble-translation').textContent = "(努力工作！加油！)";
+            
+            isProcessing = false;
+        }
+    </script>
+</body>
+</html>
