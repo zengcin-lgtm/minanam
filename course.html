@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="dns-prefetch" href="//www.youtube-nocookie.com">
+  <link rel="dns-prefetch" href="//lh3.googleusercontent.com">
+  <meta name="description" content="太巴塱國民小學附設幼兒園阿美族語主題課程。">
+  <title>主題課程｜太巴塱阿美族語學習網</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html"><span class="brand-mark">M</span><span><strong>Minanam</strong><small>太巴塱阿美族語學習網</small></span></a>
+      <button class="menu-button" type="button" data-menu-button aria-expanded="false">☰</button>
+      <nav class="site-nav" data-menu><a href="index.html#courses">全部課程</a><a href="index.html#books">親子共讀</a><a href="index.html#search">搜尋</a><a class="nav-login" href="login.html">登入</a></nav>
+    </div>
+  </header>
+
+  <main class="detail-page">
+    <div class="notice error page-error" id="page-error" hidden><strong>無法顯示課程</strong><p></p><a href="index.html">返回首頁</a></div>
+    <article id="course-content" hidden>
+      <section class="detail-hero course-hero">
+        <div class="container detail-hero-inner">
+          <div>
+            <a class="back-link" href="index.html#courses">← 返回主題課程</a>
+            <p class="eyebrow light" id="course-meta"></p>
+            <h1 id="course-title"></h1>
+            <p class="detail-lead" id="course-summary"></p>
+            <div class="detail-actions"><button class="button light" id="share-button" type="button">分享本週課程</button><button class="button outline-light" id="complete-button" type="button">標記為完成</button></div>
+          </div>
+          <div class="week-badge"><span>WEEK</span><strong id="week-badge-number">學習</strong></div>
+        </div>
+      </section>
+
+      <div class="container detail-layout">
+        <section class="detail-main">
+          <div class="content-block"><div class="block-heading"><span>01</span><div><p class="eyebrow">看影片</p><h2>本週教學影片</h2></div></div><div id="course-video"></div></div>
+          <div class="content-block"><div class="block-heading"><span>02</span><div><p class="eyebrow">聽一聽、說一說</p><h2>本週句型</h2></div></div><div class="sentence-list" id="sentence-list"></div></div>
+          <div class="content-block"><div class="block-heading"><span>03</span><div><p class="eyebrow">看圖學單字</p><h2>本週單字</h2></div></div><div class="vocab-grid" id="vocab-list"></div></div>
+          <div class="content-block"><div class="block-heading"><span>04</span><div><p class="eyebrow">延伸練習</p><h2>遊戲與學習單</h2></div></div><div class="resource-grid"><a id="game-link" class="resource-card" target="_blank" rel="noopener"><span>🎮</span><div><strong>線上遊戲</strong><small>用遊戲複習本週內容</small></div></a><a id="worksheet-link" class="resource-card" target="_blank" rel="noopener"><span>📝</span><div><strong>學習單下載</strong><small>親子一起完成學習任務</small></div></a></div></div>
+        </section>
+        <aside class="detail-aside"><div class="aside-card"><p class="eyebrow">家庭學習提醒</p><h3>每天聽一點，就會越來越熟悉。</h3><p>可以讓孩子選一個喜歡的單字，和家人一起聽音檔、看圖片，再把它用在生活中。</p></div><div class="aside-card soft"><strong>獨立分享網址</strong><p>這個頁面的網址可直接傳給家長，不會因試算表排序而改變。</p></div></aside>
+      </div>
+      <nav class="container content-nav" id="content-nav" aria-label="課程切換"></nav>
+    </article>
+  </main>
+
+  <footer class="site-footer"><div class="container footer-grid"><div><strong>Minanam</strong><p>太巴塱國民小學附設幼兒園<br>阿美族語學習網</p></div><div><small>© <span data-current-year></span> 太巴塱國民小學附設幼兒園</small></div></div></footer>
+  <script src="js/config.js"></script><script src="js/data.js"></script><script src="js/api.js"></script><script src="js/common.js"></script><script src="js/course.js"></script>
+</body>
+</html>

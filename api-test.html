@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Minanam API 連線診斷</title>
+  <style>
+    :root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif;color:#24332b;background:#f7f5ef}
+    body{margin:0}.wrap{max-width:920px;margin:0 auto;padding:32px 20px 60px}.card{background:#fff;border:1px solid #dfe5df;border-radius:20px;padding:22px;margin:16px 0;box-shadow:0 8px 24px rgba(0,0,0,.05)}
+    h1{margin-bottom:8px}p{line-height:1.7}.status{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;font-weight:700}.pending{background:#f4efe1}.ok{background:#e6f4eb;color:#17623c}.fail{background:#fde8e7;color:#9e2f29}
+    pre{white-space:pre-wrap;word-break:break-word;background:#13251d;color:#eef8f1;border-radius:14px;padding:16px;max-height:360px;overflow:auto}button,a.btn{appearance:none;border:0;border-radius:12px;padding:11px 16px;background:#315f4b;color:#fff;font-weight:700;text-decoration:none;cursor:pointer;display:inline-block;margin-right:8px}
+    code{background:#eef2ee;padding:2px 5px;border-radius:5px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}@media(max-width:680px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <h1>Minanam API 連線診斷</h1>
+  <p>這一頁直接使用網站目前設定的 Google Apps Script API。四項都通過，就代表網站已能從 Google Sheets 讀取教材。</p>
+  <div class="card"><strong>目前 API：</strong><br><code id="api-url"></code></div>
+  <div class="grid">
+    <section class="card"><h2>1. Health</h2><span id="health-status" class="status pending">檢查中</span><pre id="health-output">等待回應…</pre></section>
+    <section class="card"><h2>2. Settings</h2><span id="settings-status" class="status pending">檢查中</span><pre id="settings-output">等待回應…</pre></section>
+    <section class="card"><h2>3. Library</h2><span id="library-status" class="status pending">檢查中</span><pre id="library-output">等待回應…</pre></section>
+    <section class="card"><h2>4. 第一筆內容</h2><span id="item-status" class="status pending">等待 Library</span><pre id="item-output">等待回應…</pre></section>
+  </div>
+  <div class="card">
+    <h2>判讀方式</h2>
+    <p><strong>全部綠色：</strong>可直接開始維護正式教材。<br><strong>Health 綠、Library 紅：</strong>通常是工作表名稱或欄位問題。<br><strong>Health 也紅：</strong>通常是 Apps Script 部署存取權、部署版本或網址問題。</p>
+    <button id="retry">重新檢查</button><a class="btn" href="index.html">回首頁</a>
+  </div>
+</main>
+<script src="js/config.js"></script>
+<script src="js/data.js"></script>
+<script src="js/api.js"></script>
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  $('api-url').textContent=window.MINANAM_CONFIG.gasApiUrl || '(未設定)';
+  function show(name, ok, value, ms){
+    const st=$(name+'-status'), out=$(name+'-output');
+    st.className='status '+(ok?'ok':'fail');
+    st.textContent=(ok?'✓ 通過':'✕ 失敗')+(Number.isFinite(ms)?`・${Math.round(ms)} ms`:'');
+    out.textContent= ok ? JSON.stringify(value,null,2) : String(value && (value.stack||value.message||value));
+  }
+  async function timed(fn){
+    const start=performance.now();
+    try{return {ok:true,value:await fn(),ms:performance.now()-start};}
+    catch(error){return {ok:false,error,ms:performance.now()-start};}
+  }
+  async function run(){
+    ['health','settings','library','item'].forEach(n=>{ $(n+'-status').className='status pending'; $(n+'-status').textContent=n==='item'?'等待 Library':'檢查中'; $(n+'-output').textContent='等待回應…'; });
+    const h=await timed(()=>MinanamAPI.getHealth()); show('health',h.ok,h.ok?h.value:h.error,h.ms);
+    const st=await timed(()=>MinanamAPI.getSettings()); show('settings',st.ok,st.ok?st.value:st.error,st.ms);
+    const lib=await timed(()=>MinanamAPI.getLibrary());
+    if(lib.ok){
+      const v=lib.value;
+      show('library',true,{settings:v.settings,courseCount:(v.courses||[]).length,bookCount:(v.books||[]).length,firstCourse:(v.courses||[])[0]||null,firstBook:(v.books||[])[0]||null},lib.ms);
+      const firstCourse=(v.courses||[])[0], firstBook=(v.books||[])[0];
+      if(firstCourse){ const it=await timed(()=>MinanamAPI.getCourse(firstCourse.course_id)); show('item',it.ok,it.ok?it.value:it.error,it.ms); }
+      else if(firstBook){ const it=await timed(()=>MinanamAPI.getBook(firstBook.book_id)); show('item',it.ok,it.ok?it.value:it.error,it.ms); }
+      else show('item',false,new Error('Library 已連線，但目前沒有 published 的課程或繪本。'));
+    }else{ show('library',false,lib.error,lib.ms); show('item',false,new Error('需先讓 Library 讀取成功。')); }
+  }
+  $('retry').addEventListener('click',run); run();
+})();
+</script>
+</body>
+</html>
